@@ -176,6 +176,9 @@ function Test-GitPushRetryable {
     if ($Output -match 'without `workflow` scope|remote rejected') {
         return $false
     }
+    if ($Output -match 'Could not connect|Failed to connect|Connection was reset|Recv failure|HTTP 408|timeout') {
+        return $true
+    }
     return $true
 }
 
@@ -183,7 +186,7 @@ function Invoke-GitPushWithRetry {
     param(
         [Parameter(Mandatory = $true)]
         [string[]]$PushArgs,
-        [int]$MaxAttempts = 3
+        [int]$MaxAttempts = 5
     )
 
     $lastOutput = ""
@@ -207,8 +210,9 @@ function Invoke-GitPushWithRetry {
         }
 
         if ($attempt -lt $MaxAttempts) {
-            Write-Step "Push failed, retrying in 5 seconds ..."
-            Start-Sleep -Seconds 5
+            $waitSeconds = [Math]::Min(15, 5 * $attempt)
+            Write-Step "Push failed, retrying in $waitSeconds seconds ..."
+            Start-Sleep -Seconds $waitSeconds
         }
     }
 
@@ -233,9 +237,32 @@ function Remove-WorkflowFromHeadCommitIfNeeded {
 
     Write-Step "Removing workflow file from the site commit (will push it separately with workflow scope) ..."
     git rm --cached --force $workflowPath 2>$null | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-        git commit --amend --no-edit
+    if ($LASTEXITCODE -ne 0) {
+        return
     }
+
+    $staged = git diff --cached --name-only
+    if (-not $staged) {
+        Write-Step "No staged changes left for amend; skipping."
+        return
+    }
+
+    $amend = Invoke-NativeGit -GitCommandArgs @("commit", "--amend", "--no-edit")
+    if ($amend.ExitCode -eq 0) {
+        return
+    }
+
+    if ($amend.Output -match 'would make it empty') {
+        Write-Step "Workflow-only commit detected; rolling back so site and workflow can push separately."
+        $reset = Invoke-NativeGit -GitCommandArgs @("reset", "--soft", "HEAD^")
+        if ($reset.ExitCode -ne 0) {
+            throw "git reset --soft HEAD^ failed: $($reset.Output)"
+        }
+        git reset HEAD $workflowPath 2>$null | Out-Null
+        return
+    }
+
+    throw "git commit --amend failed: $($amend.Output)"
 }
 
 if ($CreateRepo) {
