@@ -164,6 +164,54 @@ export function storageModeLabel(mode) {
   return "浏览器本地 · 仅本机可见";
 }
 
+/** 同步前将浏览器 localStorage 中的事件簿写入 content/mouse-diary/ */
+export async function migrateLocalDiaryToServerIfNeeded() {
+  const local = readLocalMemos();
+  if (!local.length) return { migrated: 0, total: 0 };
+
+  try {
+    const health = await fetch(`${API_ROOT}/health`, { signal: AbortSignal.timeout(2000) });
+    if (!health.ok) {
+      throw new Error("本地同步服务未运行。请先运行：python sync/server.py");
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("本地同步服务")) throw err;
+    throw new Error("本地同步服务未运行。请先运行：python sync/server.py");
+  }
+
+  const serverData = await apiFetch("/memos");
+  const serverMemos = serverData.memos || [];
+  const serverIds = new Set(serverMemos.map((m) => m.id).filter(Boolean));
+  const serverSignatures = new Set(
+    serverMemos.map((m) => `${m.category}::${m.title}::${(m.content || "").slice(0, 120)}`),
+  );
+
+  let migrated = 0;
+  for (const memo of local) {
+    if (!DIARY_CATEGORIES.includes(memo.category)) continue;
+    const signature = `${memo.category}::${memo.title}::${(memo.content || "").slice(0, 120)}`;
+    if (memo.id && serverIds.has(memo.id)) continue;
+    if (serverSignatures.has(signature)) continue;
+
+    await apiFetch("/memos", {
+      method: "POST",
+      body: JSON.stringify({
+        id: memo.id,
+        category: memo.category,
+        content: memo.content,
+        title: memo.title,
+        favorite: memo.favorite,
+        plannedAt: memo.plannedAt,
+        featured: memo.featured,
+      }),
+    });
+    migrated++;
+  }
+
+  storageMode = null;
+  return { migrated, total: local.length };
+}
+
 async function fetchAllMemosRaw() {
   await detectDiaryStorage();
 

@@ -1,3 +1,5 @@
+import { migrateLocalDiaryToServerIfNeeded } from "./mouse-diary-api.js";
+
 const SYNC_API = "http://127.0.0.1:8765/sync";
 
 let syncBound = false;
@@ -40,7 +42,21 @@ export function initGitHubSync(config) {
       return;
     }
 
-    setStatus(statusEl, "正在根据本地内容构建站点（笔记、歌单、功能模块）…", "info");
+    setStatus(statusEl, "正在迁移事件簿数据并构建站点…", "info");
+
+    try {
+      const migration = await migrateLocalDiaryToServerIfNeeded();
+      if (migration.migrated > 0) {
+        setStatus(
+          statusEl,
+          `已迁移 ${migration.migrated} 条事件簿记录（含公告），正在构建并发布…`,
+          "info",
+        );
+      }
+    } catch (err) {
+      setStatus(statusEl, err.message || "事件簿迁移失败", "error");
+      return;
+    }
 
     const payload = {
       username,

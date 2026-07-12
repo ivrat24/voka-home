@@ -98,13 +98,19 @@ DIARY_CONTENT_DIR = SITE / "content" / "mouse-diary"
 
 
 def collect_all_diary_announcements() -> list[dict]:
-    announce_dir = DIARY_CONTENT_DIR / "更新公告"
     items: list[dict] = []
-    if not announce_dir.exists():
+    if not DIARY_CONTENT_DIR.exists():
         return items
 
-    for path in sorted(announce_dir.rglob("*.md"), reverse=True):
-        items.append(_parse_diary_md(path, DIARY_CONTENT_DIR, "更新公告"))
+    for path in sorted(DIARY_CONTENT_DIR.rglob("*.md")):
+        if path.name == "welcome.md" and path.parent == DIARY_CONTENT_DIR:
+            continue
+        item = _parse_diary_md(path, DIARY_CONTENT_DIR, path.parent.name)
+        category = str(item.get("category") or path.parent.name)
+        if category != "更新公告":
+            continue
+        item["category"] = "更新公告"
+        items.append(item)
 
     items.sort(key=lambda item: (0 if item.get("favorite") else 1, -_diary_timestamp(item)))
     return items
