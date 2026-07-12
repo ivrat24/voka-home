@@ -21,6 +21,7 @@ $ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
 $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\..")).Path
+$VerRoot = Join-Path $ProjectRoot "tdlist\net\ver01_0704"
 $WorkflowDir = Join-Path $ProjectRoot ".github\workflows"
 
 function Write-Step($msg) { Write-Host ">> $msg" -ForegroundColor Cyan }
@@ -305,6 +306,17 @@ if (-not (Test-Path ".git")) {
     Write-Step "Initializing Git repository ..."
     Invoke-Git init
     Invoke-Git branch -M main
+}
+
+$BuildAll = Join-Path $VerRoot "sync\build-all.py"
+if (Test-Path $BuildAll) {
+    Write-Step "Building site from local content (notes, playlist, bundles) ..."
+    & python $BuildAll
+    if ($LASTEXITCODE -ne 0) {
+        throw "build-all.py failed with exit code $LASTEXITCODE"
+    }
+} else {
+    Write-Host "build-all.py not found; skipping pre-publish build." -ForegroundColor Yellow
 }
 
 if (-not (Test-Path ".gitignore")) {

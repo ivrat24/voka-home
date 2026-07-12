@@ -163,11 +163,11 @@
       </div>
     </section>
 
-    <section id="sync" class="section sync-section">
+    <section id="sync" class="section sync-section local-only">
       <div class="sync-panel">
         <div>
           <h2>GitHub 同步</h2>
-          <p class="section-lead">将本地建设内容推送到 GitHub 仓库，并通过 GitHub Pages 发布站点。</p>
+          <p class="section-lead">根据本地建设状况自动构建笔记与功能模块，推送到 GitHub 并更新读者端站点。</p>
         </div>
         <button class="btn btn-primary" id="open-sync-btn" type="button">打开同步窗口</button>
       </div>
@@ -189,7 +189,7 @@
     </article>
   </dialog>
 
-  <dialog id="github-sync-dialog" class="sync-dialog" aria-labelledby="sync-dialog-title">
+  <dialog id="github-sync-dialog" class="sync-dialog local-only" aria-labelledby="sync-dialog-title">
     <form id="github-sync-form" method="dialog">
       <header class="dialog-header">
         <h2 id="sync-dialog-title">GitHub 同步</h2>
@@ -198,7 +198,7 @@
 
       <div class="dialog-body">
         <p class="dialog-hint">
-          填写 GitHub 账号信息以同步并发布站点。
+          同步前会自动运行完整构建（笔记 HTML、歌单、站点数据、离线包等），再推送到 GitHub Pages。
           <strong>注意：</strong>Git 操作需使用
           <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">Personal Access Token</a>
           （Classic Token 请勾选 <code>repo</code>；若启用 GitHub Pages 还需勾选 <code>workflow</code>），密码栏请填入 Token。

@@ -40,7 +40,7 @@ export function initGitHubSync(config) {
       return;
     }
 
-    setStatus(statusEl, "正在连接本地同步服务…", "info");
+    setStatus(statusEl, "正在根据本地内容构建站点（笔记、歌单、功能模块）…", "info");
 
     const payload = {
       username,
@@ -65,11 +65,16 @@ export function initGitHubSync(config) {
         throw new Error(data.error || `同步失败 (${res.status})`);
       }
 
-      setStatus(
-        statusEl,
-        data.message || `已发布：${data.pagesUrl || "请查看 GitHub Pages 设置"}`,
-        "success",
-      );
+      const pagesUrl = data.pagesUrl || "";
+      const successMessage = [
+        data.message || "同步并发布成功",
+        pagesUrl ? `读者端：${pagesUrl}` : "",
+        "GitHub Actions 部署完成后读者即可看到最新内容（通常 1–3 分钟）。",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      setStatus(statusEl, successMessage, "success");
     } catch (err) {
       const isNetwork = err instanceof TypeError;
       if (isNetwork) {

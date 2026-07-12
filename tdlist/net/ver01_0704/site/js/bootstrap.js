@@ -134,7 +134,9 @@ async function enterPage(pageId, context = {}) {
 
   if (pageId === "home") {
     await loadCoursePreview(basePath);
-    initGitHubSync(siteConfig);
+    if (canEditNotes()) {
+      initGitHubSync(siteConfig);
+    }
     const { initHomeUpdates } = await import("./home-updates.js");
     await initHomeUpdates();
     const { initHomeMoodBoard } = await import("./home-mood-board.js");

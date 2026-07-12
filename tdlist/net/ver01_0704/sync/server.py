@@ -32,6 +32,7 @@ MOOD_CATEGORY = "心情贴"
 MOOD_MAX_LENGTH = 50
 PUBLISH_SCRIPT = ROOT / "sync" / "publish.ps1"
 BUILD_NOTES = ROOT / "sync" / "build-notes.py"
+BUILD_ALL = ROOT / "sync" / "build-all.py"
 PORT = 8765
 MATERIALS_DIR_NAME = "materials"
 
@@ -163,6 +164,10 @@ def collect_tree() -> dict:
 
 def rebuild_notes() -> None:
     subprocess.run([sys.executable, str(BUILD_NOTES)], check=True, cwd=str(ROOT))
+
+
+def rebuild_site() -> None:
+    subprocess.run([sys.executable, str(BUILD_ALL)], check=True, cwd=str(ROOT))
 
 
 def parse_frontmatter(raw: str) -> tuple[dict, str]:
@@ -765,6 +770,11 @@ class VokaHandler(BaseHTTPRequestHandler):
         if not username or not password:
             return self._json(400, {"error": "缺少用户名或 Token"})
 
+        try:
+            rebuild_site()
+        except subprocess.CalledProcessError as exc:
+            return self._json(500, {"error": f"站点构建失败，请检查本地笔记与 sync/build-all.py 输出（exit {exc.returncode}）"})
+
         project_root = ROOT.parent.parent.parent
         cmd = [
             "powershell", "-ExecutionPolicy", "Bypass",
@@ -793,9 +803,10 @@ class VokaHandler(BaseHTTPRequestHandler):
             if repo.endswith(".github.io"):
                 pages_url = f"https://{username}.github.io/"
             return self._json(200, {
-                "message": "同步并发布成功",
+                "message": "已根据本地内容构建并发布，GitHub Actions 将更新读者端站点",
                 "pagesUrl": pages_url,
                 "repoUrl": f"https://github.com/{username}/{repo}",
+                "built": True,
             })
         except subprocess.TimeoutExpired:
             return self._json(500, {"error": "同步超时（>5 分钟）"})

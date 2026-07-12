@@ -1026,7 +1026,7 @@ code {
 .sync-status.visible { display: block; }
 .sync-status.info { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
 .sync-status.error { background: color-mix(in srgb, #f87171 15%, transparent); color: #f87171; }
-.sync-status.success { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-dim); }
+.sync-status.success { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-dim); white-space: pre-line; }
 
 .dialog-footer {
   display: flex;
@@ -2160,6 +2160,11 @@ code {
 }
 
 [data-site-mode="published"] .local-only {
+  display: none !important;
+}
+
+[data-site-mode="published"] .sync-section,
+[data-site-mode="published"] #github-sync-dialog {
   display: none !important;
 }
 
