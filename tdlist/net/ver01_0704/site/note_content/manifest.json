@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-10T10:05:49",
+  "generatedAt": "2026-07-12T12:35:12",
   "contentDir": "note_content",
   "courses": [
     {
       "slug": "短学期02_强化学习与智能体实训",
       "title": "短学期02 强化学习与智能体实训",
-      "noteCount": 7,
-      "latestDate": "2026-07-09"
+      "noteCount": 11,
+      "latestDate": "2026-07-12"
     }
   ],
   "materials": [
@@ -49,6 +49,73 @@
     }
   ],
   "notes": [
+    {
+      "slug": "短学期02_强化学习与智能体实训/短学期_LecExp05",
+      "courseSlug": "短学期02_强化学习与智能体实训",
+      "title": "短学期 LecExp05",
+      "date": "2026-07-12",
+      "tags": [
+        "强化学习",
+        "DQN",
+        "DDQN",
+        "Atari",
+        "Freeway",
+        "短学期",
+        "实验"
+      ],
+      "description": "Atari Freeway 上经典 DQN 与 Double DQN 实现、训练循环与超参速查",
+      "source": "note_content/短学期02_强化学习与智能体实训/短学期_LecExp05.md",
+      "href": "pages/notes/短学期02_强化学习与智能体实训/短学期_LecExp05.html"
+    },
+    {
+      "slug": "短学期02_强化学习与智能体实训/短学期_LecExp04",
+      "courseSlug": "短学期02_强化学习与智能体实训",
+      "title": "短学期 LecExp04",
+      "date": "2026-07-12",
+      "tags": [
+        "具身智能",
+        "MuJoCo",
+        "MuJoCo Warp",
+        "人型机器人",
+        "短学期",
+        "实验"
+      ],
+      "description": "MuJoCo Warp 人型机器人平地行走——观测/动作空间、并行仿真与 Gymnasium 接口速查",
+      "source": "note_content/短学期02_强化学习与智能体实训/短学期_LecExp04.md",
+      "href": "pages/notes/短学期02_强化学习与智能体实训/短学期_LecExp04.html"
+    },
+    {
+      "slug": "短学期02_强化学习与智能体实训/短学期_Lec05",
+      "courseSlug": "短学期02_强化学习与智能体实训",
+      "title": "短学期 Lec05",
+      "date": "2026-07-12",
+      "tags": [
+        "强化学习",
+        "DQN",
+        "探索与利用",
+        "MCTS",
+        "短学期"
+      ],
+      "description": "探索与利用、蒙特卡洛树搜索、深度 Q 网络（DQN）及 Double/Dueling/PER 等改进算法",
+      "source": "note_content/短学期02_强化学习与智能体实训/短学期_Lec05.md",
+      "href": "pages/notes/短学期02_强化学习与智能体实训/短学期_Lec05.html"
+    },
+    {
+      "slug": "短学期02_强化学习与智能体实训/短学期_Lec04",
+      "courseSlug": "短学期02_强化学习与智能体实训",
+      "title": "短学期 Lec04",
+      "date": "2026-07-12",
+      "tags": [
+        "具身智能",
+        "强化学习",
+        "机器人",
+        "仿真",
+        "短学期"
+      ],
+      "description": "具身智能概念、仿真平台、机械臂与灵巧手、足式/人型机器人及场景交互——连接 RL 与真实机器人部署",
+      "source": "note_content/短学期02_强化学习与智能体实训/短学期_Lec04.md",
+      "href": "pages/notes/短学期02_强化学习与智能体实训/短学期_Lec04.html"
+    },
     {
       "slug": "短学期02_强化学习与智能体实训/短学期_LecExp03",
       "courseSlug": "短学期02_强化学习与智能体实训",

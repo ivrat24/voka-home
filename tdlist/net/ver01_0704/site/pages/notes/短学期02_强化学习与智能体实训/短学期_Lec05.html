@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="探索与利用、蒙特卡洛树搜索、深度 Q 网络（DQN）及 Double/Dueling/PER 等改进算法">
+  <title>短学期 Lec05 · 课程笔记 · Alstr（Call Sign ☘ VLinv）</title>
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="短学期02_强化学习与智能体实训/短学期_Lec05">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=短学期02_强化学习与智能体实训">短学期02 强化学习与智能体实训</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">短学期 Lec05</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">短学期 Lec05</h1>
+        <p class="note-meta"><time datetime="2026-07-12">2026-07-12</time></p>
+        <div class="note-tags"><span class="note-tag">强化学习</span><span class="note-tag">DQN</span><span class="note-tag">探索与利用</span><span class="note-tag">MCTS</span><span class="note-tag">短学期</span></div>
+        <p class="note-description">探索与利用、蒙特卡洛树搜索、深度 Q 网络（DQN）及 Double/Dueling/PER 等改进算法</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="回顾与定位" class="note-heading">回顾与定位</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>讲次</th><th>核心</th><th>本讲衔接</th></tr></thead><tbody><tr><td>Lec02</td><td>表格 Q-Learning、TD 误差</td><td>TD target <span class="note-math-inline" data-math-inline="r + \gamma \max_{a&#x27;} Q(s&#x27;,a&#x27;)"></span></td></tr><tr><td>Lec03</td><td>神经网络函数逼近 <span class="note-math-inline" data-math-inline="Q(s,a;\mathbf{w})"></span></td><td>用网络替代 Q 表</td></tr><tr><td><strong>Lec05</strong></td><td><strong>DQN + 探索 + MCTS</strong></td><td>稳定训练 + Atari 像素输入</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>本讲主线</strong>：探索策略（MAB）→ 规划搜索（MCTS）→ 深度 Q 学习（经验回放 + 目标网络）→ 改进算法（DDQN / Dueling / PER）。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="探索与利用" class="note-heading">探索与利用</h2>
+<h4 id="困境" class="note-heading">困境</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>选择</th><th>含义</th><th>风险</th></tr></thead><tbody><tr><td><strong>利用</strong></td><td>选当前统计最优动作</td><td>陷入局部最优</td></tr><tr><td><strong>探索</strong></td><td>尝试未充分评估的动作</td><td>短期回报下降</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>原因</strong>：环境不完全可观测；<span class="note-math-inline" data-math-inline="Q(s,a)"></span> 只能估计；未探索动作价值未知；已探索动作可能因随机性被高估/低估。</p>
+<h4 id="问题难度谱" class="note-heading">问题难度谱</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>问题</th><th>特点</th><th>最优探索策略</th></tr></thead><tbody><tr><td>Multi-arm Bandit（MAB）</td><td>无状态、单步</td><td>理论较成熟</td></tr><tr><td>Contextual Bandit</td><td>单步、有上下文</td><td>较难</td></tr><tr><td>小型有限 MDP</td><td>有状态转移</td><td>更难</td></tr><tr><td>大型/连续 MDP</td><td>Atari、机器人</td><td><strong>无通用最优解</strong></td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="multi-arm-banditmab" class="note-heading">Multi-arm Bandit（MAB）</h2>
+<h4 id="伯努利-mab-定义" class="note-heading">伯努利 MAB 定义</h4>
+<ul class="note-list">
+<li><span class="note-math-inline" data-math-inline="K"></span> 台机器，未知奖励概率 <span class="note-math-inline" data-math-inline="\{\theta_1,\ldots,\theta_K\}"></span></li>
+<li>每步选动作 <span class="note-math-inline" data-math-inline="a_t \in \{1,\ldots,K\}"></span>，观测 <span class="note-math-inline" data-math-inline="r_t \in \{0,1\}"></span></li>
+<li><span class="note-math-inline" data-math-inline="Q(a) = \mathbb{E}[r|a] = \theta_i"></span>（若 <span class="note-math-inline" data-math-inline="a"></span> 对应机器 <span class="note-math-inline" data-math-inline="i"></span>）</li>
+<li><strong>无状态</strong> → 简化版 MDP</li>
+</ul>
+<h4 id="目标与悔值" class="note-heading">目标与悔值</h4>
+<p class="note-paragraph">最大化累计回报 <span class="note-math-inline" data-math-inline="\sum_{t=1}^T r_t"></span>，等价于最小化<strong>累积悔值</strong>：</p>
+<div class="note-math-block" data-math-display="\theta^* = \max_{a \in \mathcal{A}} Q(a), \quad
+\mathcal{L}_T = \mathbb{E}\left[\sum_{t=1}^T (\theta^* - Q(a_t))\right]"></div>
+<h4 id="动作价值估计" class="note-heading">动作价值估计</h4>
+<div class="note-math-block" data-math-display="\hat{Q}_t(a) = \frac{1}{N_t(a)} \sum_{\tau=1}^t r_\tau \,\mathbb{1}[a_\tau = a], \quad
+N_t(a) = \sum_{\tau=1}^t \mathbb{1}[a_\tau = a]"></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="探索策略" class="note-heading">探索策略</h2>
+<h4 id="ε-greedy" class="note-heading">ε-Greedy</h4>
+<p class="note-paragraph">以概率 <span class="note-math-inline" data-math-inline="1-\varepsilon"></span> 选 <span class="note-math-inline" data-math-inline="\arg\max_a \hat{Q}_t(a)"></span>，以 <span class="note-math-inline" data-math-inline="\varepsilon"></span> 随机探索。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>设置</th><th>悔值增长</th></tr></thead><tbody><tr><td>固定 <span class="note-math-inline" data-math-inline="\varepsilon &gt; 0"></span></td><td><strong>线性</strong> <span class="note-math-inline" data-math-inline="O(T)"></span></td></tr><tr><td><span class="note-math-inline" data-math-inline="\varepsilon"></span> 随 <span class="note-math-inline" data-math-inline="t"></span> 衰减</td><td><strong>次线性</strong></td></tr></tbody></table></div>
+<p class="note-paragraph">RL 中 DQN 行为策略常用 **<span class="note-math-inline" data-math-inline="\varepsilon"></span>-greedy** 收集数据。</p>
+<h4 id="ucbupper-confidence-bound" class="note-heading">UCB（Upper Confidence Bound）</h4>
+<div class="note-math-block" data-math-display="a_t = \arg\max_{a \in \mathcal{A}} \left( \hat{Q}_t(a) + U_t(a) \right)"></div>
+<p class="note-paragraph"><strong>Hoeffding 不等式</strong>（<span class="note-math-inline" data-math-inline="X_1,\ldots,X_n \in [0,1]"></span> i.i.d.）：</p>
+<div class="note-math-block" data-math-display="\mathbb{P}\left(\mathbb{E}[X] &gt; \bar{X}_t + u\right) \le e^{-2tu^2}"></div>
+<p class="note-paragraph">令 <span class="note-math-inline" data-math-inline="u = U_t(a)"></span>，要求 <span class="note-math-inline" data-math-inline="\mathbb{P}(Q(a) &gt; \hat{Q}_t(a) + U_t(a)) \le p"></span>，取 <span class="note-math-inline" data-math-inline="p = t^{-4}"></span> 得：</p>
+<div class="note-math-block" data-math-display="U_t(a) = \sqrt{\frac{2 \log t}{N_t(a)}}"></div>
+<p class="note-paragraph"><strong>UCB1 动作</strong>：</p>
+<div class="note-math-block" data-math-display="a_t^{\text{UCB}} = \arg\max_{a} \left( \hat{Q}_t(a) + c\sqrt{\frac{\log t}{N_t(a)}} \right)"></div>
+<p class="note-paragraph">访问次数 <span class="note-math-inline" data-math-inline="N_t(a)"></span> 越大 → 置信上界越小 → 更信任经验均值。</p>
+<h4 id="汤普森采样thompson-sampling" class="note-heading">汤普森采样（Thompson Sampling）</h4>
+<ol class="note-list">
+<li>为每台机器维护奖励概率的<strong>后验分布</strong></li>
+<li>每步从各动作后验<strong>采样</strong>一组 <span class="note-math-inline" data-math-inline="\tilde{\theta}_a"></span></li>
+<li>选 <span class="note-math-inline" data-math-inline="\arg\max_a \tilde{\theta}_a"></span></li>
+</ol>
+<p class="note-paragraph"><strong>伯努利 MAB + Beta 先验</strong>：若动作 <span class="note-math-inline" data-math-inline="a"></span> 被拉 <span class="note-math-inline" data-math-inline="m_1"></span> 次得 1、<span class="note-math-inline" data-math-inline="m_2"></span> 次得 0，则</p>
+<div class="note-math-block" data-math-display="\theta_a \sim \text{Beta}(m_1 + 1,\, m_2 + 1)"></div>
+<p class="note-paragraph">蒙特卡洛方式实现「选最大奖励概率」的贝叶斯决策。</p>
+<h4 id="深度-rl-中的探索扩展阅读" class="note-heading">深度 RL 中的探索（扩展阅读）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>方向</th><th>代表工作</th></tr></thead><tbody><tr><td>好奇心 / 内在动机</td><td>Schmidhuber 1991; RND 2018</td></tr><tr><td>计数式探索</td><td>Bellemare et al. 2016</td></tr><tr><td>Bootstrapped DQN</td><td>Osband et al. 2016</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="蒙特卡洛树搜索mcts" class="note-heading">蒙特卡洛树搜索（MCTS）</h2>
+<h4 id="博弈树与-minimax" class="note-heading">博弈树与 Minimax</h4>
+<p class="note-paragraph">双人零和博弈可建<strong>博弈树</strong>，Minimax：最大化己方得分、最小化对手得分。</p>
+<p class="note-paragraph"><strong>复杂度</strong>：约 <span class="note-math-inline" data-math-inline="O(b^d)"></span>，<span class="note-math-inline" data-math-inline="b"></span> 为分支因子，<span class="note-math-inline" data-math-inline="d"></span> 为深度。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>博弈</th><th>节点规模</th></tr></thead><tbody><tr><td>围棋</td><td><span class="note-math-inline" data-math-inline="\sim 10^{170}"></span></td></tr><tr><td>国际象棋</td><td><span class="note-math-inline" data-math-inline="&gt; 10^{40}"></span></td></tr></tbody></table></div>
+<p class="note-paragraph">暴力搜索不可行 → <strong>剪枝</strong>（减小 <span class="note-math-inline" data-math-inline="b"></span>）+ <strong>限深</strong>（减小 <span class="note-math-inline" data-math-inline="d"></span>）+ <strong>启发评估</strong>。</p>
+<h4 id="mcts-核心思想" class="note-heading">MCTS 核心思想</h4>
+<p class="note-paragraph"><strong>Monte Carlo Tree Search（2006 正式命名，思想可溯至 1987）</strong>：</p>
+<ul class="note-list">
+<li>维护已探索状态树</li>
+<li>记录每节点<strong>平均奖励</strong>与<strong>访问次数</strong></li>
+<li>从某状态<strong>随机 rollout</strong> 至终局，用胜负作价值信号</li>
+<li><strong>无需</strong>手工设计启发函数（早期）</li>
+</ul>
+<h4 id="四步迭代" class="note-heading">四步迭代</h4>
+<pre class="note-code-block"><code>1. Selection   — 从根沿 UCB 最大子节点递归下行
+2. Expansion   — 为叶节点添加未访问子节点
+3. Simulation  — 从新节点 rollout 至终局（任意策略）
+4. Backprop    — 将结果沿路径回传，更新访问次数与均值
+</code></pre>
+<p class="note-paragraph"><strong>UCT 选择公式</strong>（子节点 <span class="note-math-inline" data-math-inline="i"></span>，父节点访问 <span class="note-math-inline" data-math-inline="N"></span> 次，子节点 <span class="note-math-inline" data-math-inline="n_i"></span> 次，累计奖励相关 <span class="note-math-inline" data-math-inline="r_t"></span>）：</p>
+<div class="note-math-block" data-math-display="\text{UCB}_i = \frac{1}{n_i}\sum_{t=1}^{n_i} r_t + c\sqrt{\frac{\log N}{n_i}}"></div>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>优劣</th><th>说明</th></tr></thead><tbody><tr><td>优势</td><td>无专家知识时有效；大量模拟后逼近真实价值；可并行 rollout</td></tr><tr><td>劣势</td><td>方差大；rollout 策略影响效率</td></tr></tbody></table></div>
+<h4 id="与学习的结合alphago-路线" class="note-heading">与学习的结合（AlphaGo 路线）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>组件</th><th>作用</th></tr></thead><tbody><tr><td>价值网络 <span class="note-math-inline" data-math-inline="V(s)"></span></td><td>替代 rollout，评估叶节点</td></tr><tr><td>策略网络 <span class="note-math-inline" data-math-inline="\pi(a|s)"></span></td><td>引导 rollout / 扩展，偏向好棋</td></tr><tr><td>自对弈 + MCTS</td><td>Expert Iteration → <strong>AlphaGo Zero / AlphaZero</strong></td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>启发式搜索</strong>（对比）：<span class="note-math-inline" data-math-inline="F(s) = G(s) + H(s)"></span>，<span class="note-math-inline" data-math-inline="G"></span> 为已走代价，<span class="note-math-inline" data-math-inline="H"></span> 为启发估计（需<strong>可容许</strong> <span class="note-math-inline" data-math-inline="H \le h^*"></span> 或<strong>一致</strong>）。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="从-q-learning-到深度-q-学习" class="note-heading">从 Q-Learning 到深度 Q 学习</h2>
+<h4 id="表格-q-learning复习" class="note-heading">表格 Q-Learning（复习）</h4>
+<div class="note-math-block" data-math-display="Q(s,a) \leftarrow Q(s,a) + \alpha\left(r + \gamma \max_{a&#x27;} Q(s&#x27;,a&#x27;) - Q(s,a)\right)"></div>
+<p class="note-paragraph">TD target：<span class="note-math-inline" data-math-inline="y = r + \gamma \max_{a&#x27;} Q(s&#x27;,a&#x27;)"></span>。</p>
+<p class="note-paragraph"><strong>局限</strong>：连续或巨大状态空间无法建表 → 离散化需大量先验。</p>
+<h4 id="深度-q-网络" class="note-heading">深度 Q 网络</h4>
+<p class="note-paragraph">用神经网络 <span class="note-math-inline" data-math-inline="Q_\omega(s,a)"></span> 逼近 Q 函数。给定转移 <span class="note-math-inline" data-math-inline="(s_i, a_i, r_i, s_i&#x27;)"></span>：</p>
+<div class="note-math-block" data-math-display="\omega^* = \arg\min_\omega \frac{1}{2N}\sum_{i=1}^N \left( Q_\omega(s_i,a_i) - y_i \right)^2"></div>
+<div class="note-math-block" data-math-display="y_i = r_i + \gamma \max_{a&#x27;} Q_\omega(s_i&#x27;, a&#x27;)"></div>
+<h4 id="fitted-q-迭代-vs-在线-q-迭代" class="note-heading">Fitted Q 迭代 vs 在线 Q 迭代</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>模式</th><th>流程</th></tr></thead><tbody><tr><td><strong>Fitted Q</strong></td><td>收集数据集 → 批量算 <span class="note-math-inline" data-math-inline="y_i"></span> → 回归更新 <span class="note-math-inline" data-math-inline="\omega"></span></td></tr><tr><td><strong>在线 Q</strong></td><td>交互一步 → 算 <span class="note-math-inline" data-math-inline="y_i"></span> → 梯度更新 <span class="note-math-inline" data-math-inline="\omega"></span></td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>朴素深度 Q 的三问题</strong>：</p>
+<ol class="note-list">
+<li>转移数据<strong>强相关</strong>，不满足 i.i.d. 假设</li>
+<li>TD target 用<strong>同一网络</strong> <span class="note-math-inline" data-math-inline="Q_\omega"></span> 计算，目标随 <span class="note-math-inline" data-math-inline="\omega"></span> 移动 → 非标准梯度下降</li>
+<li>Q 值更新<strong>不稳定</strong></li>
+</ol>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="经验回放experience-replay" class="note-heading">经验回放（Experience Replay）</h2>
+<p class="note-paragraph"><strong>Replay Buffer</strong> <span class="note-math-inline" data-math-inline="\mathcal{B}"></span>：存储 <span class="note-math-inline" data-math-inline="(s,a,r,s&#x27;)"></span>，可来自任意历史策略。</p>
+<pre class="note-code-block"><code>交互 → 存入 ℬ → 从 ℬ 均匀采样 mini-batch → Fitted Q 更新
+</code></pre>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>作用</th><th>说明</th></tr></thead><tbody><tr><td>打破相关性</td><td>随机采样近似 i.i.d.</td></tr><tr><td>提高样本效率</td><td>同一转移多次学习</td></tr><tr><td>稳定训练</td><td>批量回归</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>并行 Q-learning</strong>：多进程收集数据、异步/同步更新 <span class="note-math-inline" data-math-inline="\omega"></span>（A3C 等前身思想）。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="目标网络target-network" class="note-heading">目标网络（Target Network）</h2>
+<h4 id="移动目标问题" class="note-heading">移动目标问题</h4>
+<p class="note-paragraph">同一输入 <span class="note-math-inline" data-math-inline="(s,a)"></span> 在短时间内 TD target 不断变化（类比分类标签从 dog→cat→dog 漂移）。</p>
+<h4 id="解法" class="note-heading">解法</h4>
+<p class="note-paragraph">维护<strong>目标网络</strong> <span class="note-math-inline" data-math-inline="Q_{\omega^-}"></span>，TD target 用 <span class="note-math-inline" data-math-inline="\omega^-"></span> 计算且<strong>不回传梯度</strong>：</p>
+<div class="note-math-block" data-math-display="y_i = r_i + \gamma \max_{a&#x27;} Q_{\omega^-}(s_i&#x27;, a&#x27;)"></div>
+<p class="note-paragraph"><strong>更新方式</strong>：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>方式</th><th>公式</th></tr></thead><tbody><tr><td>硬更新</td><td>每 <span class="note-math-inline" data-math-inline="N"></span> 步 <span class="note-math-inline" data-math-inline="\omega^- \leftarrow \omega"></span></td></tr><tr><td>软更新</td><td><span class="note-math-inline" data-math-inline="\omega^- \leftarrow \tau \omega^- + (1-\tau)\omega"></span>，如 <span class="note-math-inline" data-math-inline="\tau=0.99"></span></td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="经典-dqn-算法" class="note-heading">经典 DQN 算法</h2>
+<p class="note-paragraph"><strong>Mnih et al., 2013 — Playing Atari with Deep Reinforcement Learning</strong></p>
+<pre class="note-code-block"><code>初始化 Q 网络 Q_ω、目标网络 Q_{ω^-}（ω^- ← ω）、空 replay buffer ℬ
+
+循环：
+  1. ε-greedy 选动作 a，观测 (s,a,r,s&#x27;)，存入 ℬ
+  2. 从 ℬ 均匀采样 mini-batch {s_j,a_j,r_j,s&#x27;_j}
+  3. y_j ← r_j + γ max_{a&#x27;} Q_{ω^-}(s&#x27;_j, a&#x27;)
+  4. 最小化 (Q_ω(s_j,a_j) - y_j)²，更新 ω
+  5. 每 C 步：ω^- ← ω（或软更新）
+</code></pre>
+<p class="note-paragraph"><strong>三过程</strong>：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>过程</th><th>内容</th></tr></thead><tbody><tr><td>数据收集</td><td><span class="note-math-inline" data-math-inline="\pi(a|s)"></span> ε-greedy → <span class="note-math-inline" data-math-inline="(s,a,r,s&#x27;)"></span> → ℬ</td></tr><tr><td>Q 值迭代</td><td>采样 batch → TD target → MSE 损失</td></tr><tr><td>参数更新</td><td>更新 <span class="note-math-inline" data-math-inline="\omega"></span>；周期性同步 <span class="note-math-inline" data-math-inline="\omega^-"></span></td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>Atari 实现要点</strong>（与 Lec03 CNN 衔接）：</p>
+<ul class="note-list">
+<li>输入：最近 4 帧灰度图堆叠</li>
+<li>网络：CNN 特征 + 全连接输出 <span class="note-math-inline" data-math-inline="|A|"></span> 个 Q 值</li>
+<li>奖励裁剪、帧跳过等工程技巧</li>
+</ul>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="dqn-改进算法" class="note-heading">DQN 改进算法</h2>
+<h4 id="q-值过高估计" class="note-heading">Q 值过高估计</h4>
+<p class="note-paragraph"><strong>自举（Bootstrapping）</strong> 共性：<span class="note-math-inline" data-math-inline="\max"></span> 操作倾向于选中被噪声<strong>高估</strong>的动作。</p>
+<div class="note-math-block" data-math-display="\mathbb{E}\left[\max(Q(s,a_1)+X_1,\, Q(s,a_2)+X_2)\right] \ge \max(\mathbb{E}[Q(s,a_1)+X_1],\, \mathbb{E}[Q(s,a_2)+X_2])"></div>
+<p class="note-paragraph">Atari 上 DQN 预测 Q 常<strong>高于</strong>真实累计回报。</p>
+<h4 id="double-dqnddqn" class="note-heading">Double DQN（DDQN）</h4>
+<p class="note-paragraph"><strong>解耦「选动作」与「估价值」</strong>：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>算法</th><th>TD target</th></tr></thead><tbody><tr><td>DQN</td><td><span class="note-math-inline" data-math-inline="y = r + \gamma Q_{\omega^-}(s&#x27;, \arg\max_{a&#x27;} Q_{\omega^-}(s&#x27;,a&#x27;))"></span></td></tr><tr><td><strong>DDQN</strong></td><td><span class="note-math-inline" data-math-inline="y = r + \gamma Q_{\omega^-}(s&#x27;, \arg\max_{a&#x27;} Q_{\omega}(s&#x27;,a&#x27;))"></span></td></tr></tbody></table></div>
+<p class="note-paragraph">用<strong>在线网络</strong> <span class="note-math-inline" data-math-inline="Q_\omega"></span> 选 <span class="note-math-inline" data-math-inline="a&#x27;"></span>，用<strong>目标网络</strong> <span class="note-math-inline" data-math-inline="Q_{\omega^-}"></span> 评估——若两网络误差不完全相关，可缓解过估计。</p>
+<h4 id="dueling-dqn" class="note-heading">Dueling DQN</h4>
+<p class="note-paragraph">分解 <span class="note-math-inline" data-math-inline="Q(s,a) = V(s) + A(s,a)"></span>：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>网络</th><th>输出</th><th>含义</th></tr></thead><tbody><tr><td><span class="note-math-inline" data-math-inline="V_\omega(s)"></span></td><td>标量</td><td>状态整体好坏</td></tr><tr><td><span class="note-math-inline" data-math-inline="A_\theta(s,a)"></span></td><td><span class="note-math-inline" data-math-inline="|A|"></span> 维</td><td>动作相对平均的优势</td></tr></tbody></table></div>
+<div class="note-math-block" data-math-display="Q_{\omega,\theta}(s,a) = V_\omega(s) + A_\theta(s,a) - \frac{1}{|\mathcal{A}|}\sum_{a&#x27;} A_\theta(s,a&#x27;)"></div>
+<p class="note-paragraph">（实践中用<strong>均值</strong>而非 max 归一化优势，使收敛时 <span class="note-math-inline" data-math-inline="\max_{a&#x27;} A \to 0"></span>。）</p>
+<p class="note-paragraph"><strong>直觉</strong>（Atari 驾车）：前方无车时各动作优势应相近（<span class="note-math-inline" data-math-inline="V"></span> 主导）；有车时转向/刹车优势分化（<span class="note-math-inline" data-math-inline="A"></span> 主导）→ <strong>样本利用更高效</strong>。</p>
+<h4 id="优先经验回放per" class="note-heading">优先经验回放（PER）</h4>
+<p class="note-paragraph">TD 误差大的转移「更值得学」：</p>
+<div class="note-math-block" data-math-display="p_t \propto |\delta_t| + \epsilon \quad \text{或} \quad p_t \propto \frac{1}{\text{rank}(t)}"></div>
+<p class="note-paragraph"><strong>重要性采样修正</strong>学习率，避免偏置：</p>
+<div class="note-math-block" data-math-display="\alpha_t \leftarrow \alpha \cdot (n \cdot p_t)^{-\beta}, \quad \beta \in [0,1]"></div>
+<p class="note-paragraph">均匀采样时 <span class="note-math-inline" data-math-inline="p_t = 1/n \Rightarrow \alpha_t = \alpha"></span>，退化为普通 replay。</p>
+<h4 id="其他改进了解" class="note-heading">其他改进（了解）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>方法</th><th>要点</th></tr></thead><tbody><tr><td>n-step TD</td><td>MC 与 TD 折中</td></tr><tr><td>Noisy Net</td><td>参数化探索，替代 ε-greedy</td></tr><tr><td>C51 / QR-DQN</td><td>分布 Q 学习</td></tr><tr><td><strong>Rainbow</strong></td><td>上述多种组合</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="方法对比速查" class="note-heading">方法对比速查</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>算法</th><th>核心改动</th><th>解决什么问题</th></tr></thead><tbody><tr><td>DQN</td><td>Replay + Target Net</td><td>不稳定、数据相关</td></tr><tr><td>Double DQN</td><td>在线选动作、目标估 Q</td><td>Q 过估计</td></tr><tr><td>Dueling DQN</td><td><span class="note-math-inline" data-math-inline="V + A"></span> 结构</td><td>状态价值与动作优势解耦</td></tr><tr><td>PER</td><td>按 TD 误差采样</td><td>样本效率</td></tr><tr><td>MCTS + NN</td><td>规划 + 学习</td><td>大动作空间决策</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="下午实验与作业" class="note-heading">下午实验与作业</h2>
+<p class="note-paragraph"><strong>必做</strong>（详见 <a href="短学期_LecExp05.html">LecExp05</a>）：</p>
+<ol class="note-list">
+<li>手写经典 <strong>DQN</strong> 算法</li>
+<li>在 Atari <strong>Freeway</strong> 环境测试</li>
+<li>尝试其他 Atari 环境</li>
+</ol>
+<p class="note-paragraph"><strong>作业</strong>：实现 <strong>Double DQN（DDQN）</strong></p>
+<p class="note-paragraph"><strong>可选</strong>：实现 <strong>Dueling DQN</strong></p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="小结与衔接" class="note-heading">小结与衔接</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>模块</th><th>要点</th></tr></thead><tbody><tr><td>探索</td><td>ε-greedy、UCB、Thompson；MAB 悔值</td></tr><tr><td>MCTS</td><td>Select–Expand–Simulate–Backprop；UCT；AlphaZero</td></tr><tr><td>DQN</td><td><span class="note-math-inline" data-math-inline="Q_\omega"></span> + Replay + Target Net</td></tr><tr><td>改进</td><td>DDQN 解耦 max；Dueling 分解 Q；PER 优先采样</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>向上衔接</strong>：Lec02 Q-Learning → Lec03 网络逼近 → <strong>Lec05 稳定深度 Q</strong></p>
+<p class="note-paragraph"><strong>向下衔接</strong>：Rainbow / 离线 RL / 连续控制（DDPG、SAC）/ 多智能体（课程名 MARL）</p>
+<p class="note-paragraph"><strong>一句话</strong>：DQN = <strong>Q-Learning + 深度学习 + 经验回放 + 目标网络</strong>；探索与 MCTS 解决「往哪走」与「搜多深」，DDQN 等解决「Q 估准」。</p>
+</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#回顾与定位">回顾与定位</a></li><li class="note-toc-item note-toc-item--h2"><a href="#探索与利用">探索与利用</a></li><li class="note-toc-item note-toc-item--h4"><a href="#困境">困境</a></li><li class="note-toc-item note-toc-item--h4"><a href="#问题难度谱">问题难度谱</a></li><li class="note-toc-item note-toc-item--h2"><a href="#multi-arm-banditmab">Multi-arm Bandit（MAB）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#伯努利-mab-定义">伯努利 MAB 定义</a></li><li class="note-toc-item note-toc-item--h4"><a href="#目标与悔值">目标与悔值</a></li><li class="note-toc-item note-toc-item--h4"><a href="#动作价值估计">动作价值估计</a></li><li class="note-toc-item note-toc-item--h2"><a href="#探索策略">探索策略</a></li><li class="note-toc-item note-toc-item--h4"><a href="#ε-greedy">ε-Greedy</a></li><li class="note-toc-item note-toc-item--h4"><a href="#ucbupper-confidence-bound">UCB（Upper Confidence Bound）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#汤普森采样thompson-sampling">汤普森采样（Thompson Sampling）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#深度-rl-中的探索扩展阅读">深度 RL 中的探索（扩展阅读）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#蒙特卡洛树搜索mcts">蒙特卡洛树搜索（MCTS）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#博弈树与-minimax">博弈树与 Minimax</a></li><li class="note-toc-item note-toc-item--h4"><a href="#mcts-核心思想">MCTS 核心思想</a></li><li class="note-toc-item note-toc-item--h4"><a href="#四步迭代">四步迭代</a></li><li class="note-toc-item note-toc-item--h4"><a href="#与学习的结合alphago-路线">与学习的结合（AlphaGo 路线）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#从-q-learning-到深度-q-学习">从 Q-Learning 到深度 Q 学习</a></li><li class="note-toc-item note-toc-item--h4"><a href="#表格-q-learning复习">表格 Q-Learning（复习）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#深度-q-网络">深度 Q 网络</a></li><li class="note-toc-item note-toc-item--h4"><a href="#fitted-q-迭代-vs-在线-q-迭代">Fitted Q 迭代 vs 在线 Q 迭代</a></li><li class="note-toc-item note-toc-item--h2"><a href="#经验回放experience-replay">经验回放（Experience Replay）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#目标网络target-network">目标网络（Target Network）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#移动目标问题">移动目标问题</a></li><li class="note-toc-item note-toc-item--h4"><a href="#解法">解法</a></li><li class="note-toc-item note-toc-item--h2"><a href="#经典-dqn-算法">经典 DQN 算法</a></li><li class="note-toc-item note-toc-item--h2"><a href="#dqn-改进算法">DQN 改进算法</a></li><li class="note-toc-item note-toc-item--h4"><a href="#q-值过高估计">Q 值过高估计</a></li><li class="note-toc-item note-toc-item--h4"><a href="#double-dqnddqn">Double DQN（DDQN）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#dueling-dqn">Dueling DQN</a></li><li class="note-toc-item note-toc-item--h4"><a href="#优先经验回放per">优先经验回放（PER）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#其他改进了解">其他改进（了解）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#方法对比速查">方法对比速查</a></li><li class="note-toc-item note-toc-item--h2"><a href="#下午实验与作业">下午实验与作业</a></li><li class="note-toc-item note-toc-item--h2"><a href="#小结与衔接">小结与衔接</a></li></ol></aside></div>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E7%9F%AD%E5%AD%A6%E6%9C%9F02_%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%AE%AD%2F%E7%9F%AD%E5%AD%A6%E6%9C%9F_Lec05#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=短学期02_强化学习与智能体实训">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>

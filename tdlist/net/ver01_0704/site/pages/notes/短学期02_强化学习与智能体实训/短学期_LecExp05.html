@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Atari Freeway 上经典 DQN 与 Double DQN 实现、训练循环与超参速查">
+  <title>短学期 LecExp05 · 课程笔记 · Alstr（Call Sign ☘ VLinv）</title>
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="短学期02_强化学习与智能体实训/短学期_LecExp05">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=短学期02_强化学习与智能体实训">短学期02 强化学习与智能体实训</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">短学期 LecExp05</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">短学期 LecExp05</h1>
+        <p class="note-meta"><time datetime="2026-07-12">2026-07-12</time></p>
+        <div class="note-tags"><span class="note-tag">强化学习</span><span class="note-tag">DQN</span><span class="note-tag">DDQN</span><span class="note-tag">Atari</span><span class="note-tag">Freeway</span><span class="note-tag">短学期</span><span class="note-tag">实验</span></div>
+        <p class="note-description">Atari Freeway 上经典 DQN 与 Double DQN 实现、训练循环与超参速查</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="实验目标" class="note-heading">实验目标</h2>
+<ol class="note-list">
+<li>手写经典 <strong>DQN</strong>（经验回放 + 目标网络）</li>
+<li>在 Atari <strong>Freeway-v5</strong>（或 <code>ALE/Freeway-v5</code>）上测试</li>
+<li><strong>作业</strong>：改为 <strong>Double DQN</strong></li>
+<li><strong>可选</strong>：Dueling DQN</li>
+</ol>
+<p class="note-paragraph"><strong>前置</strong>：<a href="短学期_Lec05.html">Lec05</a> 理论、<a href="短学期_Lec03特刊-PyTorch.html">Lec03 特刊-PyTorch</a> CNN 与优化器。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="环境与依赖" class="note-heading">环境与依赖</h2>
+<pre class="note-code-block"><code class="language-bash">conda activate rl-course
+pip install gymnasium[atari,accept-rom-license] ale-py torch torchvision
+</code></pre>
+<pre class="note-code-block"><code class="language-python">import gymnasium as gym
+import ale_py
+
+gym.register_envs(ale_py)
+ENV_ID = &quot;ALE/Freeway-v5&quot;   # 或 Freeway-v5
+</code></pre>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>项目</th><th>Freeway 典型设置</th></tr></thead><tbody><tr><td>观测</td><td>210×160×3 RGB（需预处理）</td></tr><tr><td>动作</td><td><code>Discrete(3)</code>：NOOP / UP / DOWN</td></tr><tr><td>目标</td><td>控制小鸡过马路，躲车得分</td></tr></tbody></table></div>
+<h3 id="创建环境带预处理-wrapper" class="note-heading">创建环境（带预处理 wrapper）</h3>
+<pre class="note-code-block"><code class="language-python">env = gym.make(ENV_ID, render_mode=None, frameskip=4)
+obs, info = env.reset(seed=42)
+print(obs.shape, env.action_space)  # (210,160,3), Discrete(3)
+env.close()
+</code></pre>
+<p class="note-paragraph"><strong>DQN 常用预处理</strong>（与 Mnih 2013 一致）：</p>
+<ol class="note-list">
+<li>灰度化</li>
+<li>缩放到 84×84</li>
+<li>堆叠最近 4 帧 → 输入 shape <code>(4, 84, 84)</code></li>
+</ol>
+<p class="note-paragraph">可用 <code>gymnasium.wrappers</code> 或自定义 <code>FrameStack</code> / <code>GrayScaleObservation</code>。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="网络结构cnn-q-网络" class="note-heading">网络结构（CNN Q 网络）</h2>
+<pre class="note-code-block"><code class="language-python">import torch
+import torch.nn as nn
+
+class QNet(nn.Module):
+    def __init__(self, n_actions):
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(4, 32, kernel_size=8, stride=4), nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2), nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1), nn.ReLU(),
+        )
+        self.head = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(64 * 7 * 7, 512), nn.ReLU(),
+            nn.Linear(512, n_actions),
+        )
+
+    def forward(self, x):
+        return self.head(self.features(x))
+</code></pre>
+<p class="note-paragraph">输出为每个动作的 Q 值，<strong>无 Softmax</strong>（见 Lec03）。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="经验回放" class="note-heading">经验回放</h2>
+<pre class="note-code-block"><code class="language-python">import random
+from collections import deque
+
+class ReplayBuffer:
+    def __init__(self, capacity=100_000):
+        self.buffer = deque(maxlen=capacity)
+
+    def push(self, transition):
+        # transition: (s, a, r, s&#x27;, done)
+        self.buffer.append(transition)
+
+    def sample(self, batch_size):
+        batch = random.sample(self.buffer, batch_size)
+        s, a, r, s2, d = zip(*batch)
+        return s, a, r, s2, d
+
+    def __len__(self):
+        return len(self.buffer)
+</code></pre>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="经典-dqn-更新单步" class="note-heading">经典 DQN 更新（单步）</h2>
+<pre class="note-code-block"><code class="language-python">import torch.nn.functional as F
+
+def dqn_update(online_net, target_net, optimizer, batch, gamma=0.99, device=&quot;cpu&quot;):
+    s, a, r, s2, d = batch
+    s  = torch.as_tensor(s,  dtype=torch.float32, device=device)
+    a  = torch.as_tensor(a,  dtype=torch.int64,   device=device)
+    r  = torch.as_tensor(r,  dtype=torch.float32, device=device)
+    s2 = torch.as_tensor(s2, dtype=torch.float32, device=device)
+    d  = torch.as_tensor(d,  dtype=torch.float32, device=device)
+
+    q_sa = online_net(s).gather(1, a.unsqueeze(1)).squeeze(1)
+
+    with torch.no_grad():
+        # DQN: 目标网络选动作且估 Q（同一 Q_{ω^-}）
+        q_next = target_net(s2).max(dim=1).values
+        y = r + gamma * (1.0 - d) * q_next
+
+    loss = F.mse_loss(q_sa, y)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    return loss.item()
+</code></pre>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="double-dqn-更新作业" class="note-heading">Double DQN 更新（作业）</h2>
+<p class="note-paragraph"><strong>改动仅 TD target 一行</strong>——在线网络选 <span class="note-math-inline" data-math-inline="a&#x27;"></span>，目标网络估 Q：</p>
+<pre class="note-code-block"><code class="language-python">    with torch.no_grad():
+        a_star = online_net(s2).argmax(dim=1, keepdim=True)
+        q_next = target_net(s2).gather(1, a_star).squeeze(1)
+        y = r + gamma * (1.0 - d) * q_next
+</code></pre>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>版本</th><th><span class="note-math-inline" data-math-inline="\arg\max"></span> 用谁</th><th><span class="note-math-inline" data-math-inline="Q(s&#x27;,a&#x27;)"></span> 用谁</th></tr></thead><tbody><tr><td>DQN</td><td><span class="note-math-inline" data-math-inline="Q_{\omega^-}"></span></td><td><span class="note-math-inline" data-math-inline="Q_{\omega^-}"></span></td></tr><tr><td><strong>DDQN</strong></td><td><span class="note-math-inline" data-math-inline="Q_{\omega}"></span></td><td><span class="note-math-inline" data-math-inline="Q_{\omega^-}"></span></td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="ε-greedy-与目标网络同步" class="note-heading">ε-greedy 与目标网络同步</h2>
+<pre class="note-code-block"><code class="language-python">def epsilon_by_step(step, eps_start=1.0, eps_end=0.01, eps_decay=250_000):
+    return max(eps_end, eps_start - (eps_start - eps_end) * step / eps_decay)
+
+def select_action(q_net, obs, n_actions, epsilon, device):
+    if random.random() &lt; epsilon:
+        return random.randrange(n_actions)
+    with torch.no_grad():
+        q = q_net(torch.as_tensor(obs, device=device).unsqueeze(0))
+        return int(q.argmax(dim=1).item())
+
+def sync_target(online, target, tau=1.0):
+    # tau=1.0 硬更新；tau=0.99 软更新
+    for tp, op in zip(target.parameters(), online.parameters()):
+        tp.data.copy_(tau * tp.data + (1 - tau) * op.data)
+</code></pre>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="训练主循环骨架" class="note-heading">训练主循环（骨架）</h2>
+<pre class="note-code-block"><code class="language-python">def train_dqn(
+    env_id=ENV_ID,
+    total_steps=200_000,
+    batch_size=32,
+    learn_start=10_000,
+    target_sync=1_000,
+    gamma=0.99,
+    lr=1e-4,
+    device=&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;,
+    use_double=False,
+):
+    env = gym.make(env_id)
+    n_actions = env.action_space.n
+    online = QNet(n_actions).to(device)
+    target = QNet(n_actions).to(device)
+    target.load_state_dict(online.state_dict())
+    opt = torch.optim.Adam(online.parameters(), lr=lr)
+    buf = ReplayBuffer()
+
+    obs, _ = env.reset()
+    ep_reward = 0.0
+
+    for step in range(1, total_steps + 1):
+        eps = epsilon_by_step(step)
+        action = select_action(online, obs, n_actions, eps, device)
+        next_obs, reward, term, trunc, _ = env.step(action)
+        done = term or trunc
+        buf.push((obs, action, reward, next_obs, done))
+        obs = next_obs
+        ep_reward += reward
+
+        if done:
+            obs, _ = env.reset()
+            ep_reward = 0.0
+
+        if len(buf) &gt;= batch_size and step &gt;= learn_start:
+            batch = buf.sample(batch_size)
+            if use_double:
+                ddqn_update(online, target, opt, batch, gamma, device)
+            else:
+                dqn_update(online, target, opt, batch, gamma, device)
+
+        if step % target_sync == 0:
+            sync_target(online, target, tau=1.0)
+
+    env.close()
+    return online
+</code></pre>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="超参建议freeway-起步" class="note-heading">超参建议（Freeway 起步）</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>超参</th><th>建议值</th></tr></thead><tbody><tr><td><code>total_steps</code></td><td>200k–1M</td></tr><tr><td><code>batch_size</code></td><td>32</td></tr><tr><td><code>replay capacity</code></td><td>100k</td></tr><tr><td><code>learn_start</code></td><td>10k（先攒 buffer）</td></tr><tr><td><code>target_sync</code></td><td>1000 步</td></tr><tr><td><code>gamma</code></td><td>0.99</td></tr><tr><td><code>lr</code></td><td>1e-4（Adam）</td></tr><tr><td><code>epsilon</code></td><td>1.0 → 0.01，线性衰减</td></tr></tbody></table></div>
+<p class="note-paragraph">Freeway 相对简单，可较快看到分数上升；Pong、Breakout 更难，作扩展尝试。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="评估与调试" class="note-heading">评估与调试</h2>
+<pre class="note-code-block"><code class="language-python">def evaluate(q_net, env_id, n_episodes=5, device=&quot;cpu&quot;):
+    env = gym.make(env_id)
+    rewards = []
+    for ep in range(n_episodes):
+        obs, _ = env.reset(seed=1000 + ep)
+        total = 0.0
+        while True:
+            action = select_action(q_net, obs, env.action_space.n, epsilon=0.0, device=device)
+            obs, r, term, trunc, _ = env.step(action)
+            total += r
+            if term or trunc:
+                break
+        rewards.append(total)
+    env.close()
+    return sum(rewards) / len(rewards)
+</code></pre>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>现象</th><th>排查</th></tr></thead><tbody><tr><td>loss 不降</td><td><code>learn_start</code> 是否过小；学习率；预处理</td></tr><tr><td>Q 爆炸</td><td>梯度裁剪 <code>clip_grad_norm_</code>；reward clip</td></tr><tr><td>回报始终很低</td><td>ε 衰减太快；训练步数不足</td></tr><tr><td>DDQN 更稳</td><td>对比 DQN/DDQN 曲线 Q 过估计</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="作业与可选" class="note-heading">作业与可选</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>任务</th><th>要求</th></tr></thead><tbody><tr><td><strong>必做</strong></td><td>完整 DQN + Freeway 跑通</td></tr><tr><td><strong>作业</strong></td><td>改 <code>use_double=True</code> 或单独 <code>ddqn_update</code>，对比曲线</td></tr><tr><td><strong>可选</strong></td><td>Dueling 头：<code>Q = V(s) + A(s,a) - mean(A)</code>，见 Lec05</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>提交建议</strong>：训练曲线（回报 vs step）、DQN vs DDQN 对比图、简短结论（是否缓解 Q 过估计）。</p>
+</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#实验目标">实验目标</a></li><li class="note-toc-item note-toc-item--h2"><a href="#环境与依赖">环境与依赖</a></li><li class="note-toc-item note-toc-item--h3"><a href="#创建环境带预处理-wrapper">创建环境（带预处理 wrapper）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#网络结构cnn-q-网络">网络结构（CNN Q 网络）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#经验回放">经验回放</a></li><li class="note-toc-item note-toc-item--h2"><a href="#经典-dqn-更新单步">经典 DQN 更新（单步）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#double-dqn-更新作业">Double DQN 更新（作业）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#ε-greedy-与目标网络同步">ε-greedy 与目标网络同步</a></li><li class="note-toc-item note-toc-item--h2"><a href="#训练主循环骨架">训练主循环（骨架）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#超参建议freeway-起步">超参建议（Freeway 起步）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#评估与调试">评估与调试</a></li><li class="note-toc-item note-toc-item--h2"><a href="#作业与可选">作业与可选</a></li></ol></aside></div>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E7%9F%AD%E5%AD%A6%E6%9C%9F02_%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%AE%AD%2F%E7%9F%AD%E5%AD%A6%E6%9C%9F_LecExp05#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=短学期02_强化学习与智能体实训">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>
