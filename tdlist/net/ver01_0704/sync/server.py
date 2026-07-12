@@ -33,6 +33,7 @@ MOOD_MAX_LENGTH = 50
 PUBLISH_SCRIPT = ROOT / "sync" / "publish.ps1"
 BUILD_NOTES = ROOT / "sync" / "build-notes.py"
 BUILD_ALL = ROOT / "sync" / "build-all.py"
+BUILD_SITE_DATA = ROOT / "sync" / "build-site-data.py"
 PORT = 8765
 MATERIALS_DIR_NAME = "materials"
 
@@ -127,6 +128,13 @@ def collect_materials_for_course(course: str) -> list[dict]:
 def maybe_rebuild() -> None:
     try:
         rebuild_notes()
+    except subprocess.CalledProcessError:
+        pass
+
+
+def maybe_rebuild_diary_export() -> None:
+    try:
+        subprocess.run([sys.executable, str(BUILD_SITE_DATA)], check=True, cwd=str(ROOT))
     except subprocess.CalledProcessError:
         pass
 
@@ -464,6 +472,7 @@ class VokaHandler(BaseHTTPRequestHandler):
                 meta["planned"] = planned
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(build_memo_markdown(meta, content), encoding="utf-8")
+            maybe_rebuild_diary_export()
             return self._json(
                 201,
                 {
@@ -642,6 +651,7 @@ class VokaHandler(BaseHTTPRequestHandler):
             if not target or not target.exists():
                 return self._json(404, {"error": "备忘不存在"})
             target.unlink()
+            maybe_rebuild_diary_export()
             return self._json(200, {"ok": True, "path": rel})
         if path == "/api/notes/materials":
             qs = parse_qs(parsed.query)
@@ -714,6 +724,7 @@ class VokaHandler(BaseHTTPRequestHandler):
             new_target.write_text(build_memo_markdown(meta, body), encoding="utf-8")
             if new_target.resolve() != target.resolve():
                 target.unlink()
+            maybe_rebuild_diary_export()
             return self._json(
                 200,
                 {

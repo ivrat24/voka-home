@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
 OUT = SITE / "js" / "site-data.js"
 CSS_DIR = SITE / "css"
+HOME_ANNOUNCEMENTS_LIMIT = 5
 
 SOURCES = {
     "siteConfig": SITE / "config" / "site.json",
@@ -92,27 +93,52 @@ def _diary_timestamp(item: dict) -> float:
         return 0.0
 
 
-def collect_diary_announcements() -> list[dict]:
-    diary_dir = SITE / "content" / "mouse-diary"
-    announce_dir = diary_dir / "更新公告"
+HOME_ANNOUNCEMENTS_LIMIT = 5
+DIARY_CONTENT_DIR = SITE / "content" / "mouse-diary"
+
+
+def collect_all_diary_announcements() -> list[dict]:
+    announce_dir = DIARY_CONTENT_DIR / "更新公告"
     items: list[dict] = []
     if not announce_dir.exists():
         return items
 
     for path in sorted(announce_dir.rglob("*.md"), reverse=True):
-        items.append(_parse_diary_md(path, diary_dir, "更新公告"))
+        items.append(_parse_diary_md(path, DIARY_CONTENT_DIR, "更新公告"))
 
     items.sort(key=lambda item: (0 if item.get("favorite") else 1, -_diary_timestamp(item)))
-    return items[:5]
+    return items
+
+
+def collect_diary_announcements(limit: int = HOME_ANNOUNCEMENTS_LIMIT) -> list[dict]:
+    return collect_all_diary_announcements()[: max(1, limit)]
+
+
+def write_diary_public_json(announcements: list[dict], mood: dict | None) -> None:
+    DIARY_CONTENT_DIR.mkdir(parents=True, exist_ok=True)
+    generated_at = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    (DIARY_CONTENT_DIR / "announcements.json").write_text(
+        json.dumps(
+            {"generatedAt": generated_at, "announcements": announcements},
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    (DIARY_CONTENT_DIR / "mood-board.json").write_text(
+        json.dumps({"generatedAt": generated_at, "mood": mood}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    print(f"Wrote {DIARY_CONTENT_DIR / 'announcements.json'}")
+    print(f"Wrote {DIARY_CONTENT_DIR / 'mood-board.json'}")
 
 
 def collect_diary_mood_board() -> dict | None:
-    diary_dir = SITE / "content" / "mouse-diary"
-    mood_dir = diary_dir / "心情贴"
+    mood_dir = DIARY_CONTENT_DIR / "心情贴"
     if not mood_dir.exists():
         return None
 
-    moods = [_parse_diary_md(path, diary_dir, "心情贴") for path in mood_dir.rglob("*.md")]
+    moods = [_parse_diary_md(path, DIARY_CONTENT_DIR, "心情贴") for path in mood_dir.rglob("*.md")]
     if not moods:
         return None
 
@@ -123,6 +149,10 @@ def collect_diary_mood_board() -> dict | None:
 
 
 def main() -> None:
+    all_announcements = collect_all_diary_announcements()
+    mood_board = collect_diary_mood_board()
+    write_diary_public_json(all_announcements, mood_board)
+
     payload = {
         "generatedAt": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
         "siteConfig": read_json(SOURCES["siteConfig"]),
@@ -131,8 +161,8 @@ def main() -> None:
         "playlist": read_json(SOURCES["playlist"]),
         "noteSources": collect_note_sources(),
         "pdfExportCss": collect_pdf_export_css(),
-        "diaryAnnouncements": collect_diary_announcements(),
-        "diaryMoodBoard": collect_diary_mood_board(),
+        "diaryAnnouncements": all_announcements[:HOME_ANNOUNCEMENTS_LIMIT],
+        "diaryMoodBoard": mood_board,
     }
 
     OUT.parent.mkdir(parents=True, exist_ok=True)

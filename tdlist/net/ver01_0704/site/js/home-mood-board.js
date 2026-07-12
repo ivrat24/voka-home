@@ -1,5 +1,6 @@
 import { escapeHtml } from "./layout.js";
 import { fetchMoodForHome } from "./mouse-diary-api.js";
+import { isPublishedSite } from "./runtime.js";
 
 function formatMoodTime(iso) {
   if (!iso) return "";
@@ -21,10 +22,18 @@ function renderMoodBoard(mood) {
   const body = document.getElementById("hero-mood-body");
   if (!body) return;
 
+  const diaryHref = "pages/mouse-diary.html";
+  const emptyLink = isPublishedSite()
+    ? ""
+    : `<a class="hero-mood-link muted" href="${diaryHref}">去写一条 →</a>`;
+  const moodLink = isPublishedSite()
+    ? `<a class="hero-mood-link muted" href="${diaryHref}">查看心情贴 →</a>`
+    : `<a class="hero-mood-link muted" href="${diaryHref}">管理心情贴 →</a>`;
+
   if (!mood?.content) {
     body.innerHTML = `
       <p class="hero-side-placeholder">暂无心情贴</p>
-      <a class="hero-mood-link muted" href="pages/mouse-diary.html">去写一条 →</a>
+      ${emptyLink}
     `;
     return;
   }
@@ -38,7 +47,7 @@ function renderMoodBoard(mood) {
         ${mood.featured ? '<span class="hero-mood-pin">指定</span>' : '<span class="hero-mood-pin hero-mood-pin--auto">最新</span>'}
       </div>
     </div>
-    <a class="hero-mood-link muted" href="pages/mouse-diary.html">管理心情贴 →</a>
+    ${moodLink}
   `;
 }
 

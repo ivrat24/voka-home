@@ -1,7 +1,10 @@
-import { isFileProtocol, loadEmbeddedJson } from "./runtime.js";
+import { isFileProtocol, isPublishedSite, loadEmbeddedJson, fetchJson } from "./runtime.js";
+import { getSiteBaseUrl } from "./layout.js";
 
 const API_ROOT = "http://127.0.0.1:8765/api/diary";
 const LS_KEY = "voka-mouse-diary-memos";
+const PUBLISHED_ANNOUNCEMENTS_URL = "content/mouse-diary/announcements.json";
+const PUBLISHED_MOOD_URL = "content/mouse-diary/mood-board.json";
 
 export const MEMO_CATEGORIES = ["备忘", "闲聊", "碎碎念"];
 export const PLAN_CATEGORY = "更新计划";
@@ -10,8 +13,34 @@ export const MOOD_CATEGORY = "心情贴";
 export const MOOD_MAX_LENGTH = 50;
 export const DIARY_CATEGORIES = [...MEMO_CATEGORIES, PLAN_CATEGORY, ANNOUNCE_CATEGORY, MOOD_CATEGORY];
 
-/** @type {"server" | "local" | null} */
+/** @type {"server" | "local" | "published" | null} */
 let storageMode = null;
+
+async function fetchPublishedAnnouncementsRaw() {
+  const base = getSiteBaseUrl();
+  try {
+    const data = await fetchJson(`${base}${PUBLISHED_ANNOUNCEMENTS_URL}`, "diaryAnnouncements");
+    if (Array.isArray(data)) return data;
+    return data?.announcements || [];
+  } catch {
+    const embedded = await loadEmbeddedJson("diaryAnnouncements");
+    return Array.isArray(embedded) ? embedded : [];
+  }
+}
+
+async function fetchPublishedMoodRaw() {
+  const base = getSiteBaseUrl();
+  try {
+    const data = await fetchJson(`${base}${PUBLISHED_MOOD_URL}`, "diaryMoodBoard");
+    const mood = data?.mood ?? data;
+    if (mood && typeof mood === "object" && mood.content) return mood;
+  } catch {
+    /* fall through */
+  }
+  const embedded = await loadEmbeddedJson("diaryMoodBoard");
+  if (embedded && typeof embedded === "object" && embedded.content) return embedded;
+  return null;
+}
 
 async function apiFetch(path, options = {}) {
   const res = await fetch(`${API_ROOT}${path}`, {
@@ -104,6 +133,11 @@ function clearLocalMoodFeatured(exceptPath) {
 export async function detectDiaryStorage() {
   if (storageMode) return storageMode;
 
+  if (isPublishedSite()) {
+    storageMode = "published";
+    return storageMode;
+  }
+
   if (!isFileProtocol()) {
     try {
       const health = await fetch(`${API_ROOT}/health`, { signal: AbortSignal.timeout(1500) });
@@ -125,6 +159,7 @@ export function getDiaryStorageMode() {
 }
 
 export function storageModeLabel(mode) {
+  if (mode === "published") return "已发布站点 · 只读展示";
   if (mode === "server") return "本地服务 · 保存至 content/mouse-diary/";
   return "浏览器本地 · 仅本机可见";
 }
@@ -151,6 +186,10 @@ export async function listPlans() {
 }
 
 export async function listAnnouncements() {
+  if (isPublishedSite()) {
+    return sortAnnouncements(await fetchPublishedAnnouncementsRaw());
+  }
+
   const all = await fetchAllMemosRaw();
   return sortAnnouncements(all.filter((m) => m.category === ANNOUNCE_CATEGORY));
 }
@@ -161,6 +200,10 @@ export async function listMoods() {
 }
 
 export async function fetchMoodForHome() {
+  if (isPublishedSite()) {
+    return fetchPublishedMoodRaw();
+  }
+
   await detectDiaryStorage();
 
   if (storageMode === "server") {
@@ -181,6 +224,10 @@ export async function fetchMoodForHome() {
 }
 
 export async function fetchAnnouncementsForHome() {
+  if (isPublishedSite()) {
+    return pickAnnouncementsForHome(await fetchPublishedAnnouncementsRaw());
+  }
+
   await detectDiaryStorage();
 
   if (storageMode === "server") {
