@@ -212,6 +212,33 @@ export async function migrateLocalDiaryToServerIfNeeded() {
   return { migrated, total: local.length };
 }
 
+/** 同步时收集浏览器与服务端的事件簿数据 */
+export async function collectDiaryMemosForSync() {
+  const merged = new Map();
+
+  for (const memo of readLocalMemos()) {
+    if (!memo?.category || !memo?.content) continue;
+    const key = memo.id || `${memo.category}::${memo.title}::${(memo.content || "").slice(0, 80)}`;
+    merged.set(key, memo);
+  }
+
+  try {
+    const health = await fetch(`${API_ROOT}/health`, { signal: AbortSignal.timeout(1500) });
+    if (health.ok) {
+      const data = await apiFetch("/memos");
+      for (const memo of data.memos || []) {
+        if (!memo?.category || !memo?.content) continue;
+        const key = memo.id || `${memo.category}::${memo.title}::${(memo.content || "").slice(0, 80)}`;
+        merged.set(key, memo);
+      }
+    }
+  } catch {
+    /* localStorage only */
+  }
+
+  return [...merged.values()];
+}
+
 async function fetchAllMemosRaw() {
   await detectDiaryStorage();
 

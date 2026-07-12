@@ -338,6 +338,84 @@ def pick_announcements_for_home(announcements: list[dict], limit: int = HOME_ANN
     return sorted_items[: max(1, limit)]
 
 
+def _memo_signature(memo: dict) -> str:
+    return f"{memo.get('category')}::{memo.get('title')}::{(memo.get('content') or '')[:120]}"
+
+
+def import_diary_memos_for_sync(memos: list[dict]) -> int:
+    if not memos:
+        return 0
+
+    existing = collect_diary_memos()
+    existing_ids = {str(m.get("id")) for m in existing if m.get("id")}
+    existing_sigs = {_memo_signature(m) for m in existing}
+
+    imported = 0
+    for raw in memos:
+        if not isinstance(raw, dict):
+            continue
+        category = str(raw.get("category") or "备忘").strip()
+        content = str(raw.get("content") or "").strip()
+        if category not in DIARY_CATEGORIES or not content:
+            continue
+        if category == MOOD_CATEGORY and len(content) > MOOD_MAX_LENGTH:
+            continue
+
+        memo_id = str(raw.get("id") or "").strip() or f"memo-{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
+        signature = _memo_signature(
+            {"category": category, "title": raw.get("title") or "", "content": content},
+        )
+        if memo_id in existing_ids or signature in existing_sigs:
+            continue
+
+        title = str(raw.get("title") or "").strip()
+        if not title:
+            if category == ANNOUNCE_CATEGORY:
+                title = f"更新公告 {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            elif category == MOOD_CATEGORY:
+                title = f"心情贴 {datetime.now().strftime('%m-%d %H:%M')}"
+            else:
+                title = f"{category} {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+
+        now = datetime.now().astimezone().isoformat(timespec="seconds")
+        created = str(raw.get("createdAt") or raw.get("created") or now)
+        updated = str(raw.get("updatedAt") or raw.get("updated") or created)
+        planned = str(raw.get("plannedAt") or raw.get("planned") or "").strip()
+        featured = bool(raw.get("featured")) if category == MOOD_CATEGORY else False
+
+        if category == MOOD_CATEGORY and featured:
+            clear_mood_featured()
+
+        rel = f"{category}/{new_diary_filename(title)}"
+        target = safe_diary_path(rel)
+        if not target:
+            continue
+
+        meta = {
+            "id": memo_id,
+            "title": title,
+            "category": category,
+            "favorite": bool(raw.get("favorite")),
+            "created": created,
+            "updated": updated,
+            "zone": "mouse-diary",
+        }
+        if featured:
+            meta["featured"] = True
+        if planned:
+            meta["planned"] = planned
+
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(build_memo_markdown(meta, content), encoding="utf-8")
+        existing_ids.add(memo_id)
+        existing_sigs.add(signature)
+        imported += 1
+
+    if imported:
+        maybe_rebuild_diary_export()
+    return imported
+
+
 def pick_mood_for_home(moods: list[dict]) -> dict | None:
     if not moods:
         return None
@@ -781,6 +859,11 @@ class VokaHandler(BaseHTTPRequestHandler):
         if not username or not password:
             return self._json(400, {"error": "缺少用户名或 Token"})
 
+        diary_memos = data.get("diaryMemos")
+        imported_diary = 0
+        if isinstance(diary_memos, list) and diary_memos:
+            imported_diary = import_diary_memos_for_sync(diary_memos)
+
         try:
             rebuild_site()
         except subprocess.CalledProcessError as exc:
@@ -818,6 +901,7 @@ class VokaHandler(BaseHTTPRequestHandler):
                 "pagesUrl": pages_url,
                 "repoUrl": f"https://github.com/{username}/{repo}",
                 "built": True,
+                "importedDiary": imported_diary,
             })
         except subprocess.TimeoutExpired:
             return self._json(500, {"error": "同步超时（>5 分钟）"})

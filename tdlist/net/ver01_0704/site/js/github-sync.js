@@ -1,4 +1,4 @@
-import { migrateLocalDiaryToServerIfNeeded } from "./mouse-diary-api.js";
+import { collectDiaryMemosForSync, migrateLocalDiaryToServerIfNeeded } from "./mouse-diary-api.js";
 
 const SYNC_API = "http://127.0.0.1:8765/sync";
 
@@ -42,19 +42,27 @@ export function initGitHubSync(config) {
       return;
     }
 
-    setStatus(statusEl, "正在迁移事件簿数据并构建站点…", "info");
+    setStatus(statusEl, "正在收集事件簿数据…", "info");
 
+    let diaryMemos = [];
     try {
+      diaryMemos = await collectDiaryMemosForSync();
       const migration = await migrateLocalDiaryToServerIfNeeded();
       if (migration.migrated > 0) {
         setStatus(
           statusEl,
-          `已迁移 ${migration.migrated} 条事件簿记录（含公告），正在构建并发布…`,
+          `已迁移 ${migration.migrated} 条事件簿记录，正在构建并发布…`,
+          "info",
+        );
+      } else if (diaryMemos.length > 0) {
+        setStatus(
+          statusEl,
+          `已收集 ${diaryMemos.length} 条事件簿记录（含公告），正在构建并发布…`,
           "info",
         );
       }
     } catch (err) {
-      setStatus(statusEl, err.message || "事件簿迁移失败", "error");
+      setStatus(statusEl, err.message || "事件簿收集失败", "error");
       return;
     }
 
@@ -66,6 +74,7 @@ export function initGitHubSync(config) {
       enablePages,
       sitePath: "tdlist/net/ver01_0704/site",
       projectRoot: "Voka",
+      diaryMemos,
     };
 
     try {
@@ -82,8 +91,11 @@ export function initGitHubSync(config) {
       }
 
       const pagesUrl = data.pagesUrl || "";
+      const importHint =
+        data.importedDiary > 0 ? `已导入 ${data.importedDiary} 条事件簿记录到仓库。` : "";
       const successMessage = [
         data.message || "同步并发布成功",
+        importHint,
         pagesUrl ? `读者端：${pagesUrl}` : "",
         "GitHub Actions 部署完成后读者即可看到最新内容（通常 1–3 分钟）。",
       ]
