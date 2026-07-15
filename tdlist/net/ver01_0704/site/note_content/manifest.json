@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-12T21:34:57",
+  "generatedAt": "2026-07-15T00:55:15",
   "contentDir": "note_content",
   "courses": [
     {
       "slug": "短学期02_强化学习与智能体实训",
       "title": "短学期02 强化学习与智能体实训",
-      "noteCount": 11,
-      "latestDate": "2026-07-12"
+      "noteCount": 13,
+      "latestDate": "2026-07-15"
     }
   ],
   "materials": [
@@ -46,9 +46,50 @@
       "filename": "exp4_flat_walk.zip",
       "path": "note_content/短学期02_强化学习与智能体实训/materials/exp4_flat_walk.zip",
       "size": 23874
+    },
+    {
+      "course": "短学期02_强化学习与智能体实训",
+      "filename": "exp6_ac.ipynb",
+      "path": "note_content/短学期02_强化学习与智能体实训/materials/exp6_ac.ipynb",
+      "size": 67075
     }
   ],
   "notes": [
+    {
+      "slug": "短学期02_强化学习与智能体实训/短学期_LecExp06",
+      "courseSlug": "短学期02_强化学习与智能体实训",
+      "title": "短学期 LecExp06",
+      "date": "2026-07-15",
+      "tags": [
+        "强化学习",
+        "Actor-Critic",
+        "策略梯度",
+        "Atari",
+        "CartPole",
+        "短学期",
+        "实验"
+      ],
+      "description": "Monte Carlo Actor-Critic 实现——共享编码器、Advantage、熵正则，CartPole + Freeway/Pong 实测",
+      "source": "note_content/短学期02_强化学习与智能体实训/短学期_LecExp06.md",
+      "href": "pages/notes/短学期02_强化学习与智能体实训/短学期_LecExp06.html"
+    },
+    {
+      "slug": "短学期02_强化学习与智能体实训/短学期_Lec06",
+      "courseSlug": "短学期02_强化学习与智能体实训",
+      "title": "短学期 Lec06",
+      "date": "2026-07-15",
+      "tags": [
+        "强化学习",
+        "策略梯度",
+        "REINFORCE",
+        "Actor-Critic",
+        "A2C",
+        "短学期"
+      ],
+      "description": "策略梯度、REINFORCE、Advantage Actor-Critic 与 A2C/A3C 要点",
+      "source": "note_content/短学期02_强化学习与智能体实训/短学期_Lec06.md",
+      "href": "pages/notes/短学期02_强化学习与智能体实训/短学期_Lec06.html"
+    },
     {
       "slug": "短学期02_强化学习与智能体实训/短学期_LecExp05",
       "courseSlug": "短学期02_强化学习与智能体实训",

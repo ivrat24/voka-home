@@ -321,11 +321,20 @@ if (Test-Path $BuildAll) {
 
 if (-not (Test-Path ".gitignore")) {
     @"
-raw_src/neko/
+raw_src/
 .env
 **/.credentials
 "@ | Set-Content ".gitignore" -Encoding UTF8
+} else {
+    $ignoreText = Get-Content ".gitignore" -Raw -ErrorAction SilentlyContinue
+    if ($ignoreText -notmatch '(?m)^raw_src/') {
+        Add-Content ".gitignore" "`n# Exclude all raw source assets from GitHub upload`nraw_src/`n"
+    }
 }
+
+# Never stage raw_src (even if previously tracked)
+git rm -r --cached --ignore-unmatch raw_src 2>$null | Out-Null
+
 
 $remoteUrl = "https://${Username}:${Token}@github.com/${Username}/${Repo}.git"
 $remotes = @(git remote 2>$null)

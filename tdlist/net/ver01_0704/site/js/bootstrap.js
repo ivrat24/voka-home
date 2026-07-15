@@ -15,8 +15,9 @@ import { initMusicPlayer, refreshHeroNowPlaying } from "./music-player.js";
 import { initTimerWidget } from "./timer-widget.js";
 import { initArrangeInstruments, resetArrangeInstrumentBoards } from "./piano-keyboard.js";
 import { loadCourseNoteIndex, loadCoursePreviewFromManifest } from "./course-notes.js";
-import { fetchJson, applySiteAccessMode, canEditNotes } from "./runtime.js";
+import { fetchJson, applySiteAccessMode, canEditNotes, isPublishedSite } from "./runtime.js";
 import { initSpaNavigation } from "./spa-nav.js";
+import { redirectPublishedMouseDiaryAway } from "./access-gate.js";
 
 let siteConfig = null;
 let shellReady = false;
@@ -160,8 +161,14 @@ async function enterPage(pageId, context = {}) {
     const { typesetMathIn } = await import("./math-render.js");
     typesetMathIn(document.querySelector(".note-body"));
   } else if (pageId === "agent-lab") {
-    await loadAgentLabUpdates(basePath);
+    if (canEditNotes()) {
+      await loadAgentLabUpdates(basePath);
+    }
   } else if (pageId === "mouse-diary") {
+    if (isPublishedSite()) {
+      await redirectPublishedMouseDiaryAway();
+      return;
+    }
     const { initMouseDiary } = await import("./mouse-diary.js");
     await initMouseDiary();
   }

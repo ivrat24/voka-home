@@ -27,7 +27,7 @@ function renderMoodBoard(mood) {
     ? ""
     : `<a class="hero-mood-link muted" href="${diaryHref}">去写一条 →</a>`;
   const moodLink = isPublishedSite()
-    ? `<a class="hero-mood-link muted" href="${diaryHref}">查看心情贴 →</a>`
+    ? ""
     : `<a class="hero-mood-link muted" href="${diaryHref}">管理心情贴 →</a>`;
 
   if (!mood?.content) {

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="策略梯度、REINFORCE、Advantage Actor-Critic 与 A2C/A3C 要点">
+  <title>短学期 Lec06 · 课程笔记 · Alstr（Call Sign ☘ VLinv）</title>
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="短学期02_强化学习与智能体实训/短学期_Lec06">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=短学期02_强化学习与智能体实训">短学期02 强化学习与智能体实训</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">短学期 Lec06</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">短学期 Lec06</h1>
+        <p class="note-meta"><time datetime="2026-07-15">2026-07-15</time></p>
+        <div class="note-tags"><span class="note-tag">强化学习</span><span class="note-tag">策略梯度</span><span class="note-tag">REINFORCE</span><span class="note-tag">Actor-Critic</span><span class="note-tag">A2C</span><span class="note-tag">短学期</span></div>
+        <p class="note-description">策略梯度、REINFORCE、Advantage Actor-Critic 与 A2C/A3C 要点</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="回顾与定位" class="note-heading">回顾与定位</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>讲次</th><th>核心</th><th>本讲衔接</th></tr></thead><tbody><tr><td>Lec02</td><td>表格 TD / Q-Learning</td><td>值函数估计</td></tr><tr><td>Lec05</td><td>DQN（值函数逼近）</td><td>由价值导出策略</td></tr><tr><td><strong>Lec06</strong></td><td><strong>策略梯度 / Actor-Critic</strong></td><td>直接参数化 <span class="note-math-inline" data-math-inline="\pi_\theta"></span></td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>本讲主线</strong>：参数化策略 → 策略梯度定理与 REINFORCE → 基线与 Advantage → Actor-Critic → A2C / A3C。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="为什么要策略梯度" class="note-heading">为什么要策略梯度</h2>
+<p class="note-paragraph">基于价值的方法（Q-Learning / DQN）先学 <span class="note-math-inline" data-math-inline="Q"></span>，再贪心取动作。局限：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>问题</th><th>表现</th></tr></thead><tbody><tr><td>连续动作</td><td><span class="note-math-inline" data-math-inline="\arg\max_a Q(s,a)"></span> 困难</td></tr><tr><td>随机最优策略</td><td>贪心难以自然表达</td></tr><tr><td>非平稳</td><td>策略随 <span class="note-math-inline" data-math-inline="Q"></span> 间接改变</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>策略方法</strong>：直接优化 <span class="note-math-inline" data-math-inline="\pi_\theta(a\mid s)"></span>，优点：收敛性质较好、擅长连续/随机策略；缺点：易局部最优、评估方差大。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="目标函数" class="note-heading">目标函数</h2>
+<p class="note-paragraph">参数化策略后，用标量目标衡量 <span class="note-math-inline" data-math-inline="\pi_\theta"></span> 的好坏，常见三种等价形式：</p>
+<ol class="note-list">
+<li><strong>平均价值</strong>：<span class="note-math-inline" data-math-inline="J(\theta)=\mathbb{E}_{s\sim d}[v_{\pi_\theta}(s)]"></span></li>
+<li><strong>平均奖励</strong>：<span class="note-math-inline" data-math-inline="J(\theta)=\sum_s d(s)\sum_a \pi_\theta(a\mid s)\,r(s,a)"></span></li>
+<li><strong>轨迹回报</strong>：<span class="note-math-inline" data-math-inline="J(\theta)=\mathbb{E}_{\tau\sim p_\theta}[R(\tau)]"></span>，其中 <span class="note-math-inline" data-math-inline="R(\tau)=\sum_t r(s_t,a_t)"></span></li>
+</ol>
+<p class="note-paragraph">策略越好，这些目标越大。优化：</p>
+<div class="note-math-block" data-math-display="\theta_{t+1} \leftarrow \theta_t + \alpha\,\nabla_\theta J(\theta_t)"></div>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="策略梯度定理与-reinforce" class="note-heading">策略梯度定理与 REINFORCE</h2>
+<p class="note-paragraph">轨迹似然：</p>
+<div class="note-math-block" data-math-display="p_\theta(\tau)=p(s_1)\prod_t \pi_\theta(a_t\mid s_t)\,p(s_{t+1}\mid s_t,a_t)"></div>
+<p class="note-paragraph"><strong>似然比技巧</strong>给出经典形式：</p>
+<div class="note-math-block" data-math-display="\nabla_\theta J(\theta)
+=\mathbb{E}_{\tau\sim p_\theta}\Big[
+\sum_t \nabla_\theta\log\pi_\theta(a_t\mid s_t)\,G_t
+\Big],
+\quad
+G_t=\sum_{k=0}^{T-t-1}\gamma^k r_{t+k+1}."></div>
+<p class="note-paragraph"><strong>REINFORCE</strong>：用当前策略采样轨迹 → 计算 <span class="note-math-inline" data-math-inline="G_t"></span> → 上升 <span class="note-math-inline" data-math-inline="\log\pi"></span> 加权梯度。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>特点</th><th>说明</th></tr></thead><tbody><tr><td>同策略</td><td>数据必须由 <span class="note-math-inline" data-math-inline="\pi_\theta"></span> 产生</td></tr><tr><td>无偏</td><td>期望正确，但单条轨迹方差大</td></tr><tr><td>步长敏感</td><td>过大更新 → 坏策略 → 恶性循环</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2>降低方差：<span class="note-math-inline" data-math-inline="Q"></span>、基线与 Advantage</h2>
+<p class="note-paragraph">用动作价值代替完整回报：</p>
+<div class="note-math-block" data-math-display="\nabla_\theta J
+\approx\mathbb{E}\big[
+\nabla_\theta\log\pi_\theta(a_t\mid s_t)\,\hat Q^\pi(s_t,a_t)
+\big]"></div>
+<p class="note-paragraph">再减去状态基线（不改变期望，可降方差）：</p>
+<div class="note-math-block" data-math-display="\hat A^\pi(s_t,a_t)=\hat Q^\pi(s_t,a_t)-\hat V^\pi(s_t)"></div>
+<p class="note-paragraph">这就是 <strong>Advantage</strong>：动作比「平均预期」好多少。<span class="note-math-inline" data-math-inline="A&gt;0"></span> 提高概率，<span class="note-math-inline" data-math-inline="A&lt;0"></span> 降低概率。</p>
+<p class="note-paragraph">一步形式（A2C 常用）：</p>
+<div class="note-math-block" data-math-display="\hat A_t = r_t + \gamma V(s_{t+1}) - V(s_t)"></div>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="actor-critic" class="note-heading">Actor-Critic</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>角色</th><th>网络</th><th>作用</th></tr></thead><tbody><tr><td><strong>Actor</strong></td><td><span class="note-math-inline" data-math-inline="\pi_\theta"></span></td><td>按优势改进策略</td></tr><tr><td><strong>Critic</strong></td><td><span class="note-math-inline" data-math-inline="V_\phi"></span> 或 <span class="note-math-inline" data-math-inline="Q_\phi"></span></td><td>估计回报 / 优势</td></tr></tbody></table></div>
+<p class="note-paragraph">两种结构：</p>
+<ol class="note-list">
+<li><strong>双网络</strong>：策略与价值各自独立，更稳但参数更多</li>
+<li><strong>共享编码器</strong>：<span class="note-math-inline" data-math-inline="s\to z"></span>，再分支 policy / value 头（本实验采用）</li>
+</ol>
+<p class="note-paragraph">联合损失（与实验课一致）：</p>
+<div class="note-math-block" data-math-display="\mathcal{L}
+=\underbrace{-\mathbb{E}[\log\pi_\theta(a_t\mid s_t)\,\mathrm{stopgrad}(A_t)]}_{\mathcal{L}_\pi}
++c_v\,\underbrace{\mathbb{E}[(V_\phi(s_t)-G_t)^2]}_{\mathcal{L}_V}
+-c_e\,\mathbb{E}[\mathcal{H}(\pi_\theta(\cdot\mid s_t))]"></div>
+<ul class="note-list">
+<li><code>stopgrad(A)</code>：防止策略损失经 <span class="note-math-inline" data-math-inline="A"></span> 反向误更新 Critic</li>
+<li>熵项：防止过早确定性塌缩，维持探索</li>
+</ul>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="a2c--a3c-与同离策略要点" class="note-heading">A2C / A3C 与同离策略要点</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>算法</th><th>要点</th></tr></thead><tbody><tr><td><strong>A2C</strong></td><td>同步多环境采集，用 <span class="note-math-inline" data-math-inline="A=r+\gamma V(s&#x27;)-V(s)"></span> 更新</td></tr><tr><td><strong>A3C</strong></td><td>异步多 worker，提高吞吐</td></tr><tr><td>改进批量</td><td>Critic 用当前策略重采样动作，缓解离策略偏差</td></tr><tr><td>自然策略梯度</td><td>用 KL / Fisher 约束策略更新步长（TRPO 前身思想）</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="与-dqnlec05对照" class="note-heading">与 DQN（Lec05）对照</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>维度</th><th>DQN</th><th>Actor-Critic</th></tr></thead><tbody><tr><td>优化对象</td><td><span class="note-math-inline" data-math-inline="Q_\omega(s,a)"></span></td><td><span class="note-math-inline" data-math-inline="\pi_\theta,\ V_\phi"></span></td></tr><tr><td>探索</td><td><span class="note-math-inline" data-math-inline="\varepsilon"></span>-greedy</td><td>策略分布 + 熵正则</td></tr><tr><td>动作</td><td>离散贪心</td><td>采样 / 连续高斯均可</td></tr><tr><td>更新数据</td><td>离策略 replay</td><td>同策略轨迹（经典 AC）</td></tr><tr><td>方差</td><td>目标网络+replay 稳住</td><td>Advantage / GAE 降低</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>一句话</strong>：值方法学「状态-动作有多好」；策略梯度直接学「该怎么做」；Actor-Critic 用 Critic 给 Actor 当低方差的打分器。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="衔接实验" class="note-heading">衔接实验</h2>
+<p class="note-paragraph">实践见 <a href="短学期_LecExp06.html">LecExp06</a>：Monte Carlo AC（<span class="note-math-inline" data-math-inline="A_t=G_t-V(s_t)"></span>）于 CartPole + Atari Freeway / Pong。</p>
+</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#回顾与定位">回顾与定位</a></li><li class="note-toc-item note-toc-item--h2"><a href="#为什么要策略梯度">为什么要策略梯度</a></li><li class="note-toc-item note-toc-item--h2"><a href="#目标函数">目标函数</a></li><li class="note-toc-item note-toc-item--h2"><a href="#策略梯度定理与-reinforce">策略梯度定理与 REINFORCE</a></li><li class="note-toc-item note-toc-item--h2"><a href="#actor-critic">Actor-Critic</a></li><li class="note-toc-item note-toc-item--h2"><a href="#a2c--a3c-与同离策略要点">A2C / A3C 与同离策略要点</a></li><li class="note-toc-item note-toc-item--h2"><a href="#与-dqnlec05对照">与 DQN（Lec05）对照</a></li><li class="note-toc-item note-toc-item--h2"><a href="#衔接实验">衔接实验</a></li></ol></aside></div>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E7%9F%AD%E5%AD%A6%E6%9C%9F02_%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%AE%AD%2F%E7%9F%AD%E5%AD%A6%E6%9C%9F_Lec06#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=短学期02_强化学习与智能体实训">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>

@@ -281,55 +281,63 @@ def evaluate(q_net, env_id, n_episodes=5, device="cpu"):
 #rat1#
 ## 实验结果（Freeway 实测）
 
-**代码与输出目录**：`tdlist/net/ver01_0704/exp5/`
+**代码与输出**：`tdlist/net/ver01_0704/exp5/`（曲线图同步到 `site/static/exp5/`）
 
 | 文件 | 说明 |
 |------|------|
 | `train_freeway_dqn.py` | 完整 DQN + DDQN 训练脚本 |
-| `outputs/dqn_returns.png` | DQN 训练回报曲线 |
-| `outputs/ddqn_returns.png` | DDQN 训练回报曲线 |
-| `outputs/compare_eval.png` | 评估回报对比 |
+| `outputs/*_metrics.json` | 数值指标（下表据此整理） |
 | `outputs/summary.md` | 实验小结 |
-| `outputs/dqn_freeway.pt` / `ddqn_freeway.pt` | 模型权重 |
+| `outputs/*.pt` | 模型权重 |
 
 ### 实验设置
 
 | 超参 | 取值 |
 |------|------|
 | 环境 | `ALE/Freeway-v5` |
-| 训练步数 | 25,000 × 2（DQN / DDQN 各一轮） |
+| 训练步数 | **50,000** × 2（DQN / DDQN 各一轮） |
 | 预处理 | AtariPreprocessing 84×84 灰度 + 4 帧堆叠 |
-| batch | 32，replay 30k，learn_start 2k |
-| ε | 1.0 → 0.05，20k 步线性衰减 |
-| 优化器 | Adam 1e-4，Huber loss，梯度裁剪 10 |
+| batch | 32，replay 50k，learn_start 5k，target_sync 1k |
+| ε | 1.0 → 0.05，60k 步线性衰减 |
+| 优化器 | Adam 1e-4，Huber loss |
+| seed | 42 |
 
 ### 评估对比
 
 | 指标 | DQN | Double DQN |
 |------|-----|------------|
-| 最终评估（10 ep 贪心） | **9.60** | 0.00 |
-| 训练中最佳 eval | 14.20 @ 10k | **22.40** @ 15k/20k |
-| 末段平均 Q 估计 | 0.013 | -0.017 |
+| 最终评估（10 ep 贪心） | 0.00 | **22.10** |
+| 训练中最佳 eval | 12.6 @ 20k | **22.4** @ 20k–50k |
+| eval 轨迹 | 0 → 12.6 → 7.4 → 0 → 0 | 19.8 → 22.4（稳定） |
+| 末段平均 Q 估计 | 0.013 | 0.017 |
+| 训练回合最高回报 | 0 | **19** |
 
-> Freeway 单局得分即过马路次数；随机策略约 0，训练后 DQN/DDQN 均可达到 10+。
+> Freeway 单局得分 = 小鸡过马路次数；随机策略约 0。本轮 **DDQN 稳定学到 ~22 分**。
+
+### 曲线图
+
+![DQN vs DDQN 评估对比](../../../static/exp5/compare_eval.png)
+
+![DQN 训练回报](../../../static/exp5/dqn_returns.png)
+
+![DDQN 训练回报](../../../static/exp5/ddqn_returns.png)
 
 ### 观察
 
-1. **DQN** 在 10k 步 eval 达 14.2，最终评估 9.6，已学会基本过马路策略。
-2. **DDQN** 中期 eval 更高（22.4），但最终贪心评估波动大（0.0）——短训 + ε 已衰减时策略尚不稳定，延长步数通常更稳。
-3. DDQN 末段 Q 估计略低于 DQN，与 **缓解 Q 过估计** 的方向一致。
-4. 必做项（手写 DQN + Freeway 跑通）与作业项（DDQN 对比）均已完成。
+1. **DDQN** 从 10k 步起 eval 已达 19.8，此后稳定在约 **22.4**，最终贪心评估 **22.1**——作业项（改 Double DQN）效果明确。
+2. **DQN** 在 20k 步出现峰值 12.6，但后期策略塌缩到 0：短训下经典 DQN 不如 DDQN 稳。
+3. 必做项（手写 DQN + Freeway）与作业项（DDQN 对比）均已跑通；曲线与权重见 `exp5/outputs/`。
 
 #rat2#
 ## 小结
 
 | 模块 | 要点 |
 |------|------|
-| 环境 | Freeway，3 动作，84×84×4 输入 |
-| DQN | Replay + Target Net + ε-greedy → 有效策略 |
-| DDQN | 在线网络选动作、目标网络估 Q → Q 更保守 |
-| 工程 | `AtariPreprocessing` + `FrameStackObservation`；注意 obs 为 CHW `(4,84,84)` |
-| 输出 | 见 `exp5/outputs/`，含曲线图、权重、小结 |
+| 环境 | Freeway，3 动作，输入 `(4,84,84)` CHW |
+| DQN | Replay + Target Net + ε-greedy；中期有效、终局易塌 |
+| DDQN | 在线选 \(a'\)、目标估 Q → 本实验终局 **22.1**，显著更稳 |
+| 工程 | `AtariPreprocessing` + `FrameStackObservation` |
+| 产出 | 曲线 / metrics / 权重见 `exp5/outputs/` 与 `site/static/exp5/` |
 
 **运行复现**：
 
@@ -338,4 +346,4 @@ cd tdlist/net/ver01_0704/exp5
 python train_freeway_dqn.py
 ```
 
-**一句话**：Freeway 上 DQN 可学得过马路；DDQN 中期 eval 更优、Q 估计更保守，完整对比需更长训练。
+**一句话**：50k 步 Freeway 上 **Double DQN 终局评估 22.1 且训练稳定**，经典 DQN 仅中期短暂有效后塌缩。

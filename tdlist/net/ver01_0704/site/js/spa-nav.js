@@ -5,6 +5,7 @@ import {
   updateNavActive,
 } from "./layout.js";
 import { refreshCursorTrailToggle } from "./cursor-trail.js";
+import { gateMouseDiaryNavigation } from "./access-gate.js";
 
 let navigating = false;
 
@@ -30,7 +31,7 @@ export function initSpaNavigation(onNavigate) {
     return;
   }
 
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", async (event) => {
     if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return;
     }
@@ -39,6 +40,9 @@ export function initSpaNavigation(onNavigate) {
     if (!shouldHandleLink(link)) return;
 
     event.preventDefault();
+    if (await gateMouseDiaryNavigation(link.href)) {
+      return;
+    }
     navigateTo(link.href, onNavigate);
   });
 
@@ -54,6 +58,10 @@ async function navigateTo(url, onNavigate, { fromPopstate = false } = {}) {
   try {
     const targetUrl = new URL(url, window.location.href).href;
     if (!fromPopstate && targetUrl === window.location.href) {
+      return;
+    }
+
+    if (await gateMouseDiaryNavigation(targetUrl)) {
       return;
     }
 

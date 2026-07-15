@@ -25,18 +25,19 @@ ENV_ID = "ALE/Freeway-v5"
 
 @dataclass
 class TrainConfig:
-    total_steps: int = 25_000
+    # Defaults match the recorded LecExp05 50k-step Freeway run in outputs/
+    total_steps: int = 50_000
     batch_size: int = 32
-    replay_capacity: int = 30_000
-    learn_start: int = 2_000
-    target_sync: int = 500
+    replay_capacity: int = 50_000
+    learn_start: int = 5_000
+    target_sync: int = 1_000
     gamma: float = 0.99
     lr: float = 1e-4
     eps_start: float = 1.0
     eps_end: float = 0.05
-    eps_decay: int = 20_000
-    log_every: int = 1_000
-    eval_every: int = 5_000
+    eps_decay: int = 60_000
+    log_every: int = 2_000
+    eval_every: int = 10_000
     seed: int = 42
 
 

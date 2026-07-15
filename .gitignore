@@ -1,5 +1,5 @@
-# N.E.K.O. 完整发行包体积过大，不纳入版本控制
-raw_src/neko/
+# N.E.K.O. / Live2D 等原始资源体积大，不纳入版本控制与 GitHub 上传
+raw_src/
 
 # 本地构建产物 / 依赖（GitHub Pages 不需要）
 tdlist/net/ver01_0704/sync/node_modules/

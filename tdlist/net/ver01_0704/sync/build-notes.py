@@ -379,7 +379,7 @@ def markdown_to_html(md: str) -> str:
         code_lang = ""
 
     inline_pattern = re.compile(
-        r"(\$[^$\n]+\$|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))"
+        r"(!\[[^\]]*\]\([^)]+\)|\$[^$\n]+\$|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))"
     )
 
     def render_inline(text: str) -> str:
@@ -396,6 +396,16 @@ def markdown_to_html(md: str) -> str:
                     continue
                 if chunk.startswith("$") and chunk.endswith("$") and len(chunk) > 2:
                     rendered.append(math_inline_placeholder(chunk[1:-1]))
+                elif chunk.startswith("![") and "](" in chunk and chunk.endswith(")"):
+                    match = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", chunk)
+                    if match:
+                        alt = html.escape(match.group(1), quote=True)
+                        src = html.escape(match.group(2), quote=True)
+                        rendered.append(
+                            f'<img class="note-embed-image" src="{src}" alt="{alt}" loading="lazy">'
+                        )
+                    else:
+                        rendered.append(html.escape(chunk))
                 elif chunk.startswith("**") and chunk.endswith("**"):
                     rendered.append(f"<strong>{html.escape(chunk[2:-2])}</strong>")
                 elif chunk.startswith("*") and chunk.endswith("*"):

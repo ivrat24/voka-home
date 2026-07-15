@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Monte Carlo Actor-Critic 实现——共享编码器、Advantage、熵正则，CartPole + Freeway/Pong 实测">
+  <title>短学期 LecExp06 · 课程笔记 · Alstr（Call Sign ☘ VLinv）</title>
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="短学期02_强化学习与智能体实训/短学期_LecExp06">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=短学期02_强化学习与智能体实训">短学期02 强化学习与智能体实训</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">短学期 LecExp06</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">短学期 LecExp06</h1>
+        <p class="note-meta"><time datetime="2026-07-15">2026-07-15</time></p>
+        <div class="note-tags"><span class="note-tag">强化学习</span><span class="note-tag">Actor-Critic</span><span class="note-tag">策略梯度</span><span class="note-tag">Atari</span><span class="note-tag">CartPole</span><span class="note-tag">短学期</span><span class="note-tag">实验</span></div>
+        <p class="note-description">Monte Carlo Actor-Critic 实现——共享编码器、Advantage、熵正则，CartPole + Freeway/Pong 实测</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="实验目标" class="note-heading">实验目标</h2>
+<ol class="note-list">
+<li>实现基础 <strong>Actor-Critic</strong>（共享编码器 + 策略头 / 价值头）</li>
+<li>用 Monte Carlo return 构造 <strong>Advantage</strong> <span class="note-math-inline" data-math-inline="A_t=G_t-V(s_t)"></span></li>
+<li>联合优化 <strong>policy loss / value loss / entropy</strong></li>
+<li>至少在 <strong>两个 Atari 环境</strong>上测试（本实验：Freeway、Pong），并以 CartPole 验证实现</li>
+<li>可视化回报、损失、动作分布</li>
+</ol>
+<p class="note-paragraph"><strong>前置</strong>：<a href="短学期_Lec06.html">Lec06</a> 理论、<a href="短学期_LecExp05.html">LecExp05</a> DQN 对照、课程 notebook <code>materials/exp6_ac.ipynb</code>。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="环境与依赖" class="note-heading">环境与依赖</h2>
+<pre class="note-code-block"><code class="language-bash">conda activate rl-course
+pip install gymnasium[atari,accept-rom-license] ale-py torch matplotlib numpy
+</code></pre>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>环境</th><th>用途</th><th>观测 / 动作</th></tr></thead><tbody><tr><td><code>CartPole-v1</code></td><td>调试实现（非 Atari 成绩）</td><td>向量 4 维 / Discrete(2)</td></tr><tr><td><code>ALE/Freeway-v5</code></td><td>正式实验</td><td>预处理后 <code>(4,84,84)</code> / Discrete(3)</td></tr><tr><td><code>ALE/Pong-v5</code></td><td>正式实验</td><td>同上 / Discrete(6)</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>预处理（Atari 推荐扩展）</strong>：灰度 84×84、<code>frame_skip=4</code>、4 帧堆叠——与笔记及 Exp5 一致，显著降低原始 RGB 难度。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="网络结构" class="note-heading">网络结构</h2>
+<pre class="note-code-block"><code class="language-python">class ActorCriticNet(nn.Module):
+    def forward(self, x):
+        z = self.shared(self.encoder(x))   # 共享特征
+        logits = self.policy_head(z)       # Actor → Categorical
+        value  = self.value_head(z).squeeze(-1)  # Critic → V(s)
+        return logits, value
+</code></pre>
+<ul class="note-list">
+<li>图像：CNN encoder → Linear(256)</li>
+<li>向量：MLP(128-128)</li>
+<li>动作：<code>Categorical(logits=...).sample()</code>（非 ε-greedy）</li>
+</ul>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="advantage-与损失" class="note-heading">Advantage 与损失</h2>
+<div class="note-math-block" data-math-display="G_t=\sum_{k=0}^{T-t-1}\gamma^k r_{t+k+1},\quad
+A_t=G_t-V_\phi(s_t)"></div>
+<pre class="note-code-block"><code class="language-python">advantages = returns - values_t.detach()   # stopgrad：基线不反向进 Critic
+policy_loss = -(log_probs_t * advantages).mean()
+value_loss  = F.mse_loss(values_t, returns)
+entropy_loss = -entropies_t.mean()         # 最小化总损失 = 最大化熵
+loss = policy_loss + c_v * value_loss + c_e * entropy_loss
+</code></pre>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>项</th><th>作用</th></tr></thead><tbody><tr><td><span class="note-math-inline" data-math-inline="\mathcal{L}_\pi"></span></td><td><span class="note-math-inline" data-math-inline="A&gt;0"></span> 提高动作概率，反之降低</td></tr><tr><td><span class="note-math-inline" data-math-inline="\mathcal{L}_V"></span></td><td>Critic 拟合 <span class="note-math-inline" data-math-inline="G_t"></span>，成为更好基线</td></tr><tr><td><span class="note-math-inline" data-math-inline="-\mathcal{H}"></span></td><td>防止策略过早塌缩</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="训练主循环要点" class="note-heading">训练主循环（要点）</h2>
+<p class="note-paragraph">每个 episode：采样整条轨迹 → 算 <span class="note-math-inline" data-math-inline="G_t,A_t"></span> → <strong>只更新一次</strong>（Monte Carlo AC）。</p>
+<pre class="note-code-block"><code class="language-text">for episode:
+  collect (r, logπ, V, H) until done / max_steps
+  G ← discounted_returns(r)
+  A ← G - stopgrad(V)
+  L ← Lπ + cv Lv + ce (-H)
+  backward + grad_clip + Adam step
+</code></pre>
+<p class="note-paragraph"><strong>代码与输出</strong>：<code>tdlist/net/ver01_0704/exp6/</code></p>
+<pre class="note-code-block"><code class="language-bash">cd tdlist/net/ver01_0704/exp6
+python train_actor_critic.py --suite all      # CartPole + Freeway + Pong
+python train_actor_critic.py --suite cartpole
+</code></pre>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="超参本次实测" class="note-heading">超参（本次实测）</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>环境</th><th>episodes</th><th>max_steps</th><th>lr</th><th>entropy_coef</th><th>预处理</th></tr></thead><tbody><tr><td>CartPole</td><td>300</td><td>500</td><td>1e-3</td><td>0.01</td><td>否</td></tr><tr><td>Freeway</td><td>40</td><td>500</td><td>1e-4</td><td>0.02</td><td>是</td></tr><tr><td>Pong</td><td>40</td><td>500</td><td>1e-4</td><td>0.02</td><td>是</td></tr></tbody></table></div>
+<p class="note-paragraph">另：Advantage 标准化、<code>grad_clip=10</code>、<code>gamma=0.99</code>。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="实验结果实测" class="note-heading">实验结果（实测）</h2>
+<p class="note-paragraph"><strong>代码与输出</strong>：<code>tdlist/net/ver01_0704/exp6/</code>（图同步 <code>site/static/exp6/</code>）</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>环境</th><th>final_eval</th><th>末 10 局均值</th><th>训练最佳</th><th>评估峰值</th></tr></thead><tbody><tr><td>CartPole-v1</td><td><strong>39.2</strong></td><td>26.3</td><td>107</td><td><strong>62.2</strong> @ ep250</td></tr><tr><td>ALE/Freeway-v5</td><td>0.0</td><td>0.0</td><td>0</td><td>0（短训未得分）</td></tr><tr><td>ALE/Pong-v5</td><td><strong>-13.0</strong></td><td>-10.2</td><td><strong>-6</strong></td><td>-13（全程）</td></tr></tbody></table></div>
+<h3 id="cartpole-曲线" class="note-heading">CartPole 曲线</h3>
+<p class="note-paragraph"><img class="note-embed-image" src="../../../static/exp6/cartpole_returns.png" alt="CartPole AC 训练曲线" loading="lazy"></p>
+<p class="note-paragraph"><img class="note-embed-image" src="../../../static/exp6/cartpole_actions.png" alt="CartPole 动作分布" loading="lazy"></p>
+<h3 id="freeway--pong" class="note-heading">Freeway / Pong</h3>
+<p class="note-paragraph"><img class="note-embed-image" src="../../../static/exp6/freeway_returns.png" alt="Freeway 训练曲线" loading="lazy"></p>
+<p class="note-paragraph"><img class="note-embed-image" src="../../../static/exp6/pong_returns.png" alt="Pong 训练曲线" loading="lazy"></p>
+<h3 id="观察" class="note-heading">观察</h3>
+<ol class="note-list">
+<li><strong>CartPole 验证通过</strong>：贪心评估从约 9 分升至峰值 62，训练中有局达到 107——共享编码器 AC + <span class="note-math-inline" data-math-inline="A_t=G_t-V"></span> 实现正确。</li>
+<li><strong>Freeway 短训未出分</strong>：40 个 episode、每局最多 500 预处理步，稀疏过马路奖励下 MC-AC 难以见到正奖励；算法管线与预处理已完整跑通。加长到数百～数千 episode 或换 n-step/GAE 通常更有效（见 notebook 诊断节）。</li>
+<li><strong>Pong 略好于纯败局</strong>：最佳训练回报 -6、终评 -13（随机常 ≈ -21），说明策略在探索中有微弱偏好，但仍远未打赢。</li>
+<li>必做项：双 Atari 环境（Freeway + Pong）+ AC 核心组件（共享头、advantage、熵）均已完成。</li>
+</ol>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="诊断速查摘自-notebook" class="note-heading">诊断速查（摘自 notebook）</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>现象</th><th>处理</th></tr></thead><tbody><tr><td>回报不升</td><td>加预处理 / 加长训练；调 lr</td></tr><tr><td>loss 震荡 / NaN</td><td>降 lr；收紧 grad clip；标准化 advantage</td></tr><tr><td>动作塌缩单动作</td><td>增大 <code>entropy_coef</code></td></tr><tr><td>Critic 不准</td><td>n-step / GAE（扩展）</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="与-lecexp05dqn差异" class="note-heading">与 LecExp05（DQN）差异</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>维度</th><th>Exp5 DQN</th><th>Exp6 AC</th></tr></thead><tbody><tr><td>目标</td><td><span class="note-math-inline" data-math-inline="Q(s,a)"></span></td><td><span class="note-math-inline" data-math-inline="\pi,V"></span></td></tr><tr><td>探索</td><td><span class="note-math-inline" data-math-inline="\varepsilon"></span>-greedy</td><td>熵正则 + 采样</td></tr><tr><td>更新</td><td>离策略 replay</td><td>同策略 episode</td></tr><tr><td>Freeway</td><td>DDQN 50k 步终评 ~22</td><td>40 ep 短训 0（需更长）</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="小结" class="note-heading">小结</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>模块</th><th>要点</th></tr></thead><tbody><tr><td>Actor</td><td>Softmax 策略，按 <span class="note-math-inline" data-math-inline="A"></span> 改概率</td></tr><tr><td>Critic</td><td>拟合 <span class="note-math-inline" data-math-inline="G_t"></span> 作基线</td></tr><tr><td>工程</td><td>CartPole 先验实现；Atari 务必预处理</td></tr><tr><td>产出</td><td><code>exp6/outputs/</code>，图见 <code>site/static/exp6/</code></td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>运行复现</strong>：</p>
+<pre class="note-code-block"><code class="language-bash">cd tdlist/net/ver01_0704/exp6
+python train_actor_critic.py --suite all
+</code></pre>
+<p class="note-paragraph"><strong>一句话</strong>：Monte Carlo AC 在 CartPole 上证明有效；Freeway/Pong 短训主要验证像素管线，正式出分需显著加长训练或引入 n-step/GAE。</p>
+</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#实验目标">实验目标</a></li><li class="note-toc-item note-toc-item--h2"><a href="#环境与依赖">环境与依赖</a></li><li class="note-toc-item note-toc-item--h2"><a href="#网络结构">网络结构</a></li><li class="note-toc-item note-toc-item--h2"><a href="#advantage-与损失">Advantage 与损失</a></li><li class="note-toc-item note-toc-item--h2"><a href="#训练主循环要点">训练主循环（要点）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#超参本次实测">超参（本次实测）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#实验结果实测">实验结果（实测）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#cartpole-曲线">CartPole 曲线</a></li><li class="note-toc-item note-toc-item--h3"><a href="#freeway--pong">Freeway / Pong</a></li><li class="note-toc-item note-toc-item--h3"><a href="#观察">观察</a></li><li class="note-toc-item note-toc-item--h2"><a href="#诊断速查摘自-notebook">诊断速查（摘自 notebook）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#与-lecexp05dqn差异">与 LecExp05（DQN）差异</a></li><li class="note-toc-item note-toc-item--h2"><a href="#小结">小结</a></li></ol></aside></div>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E7%9F%AD%E5%AD%A6%E6%9C%9F02_%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%AE%AD%2F%E7%9F%AD%E5%AD%A6%E6%9C%9F_LecExp06#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=短学期02_强化学习与智能体实训">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>

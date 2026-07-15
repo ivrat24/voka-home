@@ -1380,6 +1380,40 @@ code {
   opacity: 0.78;
 }
 
+.agent-lab-reader-note {
+  margin-top: 0.35rem;
+}
+
+.agent-lab-coming-soon {
+  margin: 0;
+  padding: 2.4rem 1.25rem;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text);
+  border: 1px dashed color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--bg-card) 88%, transparent);
+}
+
+.editor-only-gate-message {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.75;
+  text-align: center;
+  white-space: normal;
+}
+
+.editor-only-gate-placeholder {
+  min-height: 40vh;
+  display: grid;
+  place-items: center;
+}
+
+.editor-only-gate-dialog .dialog-footer {
+  justify-content: center;
+}
+
 [data-theme="light"] .agent-updates-viewport {
   border-color: var(--border-box);
   border-top-color: #a78bfa;
@@ -2505,6 +2539,17 @@ code {
 
 .note-body--optimized .note-code-block {
   margin: 1rem 0;
+}
+
+.note-body--optimized .note-embed-image,
+.note-body .note-embed-image {
+  display: block;
+  width: min(100%, 720px);
+  height: auto;
+  margin: 0.85rem 0 1.1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-box);
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .note-body--optimized .note-math-figure,
