@@ -37,18 +37,20 @@
     </nav>
   </header>
 
-  <main class="main-layout module-page">
+  <main class="main-layout module-page notes-library-page">
     <nav class="breadcrumb" aria-label="面包屑">
       <a href="../index.html">首页</a>
       <span aria-hidden="true">/</span>
       <span>课程笔记</span>
     </nav>
 
-    <header class="module-header module-header--course">
+    <header class="module-header module-header--course notes-library-hero">
       <span class="module-icon" aria-hidden="true"><img class="flower-icon flower-icon--lg" src="../static/icons/flower-course.svg" alt=""></span>
       <div>
+        <p class="notes-library-kicker published-only">笔记库</p>
         <h1>课程笔记</h1>
-        <p>Quartz 风格笔记区：双击本站点 HTML 即可本地编辑；发布到 GitHub 后访客只读。</p>
+        <p class="local-only">Quartz 风格笔记区：双击本站点 HTML 即可本地编辑；发布到 GitHub 后访客只读。</p>
+        <p class="published-only notes-library-lead">按课程合集浏览，像翻阅个人知识库一样进入各篇笔记。</p>
       </div>
     </header>
 
@@ -63,15 +65,20 @@
       <div id="note-editor-root" class="note-editor-root" hidden></div>
     </section>
 
-    <section class="module-section">
-      <h2>课程列表</h2>
-      <p class="published-only note-readonly-hint muted">先进入课程文件夹，再打开各课笔记；资料文件可在课程页下载。</p>
-      <div id="course-note-index" class="note-index">
+    <section class="module-section notes-library-section">
+      <div class="notes-library-section-head">
+        <div>
+          <h2>课程合集</h2>
+          <p class="published-only notes-library-hint muted">选择一门课程，查看其中的讲义与实验笔记。</p>
+          <p class="local-only section-lead muted">课程文件夹对应 <code>note_content/</code> 下的目录。</p>
+        </div>
+      </div>
+      <div id="course-note-index" class="note-index notes-library-shell">
         <p class="muted">加载中…</p>
       </div>
     </section>
 
-    <section class="module-section">
+    <section class="module-section local-only">
       <h2>工作流</h2>
       <div class="content-card">
         <ol class="module-list module-list--ordered">

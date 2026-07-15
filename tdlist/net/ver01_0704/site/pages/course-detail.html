@@ -33,18 +33,19 @@
     </nav>
   </header>
 
-  <main class="main-layout module-page">
+  <main class="main-layout module-page notes-library-page">
     <nav class="breadcrumb" aria-label="面包屑">
       <a href="../index.html">首页</a>
       <span aria-hidden="true">/</span>
-      <a href="course.html">课程</a>
+      <a href="course.html">课程笔记</a>
       <span aria-hidden="true">/</span>
       <span id="course-detail-breadcrumb-name">…</span>
     </nav>
 
-    <header class="module-header module-header--course">
+    <header class="module-header module-header--course notes-library-hero">
       <span class="module-icon" aria-hidden="true"><img class="flower-icon flower-icon--lg" src="../static/icons/flower-course.svg" alt=""></span>
       <div>
+        <p class="notes-library-kicker published-only">课程合集</p>
         <h1 id="course-detail-title">课程</h1>
         <p class="muted" id="course-detail-meta">加载中…</p>
       </div>
@@ -76,10 +77,14 @@
       </details>
     </section>
 
-    <section class="module-section">
-      <h2>课程笔记</h2>
-      <p class="published-only note-readonly-hint muted">点击笔记卡片进入单课页面，可阅读与下载 PDF。</p>
-      <div id="course-detail-notes" class="note-index">
+    <section class="module-section notes-library-section">
+      <div class="notes-library-section-head">
+        <div>
+          <h2>笔记目录</h2>
+          <p class="published-only notes-library-hint muted">点击标题进入阅读页；需要时可下载 PDF。</p>
+        </div>
+      </div>
+      <div id="course-detail-notes" class="note-index notes-library-shell">
         <p class="muted">加载中…</p>
       </div>
     </section>

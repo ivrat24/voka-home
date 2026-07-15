@@ -64,43 +64,47 @@ function renderNoteCard(note, href, editHref) {
   const editBtn = canEditNotes()
     ? `<a class="note-card-edit btn btn-ghost btn-sm local-only" href="${escapeHtml(editHref)}">编辑</a>`
     : "";
-  const downloadBtn = `<button type="button" class="note-card-download btn btn-ghost btn-sm" data-note-download="${escapeHtml(note.slug)}">下载 PDF</button>`;
+  const downloadBtn = `<button type="button" class="note-card-download btn btn-ghost btn-sm" data-note-download="${escapeHtml(note.slug)}">PDF</button>`;
 
   return `
-    <article class="note-card">
+    <article class="note-card note-entry">
       <a class="note-card-hit" href="${escapeHtml(href)}" aria-label="打开笔记：${escapeHtml(note.title)}"></a>
       <div class="note-card-body">
-        <h3 class="note-card-title">${escapeHtml(note.title)}</h3>
-        ${date}
+        <div class="note-entry-top">
+          <h3 class="note-card-title">${escapeHtml(note.title)}</h3>
+          ${date}
+        </div>
         ${description}
         ${tags ? `<div class="note-card-tags">${tags}</div>` : ""}
       </div>
       <div class="note-card-actions">
         ${editBtn}
         ${downloadBtn}
-        <span class="note-card-arrow" aria-hidden="true">→</span>
+        <span class="note-card-arrow" aria-hidden="true">阅读</span>
       </div>
     </article>
   `;
 }
 
 function renderCourseCard(course, href) {
+  const count = course.noteCount || 0;
   const meta = [
-    `${course.noteCount || 0} 篇笔记`,
-    course.latestDate ? `最近 ${escapeHtml(course.latestDate)}` : "",
+    `${count} 篇笔记`,
+    course.latestDate ? `更新于 ${escapeHtml(course.latestDate)}` : "",
   ]
     .filter(Boolean)
     .join(" · ");
 
   return `
-    <article class="course-folder-card">
+    <article class="course-folder-card notes-vault-item">
       <a class="course-folder-card__hit" href="${escapeHtml(href)}" aria-label="进入课程：${escapeHtml(course.title)}"></a>
-      <div class="course-folder-card__icon" aria-hidden="true">📁</div>
+      <div class="course-folder-card__mark" aria-hidden="true"></div>
       <div class="course-folder-card__body">
         <h3 class="course-folder-card__title">${escapeHtml(course.title)}</h3>
         <p class="course-folder-card__meta muted">${meta}</p>
       </div>
-      <span class="course-folder-card__arrow" aria-hidden="true">→</span>
+      <span class="course-folder-card__count" aria-hidden="true">${count}</span>
+      <span class="course-folder-card__arrow" aria-hidden="true">进入</span>
     </article>
   `;
 }
@@ -134,10 +138,10 @@ function renderCourseIndex(container, manifest) {
     .join("");
 
   const generated = manifest.generatedAt
-    ? `<p class="note-index-meta muted">索引更新：${escapeHtml(manifest.generatedAt)} · 共 ${courses.length} 门课程</p>`
-    : "";
+    ? `<p class="note-index-meta muted">共 ${courses.length} 门课程 · 索引 ${escapeHtml(manifest.generatedAt)}</p>`
+    : `<p class="note-index-meta muted">共 ${courses.length} 门课程</p>`;
 
-  container.innerHTML = `${generated}<div class="course-folder-grid">${cards}</div>`;
+  container.innerHTML = `${generated}<div class="course-folder-grid notes-vault-list">${cards}</div>`;
 }
 
 function renderNoteIndex(container, manifest, basePath = "", courseSlug = null) {
@@ -164,7 +168,7 @@ function renderNoteIndex(container, manifest, basePath = "", courseSlug = null) 
     })
     .join("");
 
-  container.innerHTML = `<div class="note-index-grid">${cards}</div>`;
+  container.innerHTML = `<div class="note-index-grid notes-entry-list">${cards}</div>`;
   bindNoteDownloadButtons(container, basePath);
 }
 

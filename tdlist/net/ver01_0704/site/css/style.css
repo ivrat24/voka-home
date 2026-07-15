@@ -1945,6 +1945,16 @@ code {
   flex-shrink: 0;
 }
 
+.course-folder-card__mark {
+  flex-shrink: 0;
+  width: 0.28rem;
+  align-self: stretch;
+  min-height: 2.4rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7dd3fc 0%, #60a5fa 55%, #3b82f6 100%);
+  opacity: 0.85;
+}
+
 .course-folder-card__body {
   flex: 1;
   min-width: 0;
@@ -1961,10 +1971,194 @@ code {
   font-size: 0.82rem;
 }
 
+.course-folder-card__count {
+  flex-shrink: 0;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #60a5fa 35%, var(--border));
+  background: color-mix(in srgb, #60a5fa 12%, transparent);
+  color: #93c5fd;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .course-folder-card__arrow {
   flex-shrink: 0;
   color: var(--accent);
   opacity: 0.7;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+/* ── 读者课程页：笔记库阅读排版 ── */
+
+.notes-library-page {
+  max-width: min(920px, var(--page-max));
+}
+
+.notes-library-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(96, 165, 250, 0.12) 0%, transparent 48%),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 92%, #0b1220) 0%, var(--bg-card) 100%);
+}
+
+.notes-library-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+
+.notes-library-lead,
+.notes-library-hint {
+  margin: 0.15rem 0 0;
+  max-width: 36rem;
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.notes-library-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.notes-library-section-head h2 {
+  margin: 0 0 0.35rem;
+}
+
+.notes-library-shell {
+  padding: 1rem 1.1rem 1.15rem;
+  border: 1px solid color-mix(in srgb, #60a5fa 22%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, transparent 40%),
+    color-mix(in srgb, var(--bg-card) 94%, #071018);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.notes-library-shell .note-index-meta {
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, #60a5fa 16%, var(--border));
+  font-size: 0.8rem;
+}
+
+[data-site-mode="published"] .notes-vault-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+[data-site-mode="published"] .notes-vault-item {
+  gap: 0.95rem;
+  padding: 1.05rem 1.15rem;
+  border-radius: calc(var(--radius-md) + 2px);
+  border-color: color-mix(in srgb, #60a5fa 18%, var(--border));
+  background: color-mix(in srgb, var(--bg-card-solid) 78%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+[data-site-mode="published"] .notes-vault-item:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, #60a5fa 48%, var(--border));
+  box-shadow: 0 10px 26px rgba(8, 16, 32, 0.28);
+}
+
+[data-site-mode="published"] .notes-vault-item .course-folder-card__title {
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+[data-site-mode="published"] .notes-entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+[data-site-mode="published"] .note-entry {
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.05rem 1.15rem;
+  border-radius: calc(var(--radius-md) + 2px);
+  border: 1px solid color-mix(in srgb, #60a5fa 16%, var(--border));
+  border-top: 1px solid color-mix(in srgb, #60a5fa 16%, var(--border));
+  border-left: 3px solid color-mix(in srgb, #60a5fa 72%, transparent);
+  background: color-mix(in srgb, var(--bg-card-solid) 82%, transparent);
+  box-shadow: none;
+}
+
+[data-site-mode="published"] .note-entry:hover {
+  transform: none;
+  border-color: color-mix(in srgb, #60a5fa 40%, var(--border));
+  background: color-mix(in srgb, #60a5fa 8%, var(--bg-card-solid));
+}
+
+[data-site-mode="published"] .note-entry-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  margin-bottom: 0.35rem;
+}
+
+[data-site-mode="published"] .note-entry .note-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+}
+
+[data-site-mode="published"] .note-entry .note-card-date {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-site-mode="published"] .note-entry .note-card-desc {
+  margin: 0 0 0.55rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--text) 78%, var(--text-muted));
+}
+
+[data-site-mode="published"] .note-entry .note-card-arrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+}
+
+[data-theme="light"] .notes-library-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(244, 248, 255, 0.9) 100%);
+  border-color: color-mix(in srgb, #60a5fa 28%, var(--border-box));
+  box-shadow: 0 10px 28px rgba(21, 32, 51, 0.08);
+}
+
+[data-theme="light"] .notes-library-kicker {
+  color: #3b82f6;
+}
+
+@media (max-width: 720px) {
+  [data-site-mode="published"] .note-entry {
+    flex-direction: column;
+  }
+
+  [data-site-mode="published"] .note-entry .note-card-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 .course-materials-panel {
