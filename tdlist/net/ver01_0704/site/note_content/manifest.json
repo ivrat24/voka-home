@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-15T00:55:15",
+  "generatedAt": "2026-07-17T11:27:14",
   "contentDir": "note_content",
   "courses": [
     {
       "slug": "短学期02_强化学习与智能体实训",
       "title": "短学期02 强化学习与智能体实训",
-      "noteCount": 13,
-      "latestDate": "2026-07-15"
+      "noteCount": 14,
+      "latestDate": "2026-07-17"
     }
   ],
   "materials": [
@@ -55,6 +55,24 @@
     }
   ],
   "notes": [
+    {
+      "slug": "短学期02_强化学习与智能体实训/短学期_Lec07",
+      "courseSlug": "短学期02_强化学习与智能体实训",
+      "title": "短学期 Lec07",
+      "date": "2026-07-17",
+      "tags": [
+        "强化学习",
+        "DDPG",
+        "TRPO",
+        "PPO",
+        "SAC",
+        "策略优化",
+        "短学期"
+      ],
+      "description": "确定性策略梯度与 DDPG、TRPO 可信域、PPO 裁剪目标与 SAC 最大熵方法",
+      "source": "note_content/短学期02_强化学习与智能体实训/短学期_Lec07.md",
+      "href": "pages/notes/短学期02_强化学习与智能体实训/短学期_Lec07.html"
+    },
     {
       "slug": "短学期02_强化学习与智能体实训/短学期_LecExp06",
       "courseSlug": "短学期02_强化学习与智能体实训",

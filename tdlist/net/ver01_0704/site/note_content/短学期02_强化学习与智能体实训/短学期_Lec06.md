@@ -147,6 +147,8 @@ G_t=\sum_{k=0}^{T-t-1}\gamma^k r_{t+k+1}.
 **一句话**：值方法学「状态-动作有多好」；策略梯度直接学「该怎么做」；Actor-Critic 用 Critic 给 Actor 当低方差的打分器。
 
 #rat2#
-## 衔接实验
+## 衔接实验与下一讲
 
 实践见 [LecExp06](短学期_LecExp06.html)：Monte Carlo AC（\(A_t=G_t-V(s_t)\)）于 CartPole + Atari Freeway / Pong。
+
+下一讲 [Lec07](短学期_Lec07.html)：在策略梯度基础上约束更新幅度（TRPO / PPO），并介绍 DDPG 与 SAC。

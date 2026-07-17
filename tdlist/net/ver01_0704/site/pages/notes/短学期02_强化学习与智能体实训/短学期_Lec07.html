@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="确定性策略梯度与 DDPG、TRPO 可信域、PPO 裁剪目标与 SAC 最大熵方法">
+  <title>短学期 Lec07 · 课程笔记 · Alstr（Call Sign ☘ VLinv）</title>
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="短学期02_强化学习与智能体实训/短学期_Lec07">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=短学期02_强化学习与智能体实训">短学期02 强化学习与智能体实训</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">短学期 Lec07</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">短学期 Lec07</h1>
+        <p class="note-meta"><time datetime="2026-07-17">2026-07-17</time></p>
+        <div class="note-tags"><span class="note-tag">强化学习</span><span class="note-tag">DDPG</span><span class="note-tag">TRPO</span><span class="note-tag">PPO</span><span class="note-tag">SAC</span><span class="note-tag">策略优化</span><span class="note-tag">短学期</span></div>
+        <p class="note-description">确定性策略梯度与 DDPG、TRPO 可信域、PPO 裁剪目标与 SAC 最大熵方法</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="回顾与定位" class="note-heading">回顾与定位</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>讲次</th><th>核心</th><th>本讲衔接</th></tr></thead><tbody><tr><td>Lec05</td><td>DQN（值方法）</td><td>由 <span class="note-math-inline" data-math-inline="Q"></span> 导出策略</td></tr><tr><td>Lec06</td><td>策略梯度 / Actor-Critic</td><td>直接优化 <span class="note-math-inline" data-math-inline="\pi_\theta"></span>，步长与方差问题</td></tr><tr><td><strong>Lec07</strong></td><td><strong>策略优化（Policy Optimization）</strong></td><td>约束更新幅度 + 确定性 / 最大熵变体</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>本讲主线</strong>：确定性策略（DPG / DDPG）→ 随机策略步长失控 → TRPO（KL 可信域）→ PPO（裁剪 ratio）→ SAC（熵正则）。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="课程回顾actor-critic-与策略类型" class="note-heading">课程回顾：Actor-Critic 与策略类型</h2>
+<p class="note-paragraph">Lec06 的 Actor-Critic：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>角色</th><th>符号</th><th>作用</th></tr></thead><tbody><tr><td>Actor</td><td><span class="note-math-inline" data-math-inline="\pi_\theta(a\mid s)"></span></td><td>采取让 Critic「满意」的动作</td></tr><tr><td>Critic</td><td><span class="note-math-inline" data-math-inline="Q_\phi(s,a)"></span> 或 <span class="note-math-inline" data-math-inline="V_\phi(s)"></span></td><td>估计当前策略下的动作 / 状态价值</td></tr></tbody></table></div>
+<p class="note-paragraph">策略按是否随机、动作是否连续可分：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>类型</th><th>离散动作</th><th>连续动作</th></tr></thead><tbody><tr><td><strong>随机策略</strong></td><td>Softmax / Categorical</td><td>高斯等参数化分布</td></tr><tr><td><strong>确定性策略</strong></td><td><span class="note-math-inline" data-math-inline="\arg\max"></span>（对网络参数通常<strong>不可微</strong>）</td><td><span class="note-math-inline" data-math-inline="\mu_\theta(s)"></span>（<strong>可微</strong>，可链式回传）</td></tr></tbody></table></div>
+<p class="note-paragraph">本讲重点：连续控制上的确定性方法，以及随机策略的「可信更新」。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="确定性策略方法dpg--ddpg" class="note-heading">确定性策略方法：DPG → DDPG</h2>
+<h3 id="确定性策略梯度dpg" class="note-heading">确定性策略梯度（DPG）</h3>
+<p class="note-paragraph">确定性策略 <span class="note-math-inline" data-math-inline="a=\mu_\theta(s)"></span>。Critic 估计 <span class="note-math-inline" data-math-inline="Q(s,a)"></span>，梯度可经动作回传到 Actor（链式法则）：</p>
+<div class="note-math-block" data-math-display="\nabla_\theta J(\theta)
+\approx \mathbb{E}_{s\sim d^{\mu}}\Big[
+\nabla_a Q(s,a)\big|_{a=\mu_\theta(s)}\;
+\nabla_\theta \mu_\theta(s)
+\Big]"></div>
+<p class="note-paragraph">相对随机策略梯度，少了对 <span class="note-math-inline" data-math-inline="\log\pi"></span> 的采样噪声；但早期深度 Actor-Critic 在困难环境上仍不稳定。</p>
+<h3 id="ddpg把-dqn-的稳定技巧搬到-dpg" class="note-heading">DDPG：把 DQN 的稳定技巧搬到 DPG</h3>
+<p class="note-paragraph"><strong>Deep Deterministic Policy Gradient</strong> 在 DPG 上叠加：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>技巧</th><th>作用</th></tr></thead><tbody><tr><td><strong>经验回放</strong></td><td>离策略复用转移，打断时间相关</td></tr><tr><td><strong>目标网络</strong></td><td>稳住 TD 目标</td></tr><tr><td><strong>Q 网络批标准化</strong></td><td>稳定不同量纲的状态 / 动作输入</td></tr><tr><td><strong>动作噪声</strong></td><td>在 <span class="note-math-inline" data-math-inline="\mu_\theta(s)"></span> 上加噪声做探索（如 OU / 高斯）</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>一句话</strong>：DDPG = 确定性 Actor + Critic，用 replay + target 学连续控制。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="随机策略的痛点" class="note-heading">随机策略的痛点</h2>
+<p class="note-paragraph">REINFORCE / 朴素策略梯度：</p>
+<ol class="note-list">
+<li><strong>步长难定</strong>：一步更新过大 → 策略变差 → 后续轨迹质量崩坏（「一步踩空掉下山」）。</li>
+<li><strong>分布漂移</strong>：多步更新后，用于估梯度的轨迹来自旧策略 <span class="note-math-inline" data-math-inline="\pi_{\theta_{\mathrm{old}}}"></span>，与当前 <span class="note-math-inline" data-math-inline="\pi_\theta"></span> 差越来越大（离策略偏差）。</li>
+</ol>
+<p class="note-paragraph">因此需要显式约束「新旧策略别差太远」——这就是 TRPO / PPO 的动机。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="trpo信任域策略优化" class="note-heading">TRPO：信任域策略优化</h2>
+<h3 id="目标与重要性采样" class="note-heading">目标与重要性采样</h3>
+<p class="note-paragraph">策略优化可用优势加权的代理目标。用旧策略采样、对新策略评估时引入重要性采样：</p>
+<div class="note-math-block" data-math-display="r_t(\theta)=\frac{\pi_\theta(a_t\mid s_t)}{\pi_{\theta_{\mathrm{old}}}(a_t\mid s_t)}"></div>
+<p class="note-paragraph">代理目标形如 <span class="note-math-inline" data-math-inline="\mathbb{E}\big[r_t(\theta)\,\hat A_t\big]"></span>（具体形式与状态分布近似有关）。</p>
+<h3 id="约束优化形式" class="note-heading">约束优化形式</h3>
+<p class="note-paragraph">TRPO 把「稳步提升」写成<strong>带 KL 约束</strong>的问题（示意）：</p>
+<div class="note-math-block" data-math-display="\max_\theta\;
+\mathcal{L}(\theta_{\mathrm{old}},\theta)
+\quad
+\text{s.t.}\quad
+\mathbb{E}_{s\sim \pi_{\theta_{\mathrm{old}}}}
+\big[
+D_{\mathrm{KL}}\big(\pi_{\theta_{\mathrm{old}}}(\cdot\mid s)\,\|\,\pi_\theta(\cdot\mid s)\big)
+\big]
+\le \delta"></div>
+<p class="note-paragraph">直观：<strong>在可信域内</strong>最大化代理优势，避免策略突变。</p>
+<h3 id="实际求解近似" class="note-heading">实际求解（近似）</h3>
+<p class="note-paragraph">原问题难算，常用近似：</p>
+<ol class="note-list">
+<li>对 <span class="note-math-inline" data-math-inline="\mathcal{L}"></span> 与平均 KL 在 <span class="note-math-inline" data-math-inline="\theta_{\mathrm{old}}"></span> 附近 <strong>Taylor 展开</strong></li>
+</ol>
+<p class="note-paragraph">   - 线性化目标 <span class="note-math-inline" data-math-inline="\approx g^\top(\theta-\theta_{\mathrm{old}})"></span></p>
+<p class="note-paragraph">   - 二次化约束 <span class="note-math-inline" data-math-inline="\approx \tfrac12(\theta-\theta_{\mathrm{old}})^\top H(\theta-\theta_{\mathrm{old}})\le\epsilon"></span>（<span class="note-math-inline" data-math-inline="H"></span> 与 Fisher / KL Hessian 相关）</p>
+<ol class="note-list">
+<li>对偶给出解析方向后，用 <strong>线搜索（backtracking）</strong> 保证 KL 约束与优势提升 <span class="note-math-inline" data-math-inline="&gt;0"></span></li>
+</ol>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>含义</th></tr></thead><tbody><tr><td><strong>自然策略梯度（NPG）</strong></td><td>用 Fisher 度量归一梯度，是 TRPO 的思想近亲</td></tr><tr><td><strong>单调性</strong></td><td>在近似成立时，更新有性能不降的理论保证（实践中仍依赖近似质量）</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>代价</strong>：共轭梯度 + 线搜索，实现重、算力高 → 催生 PPO。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="ppo近端策略优化" class="note-heading">PPO：近端策略优化</h2>
+<p class="note-paragraph">OpenAI（2017）提出，在<strong>易实现、样本效率、调参难度</strong>之间折中，成为深度 RL 最常用基线之一。</p>
+<h3 id="相对-trpo-的不足与改进" class="note-heading">相对 TRPO 的不足与改进</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>TRPO 痛点</th><th>PPO 做法</th></tr></thead><tbody><tr><td>重要性比例方差大</td><td>对 ratio <strong>裁剪（clip）</strong></td></tr><tr><td>约束优化难解</td><td>一阶梯度 + 简单目标，无需二阶 / CG</td></tr><tr><td>—</td><td>常用多步 TD / GAE 估优势</td></tr></tbody></table></div>
+<h3 id="裁剪目标clipped-surrogate" class="note-heading">裁剪目标（Clipped Surrogate）</h3>
+<div class="note-math-block" data-math-display="r_t(\theta)=\frac{\pi_\theta(a_t\mid s_t)}{\pi_{\theta_{\mathrm{old}}}(a_t\mid s_t)},
+\quad
+L^{\mathrm{CLIP}}(\theta)
+=\mathbb{E}_t\Big[
+\min\big(
+r_t(\theta)\hat A_t,\;
+\mathrm{clip}\big(r_t(\theta),\,1-\epsilon,\,1+\epsilon\big)\hat A_t
+\big)
+\Big]"></div>
+<p class="note-paragraph">解读（<span class="note-math-inline" data-math-inline="\epsilon"></span> 常见 <span class="note-math-inline" data-math-inline="0.1\sim 0.2"></span>）：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>情形</th><th>行为</th></tr></thead><tbody><tr><td><span class="note-math-inline" data-math-inline="r_t\in[1-\epsilon,1+\epsilon]"></span></td><td>正常更新：<span class="note-math-inline" data-math-inline="A&gt;0"></span> 提高概率，<span class="note-math-inline" data-math-inline="A&lt;0"></span> 降低概率</td></tr><tr><td><span class="note-math-inline" data-math-inline="r_t&gt;1+\epsilon"></span> 且 <span class="note-math-inline" data-math-inline="A&gt;0"></span></td><td>已过度抬高该动作 → <strong>梯度截断</strong>，不再继续推大</td></tr><tr><td><span class="note-math-inline" data-math-inline="r_t&lt;1-\epsilon"></span> 且 <span class="note-math-inline" data-math-inline="A&lt;0"></span></td><td>已过度压低 → 截断，避免继续压</td></tr></tbody></table></div>
+<p class="note-paragraph">本质：用 importance ratio 的范围限制「每轮策略能改多大」。</p>
+<h3 id="另一种形式自适应-kl-惩罚" class="note-heading">另一种形式：自适应 KL 惩罚</h3>
+<div class="note-math-block" data-math-display="L = \mathbb{E}[r_t\hat A_t] - \beta\, D_{\mathrm{KL}}(\pi_{\mathrm{old}}\|\pi_\theta)"></div>
+<p class="note-paragraph">按实测 KL 相对目标 <span class="note-math-inline" data-math-inline="d_{\mathrm{targ}}"></span> 动态调 <span class="note-math-inline" data-math-inline="\beta"></span>（过大则增大惩罚，过小则减小）。</p>
+<h3 id="训练循环示意" class="note-heading">训练循环（示意）</h3>
+<ol class="note-list">
+<li>并行 <span class="note-math-inline" data-math-inline="N"></span> 个 Actor 用 <span class="note-math-inline" data-math-inline="\pi_{\theta_{\mathrm{old}}}"></span> 采 <span class="note-math-inline" data-math-inline="T"></span> 步</li>
+<li>算 <span class="note-math-inline" data-math-inline="\hat A_t"></span>（多步 TD / GAE）与裁剪损失</li>
+<li>多 epoch mini-batch 更新 <span class="note-math-inline" data-math-inline="\theta"></span>，再令 <span class="note-math-inline" data-math-inline="\theta_{\mathrm{old}}\leftarrow\theta"></span></li>
+</ol>
+<h3 id="分布式dppo" class="note-heading">分布式：DPPO</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>角色</th><th>职责</th></tr></thead><tbody><tr><td><strong>Worker</strong></td><td>并行采轨迹 / 算梯度</td></tr><tr><td><strong>Chief</strong></td><td>聚合（平均）梯度，更新全局策略再下发</td></tr></tbody></table></div>
+<p class="note-paragraph">可并行点：不同轨迹采集相互独立；满足条件后可不阻塞全部轨迹再更新。</p>
+<p class="note-paragraph"><strong>一句话</strong>：PPO ≈「用 clip 的 ratio 代替 TRPO 的硬 KL 约束」——稳、快、好实现。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="sacsoft-actor-critic" class="note-heading">SAC：Soft Actor-Critic</h2>
+<p class="note-paragraph">面向<strong>连续动作</strong>的最大熵 Actor-Critic：在回报之外鼓励策略保持随机性。</p>
+<h3 id="动机" class="note-heading">动机</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>目标</th><th>手段</th></tr></thead><tbody><tr><td>保持策略多样性、更好探索</td><td><strong>熵正则</strong> <span class="note-math-inline" data-math-inline="\alpha\,\mathcal{H}(\pi(\cdot\mid s))"></span></td></tr><tr><td>提高样本效率与稳定</td><td><strong>经验回放</strong> + soft Q / soft 更新</td></tr></tbody></table></div>
+<p class="note-paragraph">熵直觉：公平硬币熵最大（最不可预测）；两面相同则熵为 0（完全可预测）。</p>
+<div class="note-math-block" data-math-display="H(X)=-\sum_i P(x_i)\log P(x_i)"></div>
+<h3 id="soft-目标概念" class="note-heading">Soft 目标（概念）</h3>
+<p class="note-paragraph">最大化期望回报 + 熵：</p>
+<div class="note-math-block" data-math-display="J(\pi)=\mathbb{E}\Big[
+\sum_t r(s_t,a_t)+\alpha\,\mathcal{H}\big(\pi(\cdot\mid s_t)\big)
+\Big]"></div>
+<p class="note-paragraph">Critic 侧 soft Bellman（示意）：下一状态价值含 <span class="note-math-inline" data-math-inline="-\alpha\log\pi(a&#x27;\mid s&#x27;)"></span>，避免只盯单个 <span class="note-math-inline" data-math-inline="\max_a Q"></span>。</p>
+<h3 id="更新模块与课件一致的拆分" class="note-heading">更新模块（与课件一致的拆分）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>网络</th><th>更新要点</th></tr></thead><tbody><tr><td><strong></strong><span class="note-math-inline" data-math-inline="V(s)"></span><strong></strong></td><td>目标 <span class="note-math-inline" data-math-inline="y=Q(s,a)-\alpha\log\pi(a\mid s)"></span>，MSE 拟合</td></tr><tr><td><strong></strong><span class="note-math-inline" data-math-inline="\pi"></span><strong></strong></td><td>最大化 <span class="note-math-inline" data-math-inline="\mathbb{E}[Q(s,a)-\alpha\log\pi(a\mid s)]"></span>（等价最小化 <span class="note-math-inline" data-math-inline="\alpha\log\pi-Q"></span>）</td></tr><tr><td><strong></strong><span class="note-math-inline" data-math-inline="Q(s,a)"></span><strong></strong></td><td><span class="note-math-inline" data-math-inline="Q_{\mathrm{target}}=r+\gamma V&#x27;(s&#x27;)"></span>，MSE 拟合</td></tr><tr><td><strong>目标网</strong></td><td>软更新 <span class="note-math-inline" data-math-inline="V&#x27;\leftarrow\tau V+(1-\tau)V&#x27;"></span>（<span class="note-math-inline" data-math-inline="Q&#x27;"></span> 同理）</td></tr></tbody></table></div>
+<p class="note-paragraph">优点简述：soft Q 更鲁棒；熵项提升探索；适合机器人控制等连续任务。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="方法对照与总结" class="note-heading">方法对照与总结</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>方法</th><th>策略类型</th><th>核心稳定手段</th><th>典型场景</th></tr></thead><tbody><tr><td><strong>DDPG</strong></td><td>确定性 <span class="note-math-inline" data-math-inline="\mu_\theta"></span></td><td>Replay + 目标网 + 动作噪声</td><td>连续控制</td></tr><tr><td><strong>TRPO</strong></td><td>随机</td><td>KL <strong>硬约束</strong> + 二阶近似 / 线搜索</td><td>理论保证强，实现重</td></tr><tr><td><strong>PPO</strong></td><td>随机</td><td><strong>Clip ratio</strong>（或 KL 惩罚）</td><td>通用强基线</td></tr><tr><td><strong>SAC</strong></td><td>随机（最大熵）</td><td>熵温度 <span class="note-math-inline" data-math-inline="\alpha"></span> + soft Q + replay</td><td>连续控制、探索敏感任务</td></tr></tbody></table></div>
+<p class="note-paragraph">总结口径（课件）：</p>
+<ol class="note-list">
+<li>连续确定性策略：Critic 对动作求导，再链式传到 Actor。</li>
+<li>神经网络策略步长过大 → 策略变差 → 数据质量塌陷。</li>
+<li><strong>TRPO</strong> 用 KL 限制一步更新，稳步抬升。</li>
+<li><strong>PPO</strong> 限制 importance ratio 范围，构造稳定可优化的下界目标——当前最常用的深度策略梯度算法之一。</li>
+</ol>
+<h3 id="推荐阅读" class="note-heading">推荐阅读</h3>
+<ul class="note-list">
+<li><em>Trust Region Policy Optimization</em>（Schulman et al.）</li>
+<li><em>Proximal Policy Optimization Algorithms</em>（Schulman et al.）</li>
+</ul>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="衔接实验" class="note-heading">衔接实验</h2>
+<p class="note-paragraph">课件标注下午实验：<strong>人型机器人复杂地形行走</strong>（在 LecExp04 平地行走基础上提高场景难度）。理论侧本讲以 DDPG / TRPO / PPO / SAC 为主线；实现细节以课程实验手册为准。</p>
+</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#回顾与定位">回顾与定位</a></li><li class="note-toc-item note-toc-item--h2"><a href="#课程回顾actor-critic-与策略类型">课程回顾：Actor-Critic 与策略类型</a></li><li class="note-toc-item note-toc-item--h2"><a href="#确定性策略方法dpg--ddpg">确定性策略方法：DPG → DDPG</a></li><li class="note-toc-item note-toc-item--h3"><a href="#确定性策略梯度dpg">确定性策略梯度（DPG）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#ddpg把-dqn-的稳定技巧搬到-dpg">DDPG：把 DQN 的稳定技巧搬到 DPG</a></li><li class="note-toc-item note-toc-item--h2"><a href="#随机策略的痛点">随机策略的痛点</a></li><li class="note-toc-item note-toc-item--h2"><a href="#trpo信任域策略优化">TRPO：信任域策略优化</a></li><li class="note-toc-item note-toc-item--h3"><a href="#目标与重要性采样">目标与重要性采样</a></li><li class="note-toc-item note-toc-item--h3"><a href="#约束优化形式">约束优化形式</a></li><li class="note-toc-item note-toc-item--h3"><a href="#实际求解近似">实际求解（近似）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#ppo近端策略优化">PPO：近端策略优化</a></li><li class="note-toc-item note-toc-item--h3"><a href="#相对-trpo-的不足与改进">相对 TRPO 的不足与改进</a></li><li class="note-toc-item note-toc-item--h3"><a href="#裁剪目标clipped-surrogate">裁剪目标（Clipped Surrogate）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#另一种形式自适应-kl-惩罚">另一种形式：自适应 KL 惩罚</a></li><li class="note-toc-item note-toc-item--h3"><a href="#训练循环示意">训练循环（示意）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#分布式dppo">分布式：DPPO</a></li><li class="note-toc-item note-toc-item--h2"><a href="#sacsoft-actor-critic">SAC：Soft Actor-Critic</a></li><li class="note-toc-item note-toc-item--h3"><a href="#动机">动机</a></li><li class="note-toc-item note-toc-item--h3"><a href="#soft-目标概念">Soft 目标（概念）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#更新模块与课件一致的拆分">更新模块（与课件一致的拆分）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#方法对照与总结">方法对照与总结</a></li><li class="note-toc-item note-toc-item--h3"><a href="#推荐阅读">推荐阅读</a></li><li class="note-toc-item note-toc-item--h2"><a href="#衔接实验">衔接实验</a></li></ol></aside></div>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E7%9F%AD%E5%AD%A6%E6%9C%9F02_%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%AE%AD%2F%E7%9F%AD%E5%AD%A6%E6%9C%9F_Lec07#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=短学期02_强化学习与智能体实训">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>
