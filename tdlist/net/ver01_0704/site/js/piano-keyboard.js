@@ -117,7 +117,7 @@ export function resetArrangeInstrumentBoards() {
   for (const id of ["keyboard-piano", "keyboard-guitar", "drum-kit"]) {
     const board = document.getElementById(id);
     if (!board) continue;
-    if (isInstrumentMounted(board)) continue;
+    // Always remount on page enter so reader cache cannot keep a pre-slider shell.
     delete board.dataset.ready;
     board.classList.add("is-loading");
     board.replaceChildren();
@@ -491,13 +491,18 @@ function playGuitar(freq) {
   const ctx = getAudioContext();
   const now = ctx.currentTime;
   const duration = guitarReverbDuration;
-  const t1 = Math.min(0.2, duration * 0.05);
-  const t2 = Math.min(1.1, duration * 0.26);
-  const t3 = Math.min(2.4, duration * 0.57);
-  const t4 = Math.min(3.4, duration * 0.81);
-  // Longer resonance → slightly less Karplus-Strong damping (rings farther).
-  const dampA = 0.9952 + Math.min(0.0024, (duration - GUITAR_REVERB_MIN) * 0.00035);
-  const dampB = Math.max(0.9948, dampA - 0.00055);
+  const span = Math.max(0.0001, GUITAR_REVERB_MAX - GUITAR_REVERB_MIN);
+  const amount = (duration - GUITAR_REVERB_MIN) / span; // 0..1
+
+  // Longer slider → slower Karplus-Strong decay (real sustain, not just silent buffer tail).
+  const dampA = 0.9928 + amount * 0.0058; // ~0.9928 .. 0.9986
+  const dampB = Math.max(0.992, dampA - 0.0006);
+
+  // Envelope tracks the chosen resonance length directly.
+  const tAttack = 0.004;
+  const tBody = Math.max(0.12, duration * 0.18);
+  const tMid = Math.max(0.35, duration * 0.42);
+  const tTail = Math.max(0.7, duration * 0.78);
 
   const stringA = ctx.createBufferSource();
   stringA.buffer = createPluckedStringBuffer(ctx, freq, duration, dampA);
@@ -530,7 +535,7 @@ function playGuitar(freq) {
   stringTone.frequency.setValueAtTime(Math.min(freq * 8, 3800), now);
   stringTone.frequency.exponentialRampToValueAtTime(
     Math.max(freq * 2.1, 680),
-    now + Math.min(1.8, duration * 0.45)
+    now + Math.max(0.6, duration * 0.35)
   );
 
   const bodyLow = ctx.createBiquadFilter();
@@ -554,33 +559,43 @@ function playGuitar(freq) {
   warmFilter.type = "lowpass";
   warmFilter.Q.value = 0.35;
   warmFilter.frequency.setValueAtTime(3000, now);
-  warmFilter.frequency.exponentialRampToValueAtTime(1800, now + Math.min(2.2, duration * 0.52));
+  warmFilter.frequency.exponentialRampToValueAtTime(1800, now + Math.max(0.8, duration * 0.4));
 
-  const mainGain = ctx.createGain();
-  mainGain.gain.setValueAtTime(0.0001, now);
-  mainGain.gain.exponentialRampToValueAtTime(0.62, now + 0.004);
-  mainGain.gain.exponentialRampToValueAtTime(0.34, now + t1);
-  mainGain.gain.exponentialRampToValueAtTime(0.18, now + t2);
-  mainGain.gain.exponentialRampToValueAtTime(0.08, now + t3);
-  mainGain.gain.exponentialRampToValueAtTime(0.025, now + t4);
-  mainGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  const dryGain = ctx.createGain();
+  dryGain.gain.setValueAtTime(0.0001, now);
+  dryGain.gain.exponentialRampToValueAtTime(0.58, now + tAttack);
+  dryGain.gain.exponentialRampToValueAtTime(0.3, now + tBody);
+  dryGain.gain.exponentialRampToValueAtTime(0.14, now + tMid);
+  dryGain.gain.exponentialRampToValueAtTime(0.045, now + tTail);
+  dryGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
   const stringMix = ctx.createGain();
   stringMix.gain.value = 0.78;
 
-  // Simple feedback delay for audible “回音”; wetness tracks resonance length.
-  const delay = ctx.createDelay(0.45);
-  delay.delayTime.value = 0.085 + Math.min(0.12, (duration - GUITAR_REVERB_MIN) * 0.012);
-  const feedback = ctx.createGain();
-  feedback.gain.value = 0.18 + Math.min(0.28, (duration - GUITAR_REVERB_MIN) * 0.035);
-  const wetFilter = ctx.createBiquadFilter();
-  wetFilter.type = "lowpass";
-  wetFilter.frequency.value = 2400;
-  wetFilter.Q.value = 0.4;
-  const wetMaster = ctx.createGain();
-  const wetLevel = 0.16 + Math.min(0.2, (duration - GUITAR_REVERB_MIN) * 0.02);
-  wetMaster.gain.setValueAtTime(wetLevel, now);
-  wetMaster.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  // Explicit echo bus: delay + feedback + wet level all scale with the slider.
+  // Short ≈ almost dry; long ≈ clear repeating echoes that die out near `duration`.
+  const echoDelay = ctx.createDelay(0.75);
+  echoDelay.delayTime.value = 0.06 + amount * 0.28; // ~60ms .. 340ms
+  const echoFeedback = ctx.createGain();
+  echoFeedback.gain.value = 0.12 + amount * 0.58; // ~0.12 .. 0.70
+  const echoFilter = ctx.createBiquadFilter();
+  echoFilter.type = "lowpass";
+  echoFilter.frequency.value = 3200 - amount * 900;
+  echoFilter.Q.value = 0.5;
+  const echoWet = ctx.createGain();
+  const wetLevel = 0.12 + amount * 0.42; // ~0.12 .. 0.54
+  echoWet.gain.setValueAtTime(wetLevel, now);
+  // Keep feeding echoes until roughly the selected resonance length.
+  echoWet.gain.setValueAtTime(wetLevel, now + duration * 0.55);
+  echoWet.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.35);
+
+  // Second tap for denser “共鸣” when duration is long.
+  const echoDelay2 = ctx.createDelay(0.9);
+  echoDelay2.delayTime.value = 0.11 + amount * 0.36;
+  const echoWet2 = ctx.createGain();
+  echoWet2.gain.setValueAtTime(wetLevel * 0.55, now);
+  echoWet2.gain.setValueAtTime(wetLevel * 0.55, now + duration * 0.5);
+  echoWet2.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.45);
 
   stringA.connect(stringMix);
   stringB.connect(stringMix);
@@ -589,25 +604,31 @@ function playGuitar(freq) {
   bodyLow.connect(bodyMid);
   bodyMid.connect(bodyAir);
   bodyAir.connect(warmFilter);
-  warmFilter.connect(mainGain);
-  mainGain.connect(ctx.destination);
+  warmFilter.connect(dryGain);
+  dryGain.connect(ctx.destination);
 
-  mainGain.connect(delay);
-  delay.connect(feedback);
-  feedback.connect(delay);
-  delay.connect(wetFilter);
-  wetFilter.connect(wetMaster);
-  wetMaster.connect(ctx.destination);
+  // Feedback loop
+  dryGain.connect(echoDelay);
+  echoDelay.connect(echoFilter);
+  echoFilter.connect(echoFeedback);
+  echoFeedback.connect(echoDelay);
+  echoFilter.connect(echoWet);
+  echoWet.connect(ctx.destination);
+
+  dryGain.connect(echoDelay2);
+  echoDelay2.connect(echoWet2);
+  echoWet2.connect(ctx.destination);
 
   pick.connect(pickFilter);
   pickFilter.connect(pickGain);
-  pickGain.connect(mainGain);
+  pickGain.connect(dryGain);
 
+  const stopAt = now + duration + 0.55;
   stringA.start(now);
   stringB.start(now);
   pick.start(now);
-  stringA.stop(now + duration + 0.05);
-  stringB.stop(now + duration + 0.05);
+  stringA.stop(stopAt);
+  stringB.stop(stopAt);
   pick.stop(now + 0.03);
 }
 
