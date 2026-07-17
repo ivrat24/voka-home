@@ -148,6 +148,17 @@ export function initArrangeInstruments() {
 function initKeyboard(containerId, options) {
   const board = document.getElementById(containerId);
   if (!board) return;
+  // Remount guitar if an older shell is missing the reverb slider (cached SPA DOM).
+  if (
+    options.voice === "guitar" &&
+    board.dataset.ready === "true" &&
+    isInstrumentMounted(board) &&
+    !board.querySelector(".guitar-reverb-control")
+  ) {
+    delete board.dataset.ready;
+    board.classList.add("is-loading");
+    board.replaceChildren();
+  }
   if (board.dataset.ready === "true" && isInstrumentMounted(board)) return;
   board.dataset.ready = "true";
   board.classList.remove("is-loading");
@@ -158,23 +169,25 @@ function initKeyboard(containerId, options) {
   const guitarControls =
     options.voice === "guitar"
       ? `
-      <label class="instrument-control guitar-reverb-control" for="${containerId}-reverb">
-        <span class="instrument-control-label">回音共鸣时长</span>
-        <input
-          id="${containerId}-reverb"
-          class="instrument-control-range"
-          type="range"
-          min="${GUITAR_REVERB_MIN}"
-          max="${GUITAR_REVERB_MAX}"
-          step="0.1"
-          value="${guitarReverbDuration}"
-          aria-valuemin="${GUITAR_REVERB_MIN}"
-          aria-valuemax="${GUITAR_REVERB_MAX}"
-          aria-valuenow="${guitarReverbDuration}"
-          aria-label="吉他回音共鸣时长"
-        >
-        <span class="instrument-control-value" data-guitar-reverb-value>${formatGuitarReverbLabel(guitarReverbDuration)}</span>
-      </label>
+      <div class="instrument-control-row guitar-reverb-control">
+        <label class="instrument-control" for="${containerId}-reverb">
+          <span class="instrument-control-label">回音共鸣时长</span>
+          <input
+            id="${containerId}-reverb"
+            class="instrument-control-range"
+            type="range"
+            min="${GUITAR_REVERB_MIN}"
+            max="${GUITAR_REVERB_MAX}"
+            step="0.1"
+            value="${guitarReverbDuration}"
+            aria-valuemin="${GUITAR_REVERB_MIN}"
+            aria-valuemax="${GUITAR_REVERB_MAX}"
+            aria-valuenow="${guitarReverbDuration}"
+            aria-label="吉他回音共鸣时长"
+          >
+          <span class="instrument-control-value" data-guitar-reverb-value>${formatGuitarReverbLabel(guitarReverbDuration)}</span>
+        </label>
+      </div>
     `
       : "";
 
@@ -182,8 +195,8 @@ function initKeyboard(containerId, options) {
     <div class="piano-shell ${options.shellClass}">
       <div class="piano-shell-head">
         <span class="piano-shell-badge">${options.badge}</span>
-        ${guitarControls}
       </div>
+      ${guitarControls}
       <div class="piano-keys" id="${keysId}" style="--white-count: ${whiteCount}"></div>
     </div>
   `;

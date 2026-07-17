@@ -15,6 +15,18 @@
   var pageId = script.getAttribute("data-page") || "home";
   var moduleSrc = script.getAttribute("data-module") || "main.js";
   var bundleSrc = script.getAttribute("data-bundle") || "site-offline.bundle.js";
+  // Bump when shipping reader-visible JS/CSS so Pages visitors skip stale module cache.
+  var assetVersion = script.getAttribute("data-asset-version") || "20260717b";
+
+  function withVersion(url) {
+    try {
+      var next = new URL(url, script.src);
+      next.searchParams.set("v", assetVersion);
+      return next.href;
+    } catch (error) {
+      return url + (url.indexOf("?") >= 0 ? "&" : "?") + "v=" + encodeURIComponent(assetVersion);
+    }
+  }
 
   function appendScript(options) {
     var el = document.createElement("script");
@@ -71,18 +83,19 @@
   }
 
   if (pageId === "home") {
-    appendScript({ type: "module", src: new URL(moduleSrc, script.src).href });
+    appendScript({ type: "module", src: withVersion(new URL(moduleSrc, script.src).href) });
     return;
   }
 
-  var modulePageUrl = new URL("module-page.js", script.src).href;
+  // Load bootstrap with cache-bust so subsequent module graph picks up newer files after deploy.
+  var bootstrapUrl = withVersion(new URL("bootstrap.js", script.src).href);
   appendScript({
     type: "module",
     text:
-      'import { initModulePage } from "' +
-      modulePageUrl +
-      '"; initModulePage("' +
-      pageId +
-      '");',
+      "import { bootstrap } from " +
+      JSON.stringify(bootstrapUrl) +
+      "; bootstrap(" +
+      JSON.stringify(pageId) +
+      ").catch(function (error) { console.error('[Voka] 页面初始化失败:', error); });",
   });
 })();
