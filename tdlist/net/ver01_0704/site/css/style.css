@@ -1443,6 +1443,10 @@ code {
 }
 
 .piano-shell-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
   margin-bottom: 0.85rem;
 }
 
@@ -1455,6 +1459,49 @@ code {
   color: var(--accent);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
+}
+
+.instrument-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-left: auto;
+  min-width: min(100%, 16rem);
+  color: var(--text-muted, rgba(210, 220, 240, 0.72));
+  font-size: 0.78rem;
+  user-select: none;
+}
+
+.instrument-control-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.instrument-control-range {
+  flex: 1 1 7rem;
+  min-width: 6rem;
+  accent-color: #f0b27a;
+  cursor: pointer;
+}
+
+.instrument-control-value {
+  flex: 0 0 2.6rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #f0c090;
+}
+
+.piano-shell--guitar .instrument-control-label {
+  color: rgba(240, 192, 144, 0.88);
+}
+
+[data-theme="light"] .instrument-control {
+  color: rgba(70, 58, 48, 0.72);
+}
+
+[data-theme="light"] .instrument-control-value,
+[data-theme="light"] .piano-shell--guitar .instrument-control-label {
+  color: #9a6230;
 }
 
 .piano-shell--guitar {

@@ -27,6 +27,43 @@ const activePointers = new Map();
 /** @type {Map<HTMLElement, number>} */
 const keyPressCount = new Map();
 
+const GUITAR_REVERB_STORAGE_KEY = "voka-guitar-reverb-duration";
+const GUITAR_REVERB_MIN = 1.2;
+const GUITAR_REVERB_MAX = 9;
+const GUITAR_REVERB_DEFAULT = 4.2;
+let guitarReverbDuration = loadGuitarReverbDuration();
+
+function loadGuitarReverbDuration() {
+  try {
+    const raw = localStorage.getItem(GUITAR_REVERB_STORAGE_KEY);
+    const value = Number(raw);
+    if (Number.isFinite(value)) {
+      return clampGuitarReverbDuration(value);
+    }
+  } catch {
+    /* ignore storage errors */
+  }
+  return GUITAR_REVERB_DEFAULT;
+}
+
+function clampGuitarReverbDuration(value) {
+  return Math.min(GUITAR_REVERB_MAX, Math.max(GUITAR_REVERB_MIN, value));
+}
+
+function setGuitarReverbDuration(value) {
+  guitarReverbDuration = clampGuitarReverbDuration(Number(value) || GUITAR_REVERB_DEFAULT);
+  try {
+    localStorage.setItem(GUITAR_REVERB_STORAGE_KEY, String(guitarReverbDuration));
+  } catch {
+    /* ignore storage errors */
+  }
+  return guitarReverbDuration;
+}
+
+function formatGuitarReverbLabel(seconds) {
+  return `${seconds.toFixed(1)}s`;
+}
+
 function midiToFreq(midi) {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
@@ -118,14 +155,42 @@ function initKeyboard(containerId, options) {
   const { whiteKeys, blackKeys, whiteCount } = buildKeyboardLayout();
   const keysId = `${containerId}-keys`;
 
+  const guitarControls =
+    options.voice === "guitar"
+      ? `
+      <label class="instrument-control guitar-reverb-control" for="${containerId}-reverb">
+        <span class="instrument-control-label">回音共鸣时长</span>
+        <input
+          id="${containerId}-reverb"
+          class="instrument-control-range"
+          type="range"
+          min="${GUITAR_REVERB_MIN}"
+          max="${GUITAR_REVERB_MAX}"
+          step="0.1"
+          value="${guitarReverbDuration}"
+          aria-valuemin="${GUITAR_REVERB_MIN}"
+          aria-valuemax="${GUITAR_REVERB_MAX}"
+          aria-valuenow="${guitarReverbDuration}"
+          aria-label="吉他回音共鸣时长"
+        >
+        <span class="instrument-control-value" data-guitar-reverb-value>${formatGuitarReverbLabel(guitarReverbDuration)}</span>
+      </label>
+    `
+      : "";
+
   board.innerHTML = `
     <div class="piano-shell ${options.shellClass}">
       <div class="piano-shell-head">
         <span class="piano-shell-badge">${options.badge}</span>
+        ${guitarControls}
       </div>
       <div class="piano-keys" id="${keysId}" style="--white-count: ${whiteCount}"></div>
     </div>
   `;
+
+  if (options.voice === "guitar") {
+    bindGuitarReverbControl(board);
+  }
 
   const keysRoot = board.querySelector(`#${keysId}`);
   const whitesWrap = document.createElement("div");
@@ -161,6 +226,34 @@ function initKeyboard(containerId, options) {
   });
 
   bindPointerInteraction(keysRoot, ".piano-key");
+}
+
+function bindGuitarReverbControl(board) {
+  const slider = board.querySelector(".guitar-reverb-control .instrument-control-range");
+  const valueEl = board.querySelector("[data-guitar-reverb-value]");
+  if (!slider || !valueEl) return;
+
+  const syncUi = (seconds) => {
+    slider.value = String(seconds);
+    slider.setAttribute("aria-valuenow", String(seconds));
+    valueEl.textContent = formatGuitarReverbLabel(seconds);
+  };
+
+  syncUi(guitarReverbDuration);
+
+  const onChange = () => {
+    const next = setGuitarReverbDuration(slider.value);
+    syncUi(next);
+  };
+
+  slider.addEventListener("input", onChange);
+  slider.addEventListener("change", onChange);
+
+  // Keep slider drags from stealing guitar key pointer capture.
+  const control = board.querySelector(".guitar-reverb-control");
+  control?.addEventListener("pointerdown", (event) => {
+    event.stopPropagation();
+  });
 }
 
 function initDrumKit(containerId, options) {
@@ -384,13 +477,20 @@ function createPluckedStringBuffer(ctx, freq, duration, damping = 0.9965) {
 function playGuitar(freq) {
   const ctx = getAudioContext();
   const now = ctx.currentTime;
-  const duration = 4.2;
+  const duration = guitarReverbDuration;
+  const t1 = Math.min(0.2, duration * 0.05);
+  const t2 = Math.min(1.1, duration * 0.26);
+  const t3 = Math.min(2.4, duration * 0.57);
+  const t4 = Math.min(3.4, duration * 0.81);
+  // Longer resonance → slightly less Karplus-Strong damping (rings farther).
+  const dampA = 0.9952 + Math.min(0.0024, (duration - GUITAR_REVERB_MIN) * 0.00035);
+  const dampB = Math.max(0.9948, dampA - 0.00055);
 
   const stringA = ctx.createBufferSource();
-  stringA.buffer = createPluckedStringBuffer(ctx, freq, duration, 0.9968);
+  stringA.buffer = createPluckedStringBuffer(ctx, freq, duration, dampA);
 
   const stringB = ctx.createBufferSource();
-  stringB.buffer = createPluckedStringBuffer(ctx, freq * 1.0015, duration, 0.9962);
+  stringB.buffer = createPluckedStringBuffer(ctx, freq * 1.0015, duration, dampB);
 
   const pick = ctx.createBufferSource();
   const pickLength = Math.max(8, Math.floor(ctx.sampleRate * 0.01));
@@ -415,7 +515,10 @@ function playGuitar(freq) {
   stringTone.type = "lowpass";
   stringTone.Q.value = 0.45;
   stringTone.frequency.setValueAtTime(Math.min(freq * 8, 3800), now);
-  stringTone.frequency.exponentialRampToValueAtTime(Math.max(freq * 2.1, 680), now + 1.8);
+  stringTone.frequency.exponentialRampToValueAtTime(
+    Math.max(freq * 2.1, 680),
+    now + Math.min(1.8, duration * 0.45)
+  );
 
   const bodyLow = ctx.createBiquadFilter();
   bodyLow.type = "peaking";
@@ -438,19 +541,33 @@ function playGuitar(freq) {
   warmFilter.type = "lowpass";
   warmFilter.Q.value = 0.35;
   warmFilter.frequency.setValueAtTime(3000, now);
-  warmFilter.frequency.exponentialRampToValueAtTime(1800, now + 2.2);
+  warmFilter.frequency.exponentialRampToValueAtTime(1800, now + Math.min(2.2, duration * 0.52));
 
   const mainGain = ctx.createGain();
   mainGain.gain.setValueAtTime(0.0001, now);
   mainGain.gain.exponentialRampToValueAtTime(0.62, now + 0.004);
-  mainGain.gain.exponentialRampToValueAtTime(0.34, now + 0.2);
-  mainGain.gain.exponentialRampToValueAtTime(0.18, now + 1.1);
-  mainGain.gain.exponentialRampToValueAtTime(0.08, now + 2.4);
-  mainGain.gain.exponentialRampToValueAtTime(0.025, now + 3.4);
+  mainGain.gain.exponentialRampToValueAtTime(0.34, now + t1);
+  mainGain.gain.exponentialRampToValueAtTime(0.18, now + t2);
+  mainGain.gain.exponentialRampToValueAtTime(0.08, now + t3);
+  mainGain.gain.exponentialRampToValueAtTime(0.025, now + t4);
   mainGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
   const stringMix = ctx.createGain();
   stringMix.gain.value = 0.78;
+
+  // Simple feedback delay for audible “回音”; wetness tracks resonance length.
+  const delay = ctx.createDelay(0.45);
+  delay.delayTime.value = 0.085 + Math.min(0.12, (duration - GUITAR_REVERB_MIN) * 0.012);
+  const feedback = ctx.createGain();
+  feedback.gain.value = 0.18 + Math.min(0.28, (duration - GUITAR_REVERB_MIN) * 0.035);
+  const wetFilter = ctx.createBiquadFilter();
+  wetFilter.type = "lowpass";
+  wetFilter.frequency.value = 2400;
+  wetFilter.Q.value = 0.4;
+  const wetMaster = ctx.createGain();
+  const wetLevel = 0.16 + Math.min(0.2, (duration - GUITAR_REVERB_MIN) * 0.02);
+  wetMaster.gain.setValueAtTime(wetLevel, now);
+  wetMaster.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
   stringA.connect(stringMix);
   stringB.connect(stringMix);
@@ -461,6 +578,13 @@ function playGuitar(freq) {
   bodyAir.connect(warmFilter);
   warmFilter.connect(mainGain);
   mainGain.connect(ctx.destination);
+
+  mainGain.connect(delay);
+  delay.connect(feedback);
+  feedback.connect(delay);
+  delay.connect(wetFilter);
+  wetFilter.connect(wetMaster);
+  wetMaster.connect(ctx.destination);
 
   pick.connect(pickFilter);
   pickFilter.connect(pickGain);
