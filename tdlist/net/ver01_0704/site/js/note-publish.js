@@ -51,6 +51,9 @@ export function renderNotePageHtml(note) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${escapeHtml(note.description || note.title)}">
   <title>${safeTitle} · 课程笔记 · 鼠窝</title>
+  <link rel="icon" href="${sitePrefix}static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="${sitePrefix}static/icons/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="${sitePrefix}static/icons/favicon.png">
   <link rel="stylesheet" href="${sitePrefix}css/style.css">
 </head>
 <body data-note-slug="${safeSlug}">

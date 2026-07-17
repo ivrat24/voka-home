@@ -664,6 +664,9 @@ def render_note_page(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="{html.escape(description or title)}">
   <title>{safe_title} · 课程笔记 · 鼠窝</title>
+  <link rel="icon" href="{site_prefix}static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="{site_prefix}static/icons/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="{site_prefix}static/icons/favicon.png">
   <link rel="stylesheet" href="{site_prefix}css/style.css">
 </head>
 <body data-note-slug="{html.escape(slug)}">
