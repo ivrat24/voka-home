@@ -2,6 +2,16 @@
   var script = document.currentScript;
   if (!script) return;
 
+  // Reader-first site mode before CSS/paint settles (local host keeps editor brand).
+  (function applySiteModeEarly() {
+    var host = location.hostname;
+    var local =
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      location.protocol === "file:";
+    document.documentElement.setAttribute("data-site-mode", local ? "local" : "published");
+  })();
+
   var pageId = script.getAttribute("data-page") || "home";
   var moduleSrc = script.getAttribute("data-module") || "main.js";
   var bundleSrc = script.getAttribute("data-bundle") || "site-offline.bundle.js";

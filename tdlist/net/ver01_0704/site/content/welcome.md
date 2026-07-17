@@ -1,5 +1,5 @@
 ---
-title: 欢迎来到 Alstr（Call Sign ☘ VLinv）
+title: 欢迎来到鼠窝
 date: 2026-07-04
 tags: [welcome, course]
 zone: course

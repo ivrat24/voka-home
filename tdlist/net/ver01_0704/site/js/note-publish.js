@@ -50,7 +50,7 @@ export function renderNotePageHtml(note) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${escapeHtml(note.description || note.title)}">
-  <title>${safeTitle} · 课程笔记 · Alstr（Call Sign ☘ VLinv）</title>
+  <title>${safeTitle} · 课程笔记 · 鼠窝</title>
   <link rel="stylesheet" href="${sitePrefix}css/style.css">
 </head>
 <body data-note-slug="${safeSlug}">
@@ -61,7 +61,7 @@ export function renderNotePageHtml(note) {
   <header class="site-header">
     <nav class="nav" aria-label="主导航">
       <a class="nav-brand" href="${sitePrefix}index.html">
-        <span class="nav-brand-text">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span>
+        <span class="nav-brand-text"><span class="local-only">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span><span class="published-only">鼠窝</span></span>
         <span class="nav-version">v0.10.0</span>
       </a>
       <ul class="nav-links" id="nav-links">
@@ -103,7 +103,7 @@ export function renderNotePageHtml(note) {
     </div>
   </main>
   <footer class="site-footer">
-    <p>© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</p>
+    <p><span class="local-only">© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</span><span class="published-only">© 2026 鼠窝 · v0.10.0</span></p>
   </footer>
   <script src="${sitePrefix}js/boot.js" data-page="course-note"></script>
 </body>

@@ -2387,7 +2387,8 @@ code {
   overflow-x: auto;
 }
 
-[data-site-mode="published"] .local-only {
+/* Reader-first: hide editor-only UI until/unless local mode is set */
+html:not([data-site-mode="local"]) .local-only {
   display: none !important;
 }
 
@@ -2397,6 +2398,10 @@ code {
 }
 
 [data-site-mode="local"] .published-only {
+  display: none !important;
+}
+
+[data-site-mode="published"] .call-sign {
   display: none !important;
 }
 

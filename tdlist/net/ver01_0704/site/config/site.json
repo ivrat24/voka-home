@@ -1,9 +1,11 @@
 {
   "meta": {
-    "title": "Alstr（Call Sign ☘ VLinv）",
+    "title": "鼠窝",
     "subtitle": "课程 · 智能体试验 · 虚拟编曲 · 鼠の事件簿",
-    "author": "Alstr（Call Sign ☘ VLinv）",
-    "callSign": "（Call Sign ☘ VLinv）",
+    "author": "鼠窝",
+    "callSign": "",
+    "localBrand": "Alstr（Call Sign ☘ VLinv）",
+    "publishedBrand": "鼠窝",
     "version": "0.10.0",
     "build": "ver01_0704",
     "language": "zh-CN",

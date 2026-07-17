@@ -3,6 +3,7 @@ import { markdownToHtml, titleFromSlug } from "./markdown.js";
 import { typesetMathIn } from "./math-render.js";
 import { fetchNoteManifest, resolveCourseDetailHref } from "./course-notes.js";
 import { resolveMaterialUrl, isNotebookMaterial, readCourseMaterialFile } from "./notes-api.js";
+import { siteBrandLabel } from "./runtime.js";
 
 function sanitizeHtml(html) {
   const doc = new DOMParser().parseFromString(html, "text/html");
@@ -139,7 +140,7 @@ export async function loadNotebookView(basePath = "") {
     downloadBtn.href = materialUrl;
     downloadBtn.setAttribute("download", filename);
   }
-  document.title = `${filename} · Notebook · Alstr（Call Sign ☘ VLinv）`;
+  document.title = `${filename} · Notebook · ${siteBrandLabel()}`;
 
   if (!container) return;
   container.innerHTML = `<p class="muted">加载 Notebook…</p>`;

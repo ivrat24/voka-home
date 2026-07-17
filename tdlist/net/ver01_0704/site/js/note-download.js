@@ -2,7 +2,7 @@ import { escapeHtml, getSiteBasePath } from "./layout.js";
 import { parseFrontmatter, titleFromSlug } from "./markdown.js";
 import { renderOptimizedNoteHtml } from "./note-layout.js";
 import { typesetMathIn } from "./math-render.js";
-import { isFileProtocol, loadEmbeddedJson, canEditNotes } from "./runtime.js";
+import { isFileProtocol, loadEmbeddedJson, canEditNotes, siteBrandLabel } from "./runtime.js";
 import { readNoteFile } from "./notes-api.js";
 import { fetchNoteManifest, getCourseSlugFromNote } from "./course-notes.js";
 import { noteMetaFromContent } from "./note-publish.js";
@@ -339,7 +339,7 @@ function applyNotePageMeta(note, basePath = getSiteBasePath()) {
     [...document.querySelectorAll(".breadcrumb > span:not([aria-hidden])")].at(-1);
   if (breadcrumbTitle) breadcrumbTitle.textContent = title;
 
-  document.title = `${title} · 课程笔记 · Alstr（Call Sign ☘ VLinv）`;
+  document.title = `${title} · 课程笔记 · ${siteBrandLabel()}`;
 
   const metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc) metaDesc.setAttribute("content", description || title);

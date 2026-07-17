@@ -1,5 +1,5 @@
 import { escapeHtml } from "./layout.js";
-import { canEditNotes, fetchJson } from "./runtime.js";
+import { canEditNotes, fetchJson, siteBrandLabel } from "./runtime.js";
 import { bindNoteDownloadButtons } from "./note-download.js";
 import { initCourseMaterials } from "./course-materials.js";
 import { fetchDevManifestJson } from "./notes-api.js";
@@ -211,7 +211,7 @@ export async function loadCourseDetail(basePath = "", courseSlug = "") {
 
     if (titleEl) titleEl.textContent = displayTitle;
     if (breadcrumbEl) breadcrumbEl.textContent = displayTitle;
-    document.title = `${displayTitle} · 课程 · Alstr（Call Sign ☘ VLinv）`;
+    document.title = `${displayTitle} · 课程 · ${siteBrandLabel()}`;
 
     if (metaEl) {
       metaEl.textContent = `${course.noteCount || 0} 篇笔记${course.latestDate ? ` · 最近更新 ${course.latestDate}` : ""}`;

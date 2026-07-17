@@ -1,5 +1,10 @@
 let siteDataCache = null;
 
+/** 本地编辑端品牌（含 call sign） */
+export const LOCAL_BRAND = "Alstr（Call Sign ☘ VLinv）";
+/** 读者端品牌 */
+export const PUBLISHED_BRAND = "鼠窝";
+
 export function isFileProtocol() {
   return window.location.protocol === "file:";
 }
@@ -19,8 +24,26 @@ export function canEditNotes() {
   return isLocalDevHost();
 }
 
+/** 当前站点对外展示的品牌名 */
+export function siteBrandLabel() {
+  return isPublishedSite() ? PUBLISHED_BRAND : LOCAL_BRAND;
+}
+
 export function applySiteAccessMode() {
-  document.documentElement.setAttribute("data-site-mode", canEditNotes() ? "local" : "published");
+  const mode = canEditNotes() ? "local" : "published";
+  document.documentElement.setAttribute("data-site-mode", mode);
+  // 静态 title/meta 以读者端「鼠窝」为准；本地再还原 Alstr
+  if (mode === "local") {
+    if (document.title.includes(PUBLISHED_BRAND)) {
+      document.title = document.title.split(PUBLISHED_BRAND).join(LOCAL_BRAND);
+    }
+    document.querySelectorAll('meta[name="description"]').forEach((el) => {
+      const content = el.getAttribute("content") || "";
+      if (content.includes(PUBLISHED_BRAND)) {
+        el.setAttribute("content", content.split(PUBLISHED_BRAND).join(LOCAL_BRAND));
+      }
+    });
+  }
 }
 
 export function shouldUseEmbeddedData() {
