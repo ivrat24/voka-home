@@ -250,4 +250,4 @@ Critic 侧 soft Bellman（示意）：下一状态价值含 \(-\alpha\log\pi(a'\
 #rat2#
 ## 衔接实验
 
-课件标注下午实验：**人型机器人复杂地形行走**（在 LecExp04 平地行走基础上提高场景难度）。理论侧本讲以 DDPG / TRPO / PPO / SAC 为主线；实现细节以课程实验手册为准。
+实践见 [LecExp07](短学期_LecExp07.html)：Unitree G1 **粗糙地形** + **AMP-PPO**（学生公式 + GPU 全量训练流水线）。

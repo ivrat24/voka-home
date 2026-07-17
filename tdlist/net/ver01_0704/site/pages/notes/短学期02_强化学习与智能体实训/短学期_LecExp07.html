@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="G1 粗糙地形行走实验报告——AMP 状态/LSGAN/风格奖励与任务奖励公式实现；GPU 全量训练待补">
+  <title>短学期 LecExp07 · 课程笔记 · Alstr（Call Sign ☘ VLinv）</title>
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="短学期02_强化学习与智能体实训/短学期_LecExp07">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=短学期02_强化学习与智能体实训">短学期02 强化学习与智能体实训</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">短学期 LecExp07</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">短学期 LecExp07</h1>
+        <p class="note-meta"><time datetime="2026-07-17">2026-07-17</time></p>
+        <div class="note-tags"><span class="note-tag">具身智能</span><span class="note-tag">AMP</span><span class="note-tag">PPO</span><span class="note-tag">Unitree G1</span><span class="note-tag">粗糙地形</span><span class="note-tag">短学期</span><span class="note-tag">实验</span></div>
+        <p class="note-description">G1 粗糙地形行走实验报告——AMP 状态/LSGAN/风格奖励与任务奖励公式实现；GPU 全量训练待补</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="实验目标" class="note-heading">实验目标</h2>
+<p class="note-paragraph">在 <strong>Unitree G1 + 粗糙地形</strong> 上训练带 <strong>AMP（Adversarial Motion Priors）</strong> 风格先验的速度跟踪策略，并可选比较 <strong>height scan</strong> 与 <strong>depth</strong> 观测。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>平台</td><td><code>mjlab==1.5.0</code> + MuJoCo Warp，Conda 环境 <code>summer</code></td></tr><tr><td>算法</td><td>RSL-RL <strong>PPO</strong> 扩展为 <strong>AmpPPO</strong>（每轮 PPO 更新外再更新判别器）</td></tr><tr><td>动作</td><td>原生 <strong>29 维</strong> <code>joint_pos</code></td></tr><tr><td>学生文件</td><td>只改 <code>student.py</code>；提交 <code>policy.pt</code> + <code>model.py</code> + <code>student.py</code></td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>前置</strong>：<a href="短学期_Lec07.html">Lec07</a>（PPO / 策略优化）、<a href="短学期_LecExp04.html">LecExp04</a>（平地行走基础）。</p>
+<p class="note-paragraph"><strong>评分（满分 100）</strong>：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>分项</th><th>分值</th><th>对应实现</th></tr></thead><tbody><tr><td>提交与有限动作</td><td>20</td><td>导出策略、29 维动作契约</td></tr><tr><td>速度跟踪</td><td>20</td><td><code>rough_task_reward</code></td></tr><tr><td>6 m 穿越</td><td>20</td><td>held-out 前向穿越评测</td></tr><tr><td>AMP</td><td>10</td><td><code>build_amp_state</code> + <code>style_reward</code> + 判别器</td></tr><tr><td>depth（可选）</td><td>10</td><td><code>normalize_depth</code></td></tr><tr><td>平滑度</td><td>20</td><td><code>smoothness_penalty</code></td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="当前进度本机无-gpu" class="note-heading">当前进度（本机无 GPU）</h2>
+<p class="note-paragraph">本机 <strong>无可用 CUDA</strong>，无法完成 smoke / 4096-env 训练 / 评测与视频。已完成部分：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>阶段</th><th>状态</th></tr></thead><tbody><tr><td><code>student.py</code> 六个公式</td><td><strong>已完成</strong>，单元测试全部通过</td></tr><tr><td>环境 smoke（32 env）</td><td>待 GPU</td></tr><tr><td>AmpPPO 训练（height，默认 4096 env × 600 iter）</td><td>待 GPU</td></tr><tr><td>Held-out 评测 / 录屏 / 提交包</td><td>待 GPU</td></tr></tbody></table></div>
+<p class="note-paragraph">有 GPU 时一键流水线（实验包内）：</p>
+<pre class="note-code-block"><code class="language-bat">一键运行_GPU.bat
+REM 或 cd exp07_rough_walk &amp;&amp; run_all.bat
+</code></pre>
+<p class="note-paragraph">等价：<code>python run_all.py --mode height --device cuda:0</code>。</p>
+<p class="note-paragraph">材料副本：<code>materials/exp7_student.py</code>、<code>materials/exp7_rough_walk.ipynb</code>。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="环境与观测设计" class="note-heading">环境与观测设计</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>设定</th><th>取值</th></tr></thead><tbody><tr><td>并行环境（训练 height）</td><td>4096</td></tr><tr><td>Episode 长度</td><td>12 s</td></tr><tr><td><code>auto_reset</code></td><td><code>False</code>（手动 reset，配合 AMP wrapper）</td></tr><tr><td>Actor 观测</td><td>proprioception + command + <strong>height</strong> 或 <strong>depth</strong></td></tr><tr><td>Critic 观测</td><td>保留 privileged（非对称 Actor-Critic）</td></tr><tr><td>AMP 观测</td><td>独立组 <code>amp</code>，<strong>83 维</strong>状态（不进 Actor 主输入）</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>命令课程</strong>（逐步加大速度 / 转向）：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>阶段（约）</th><th><span class="note-math-inline" data-math-inline="v_x"></span></th><th><span class="note-math-inline" data-math-inline="v_y"></span></th><th><span class="note-math-inline" data-math-inline="\omega_z"></span></th></tr></thead><tbody><tr><td>step 0</td><td>[0, 0.5]</td><td>±0.1</td><td>±0.2</td></tr><tr><td>step 4800</td><td>[0.1, 0.8]</td><td>±0.2</td><td>±0.35</td></tr><tr><td>step 9600</td><td>[0.15, 1.1]</td><td>±0.3</td><td>±0.5</td></tr></tbody></table></div>
+<p class="note-paragraph">Held-out <strong>6 m 穿越</strong>：固定 <span class="note-math-inline" data-math-inline="v_x=0.6"></span>，关闭横向 / 转向命令重采样。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="学生公式已实现" class="note-heading">学生公式（已实现）</h2>
+<h3 id="1-amp-状态83-维" class="note-heading">1. AMP 状态（83 维）</h3>
+<p class="note-paragraph">按固定顺序拼接：</p>
+<div class="note-math-block" data-math-display="s=\big[
+q_{29},\;\dot q_{29},\;h_{\mathrm{pelvis}},\;g_{\mathrm{proj},3},\;
+v_{\mathrm{yaw},3},\;\omega_{\mathrm{yaw},3},\;
+p_{\mathrm{key}}^{(5\times3)}
+\big]\in\mathbb{R}^{83}"></div>
+<p class="note-paragraph">五个 key body：左右腕 yaw、左右踝 roll、躯干（相对 pelvis、yaw 局部坐标）。</p>
+<p class="note-paragraph">相邻状态拼成判别器输入 <span class="note-math-inline" data-math-inline="s_t\oplus s_{t+1}\in\mathbb{R}^{166}"></span>。</p>
+<pre class="note-code-block"><code class="language-python">key_body_flat = key_body_pos_pelvis.reshape(*key_body_pos_pelvis.shape[:-2], -1)
+return torch.cat(
+  (joint_pos, joint_vel, pelvis_height, projected_gravity,
+   base_lin_vel_yaw, base_ang_vel_yaw, key_body_flat),
+  dim=-1,
+)
+</code></pre>
+<h3 id="2-lsgan-判别器损失" class="note-heading">2. LSGAN 判别器损失</h3>
+<p class="note-paragraph">专家目标 <span class="note-math-inline" data-math-inline="+1"></span>、策略目标 <span class="note-math-inline" data-math-inline="-1"></span>，梯度惩罚权重 10：</p>
+<div class="note-math-block" data-math-display="L_D=\tfrac12\Big[
+\mathbb{E}(D_E-1)^2+\mathbb{E}(D_\pi+1)^2
+\Big]+10\,L_{\mathrm{gp}}"></div>
+<h3 id="3-风格奖励" class="note-heading">3. 风格奖励</h3>
+<div class="note-math-block" data-math-display="r_{\mathrm{style}}=\mathrm{clamp}\big(1-0.25(D-1)^2,\;0,\;1\big)"></div>
+<p class="note-paragraph">注入环境奖励：<span class="note-math-inline" data-math-inline="r\leftarrow r+\alpha_{\mathrm{amp}}\,\Delta t\,r_{\mathrm{style}}"></span>（默认 <span class="note-math-inline" data-math-inline="\alpha_{\mathrm{amp}}=0.5"></span>，<span class="note-math-inline" data-math-inline="\Delta t=0.02"></span>）。</p>
+<h3 id="4-depth-归一化可选-10-分" class="note-heading">4. Depth 归一化（可选 10 分）</h3>
+<p class="note-paragraph">裁剪到 <span class="note-math-inline" data-math-inline="[0.1,5.0]"></span> m 后线性映射到 <span class="note-math-inline" data-math-inline="[0,1]"></span>，形状 <code>[B,1,60,80]</code>。</p>
+<h3 id="5-粗糙地形任务奖励" class="note-heading">5. 粗糙地形任务奖励</h3>
+<div class="note-math-block" data-math-display="r_{\mathrm{lin}}=\exp\big(-(e_{\mathrm{lin}}/0.45)^2\big),\quad
+r_{\mathrm{ang}}=\exp\big(-(e_{\mathrm{ang}}/0.35)^2\big)"></div>
+<div class="note-math-block" data-math-display="r_{\mathrm{task}}=0.6\,r_{\mathrm{lin}}+0.4\,r_{\mathrm{ang}}"></div>
+<p class="note-paragraph">零误差时 <span class="note-math-inline" data-math-inline="r_{\mathrm{task}}=1"></span>；配置里该项权重约 <code>3.8</code>。</p>
+<h3 id="6-动作平滑惩罚" class="note-heading">6. 动作平滑惩罚</h3>
+<p class="note-paragraph">二阶差分（鼓励加速度平滑）：</p>
+<div class="note-math-block" data-math-display="p_t=\mathrm{mean}\big(|a_t-2a_{t-1}+a_{t-2}|\big)"></div>
+<p class="note-paragraph">奖励权重约 <code>-0.05</code>（惩罚项）。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="ampppo-训练要点" class="note-heading">AmpPPO 训练要点</h2>
+<p class="note-paragraph">标准 PPO 之上仅扩展：</p>
+<ol class="note-list">
+<li><strong>Act</strong>：缓存当前 83 维 AMP 状态</li>
+<li><strong>Step</strong>：拼 166 维 transition → 判别器 → <code>style_reward</code> → 加到 task reward；写入 replay</li>
+<li><strong>Update</strong>：先 PPO，再 <strong>2 次</strong> LSGAN 判别器更新（专家从 <code>G1_walk_50hz.npz</code> 采样，策略从 replay）</li>
+</ol>
+<p class="note-paragraph">判别器结构固定：<code>166 → 256 → 128 → 1</code>（ELU）。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>PPO 超参（课程默认）</th><th>值</th></tr></thead><tbody><tr><td>clip / entropy</td><td>0.2 / 0.01</td></tr><tr><td><span class="note-math-inline" data-math-inline="\gamma"></span> / <span class="note-math-inline" data-math-inline="\lambda"></span></td><td>0.99 / 0.95</td></tr><tr><td>lr / desired KL</td><td>1e-3 / 0.02</td></tr><tr><td>steps_per_env / iterations</td><td>24 / 600</td></tr><tr><td>Actor / Critic MLP</td><td>(256, 128) + ELU</td></tr></tbody></table></div>
+<p class="note-paragraph">Depth 模式：Actor 额外接 Spatial Softmax CNN；训练并行数建议先 <strong>32</strong> 控显存。</p>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="notebook--一键流程" class="note-heading">Notebook / 一键流程</h2>
+<pre class="note-code-block"><code class="language-text">公式自检 → smoke(32 env, 16 step) → train → evaluate(32 env, 600 step)
+       → record_video(150 帧) → prepare_submission →（可选）grade.py
+</code></pre>
+<p class="note-paragraph">提交物落在 <code>result/</code>：<code>policy.pt</code>、<code>model.py</code>、<code>student.py</code>。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="公式自检结果已测" class="note-heading">公式自检结果（已测）</h2>
+<p class="note-paragraph">在本机用 CPU PyTorch 跑通 notebook 同款断言：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>检查</th><th>结果</th></tr></thead><tbody><tr><td><code>build_amp_state</code> → <code>(2, 83)</code></td><td>通过</td></tr><tr><td>LSGAN：<span class="note-math-inline" data-math-inline="D_E=1,D_\pi=-1,\mathrm{gp}=0\Rightarrow L_D=0"></span></td><td>通过</td></tr><tr><td><code>style_reward([1,3]) → [1,0]</code></td><td>通过</td></tr><tr><td><code>normalize_depth</code> 边界 <code>[0,0.1,5,8]→[0,0,1,1]</code></td><td>通过</td></tr><tr><td><code>rough_task_reward(0,0) → 1</code></td><td>通过</td></tr><tr><td>恒定动作 → <code>smoothness_penalty=0</code></td><td>通过</td></tr></tbody></table></div>
+</section>
+<div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="待补实验有-gpu-后" class="note-heading">待补实验（有 GPU 后）</h2>
+<ol class="note-list">
+<li><code>MODE=height</code> 跑满训练，记录 TensorBoard / 最终 checkpoint</li>
+<li>Held-out 指标：速度跟踪误差、6 m 穿越成功率、平滑度、AMP 相关量</li>
+<li>（可选）<code>MODE=depth</code> 对比 height</li>
+<li>将评测柱状图 / 视频截帧同步到 <code>site/static/exp7/</code>，并回填本节「实验结果」表</li>
+</ol>
+<p class="note-paragraph"><strong>实验结果（暂缺）</strong>：全量训练与评测依赖 CUDA；完成后再更新本笔记数字与曲线。</p>
+</section>
+<div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+<section class="note-module">
+<h2 id="小结" class="note-heading">小结</h2>
+<ul class="note-list">
+<li>本实验把 <a href="短学期_Lec07.html">Lec07</a> 的 <strong>PPO</strong> 接到具身 <strong>粗糙地形</strong>，并用 <strong>AMP</strong> 把参考步态先验变成可学的风格奖励。</li>
+<li>学生侧核心是 <strong>状态构造、LSGAN、风格/任务奖励与平滑项</strong>——公式部分已完成并通过自检。</li>
+<li>剩余工作是 GPU 上的并行仿真训练与正式评分指标采集。</li>
+</ul>
+</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#实验目标">实验目标</a></li><li class="note-toc-item note-toc-item--h2"><a href="#当前进度本机无-gpu">当前进度（本机无 GPU）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#环境与观测设计">环境与观测设计</a></li><li class="note-toc-item note-toc-item--h2"><a href="#学生公式已实现">学生公式（已实现）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#1-amp-状态83-维">1. AMP 状态（83 维）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#2-lsgan-判别器损失">2. LSGAN 判别器损失</a></li><li class="note-toc-item note-toc-item--h3"><a href="#3-风格奖励">3. 风格奖励</a></li><li class="note-toc-item note-toc-item--h3"><a href="#4-depth-归一化可选-10-分">4. Depth 归一化（可选 10 分）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#5-粗糙地形任务奖励">5. 粗糙地形任务奖励</a></li><li class="note-toc-item note-toc-item--h3"><a href="#6-动作平滑惩罚">6. 动作平滑惩罚</a></li><li class="note-toc-item note-toc-item--h2"><a href="#ampppo-训练要点">AmpPPO 训练要点</a></li><li class="note-toc-item note-toc-item--h2"><a href="#notebook--一键流程">Notebook / 一键流程</a></li><li class="note-toc-item note-toc-item--h2"><a href="#公式自检结果已测">公式自检结果（已测）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#待补实验有-gpu-后">待补实验（有 GPU 后）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#小结">小结</a></li></ol></aside></div>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E7%9F%AD%E5%AD%A6%E6%9C%9F02_%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%AE%AD%2F%E7%9F%AD%E5%AD%A6%E6%9C%9F_LecExp07#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=短学期02_强化学习与智能体实训">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>

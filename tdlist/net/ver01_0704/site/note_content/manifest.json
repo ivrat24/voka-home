@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-17T11:27:14",
+  "generatedAt": "2026-07-17T11:30:35",
   "contentDir": "note_content",
   "courses": [
     {
       "slug": "短学期02_强化学习与智能体实训",
       "title": "短学期02 强化学习与智能体实训",
-      "noteCount": 14,
+      "noteCount": 15,
       "latestDate": "2026-07-17"
     }
   ],
@@ -52,9 +52,39 @@
       "filename": "exp6_ac.ipynb",
       "path": "note_content/短学期02_强化学习与智能体实训/materials/exp6_ac.ipynb",
       "size": 67075
+    },
+    {
+      "course": "短学期02_强化学习与智能体实训",
+      "filename": "exp7_rough_walk.ipynb",
+      "path": "note_content/短学期02_强化学习与智能体实训/materials/exp7_rough_walk.ipynb",
+      "size": 9753
+    },
+    {
+      "course": "短学期02_强化学习与智能体实训",
+      "filename": "exp7_student.py",
+      "path": "note_content/短学期02_强化学习与智能体实训/materials/exp7_student.py",
+      "size": 3191
     }
   ],
   "notes": [
+    {
+      "slug": "短学期02_强化学习与智能体实训/短学期_LecExp07",
+      "courseSlug": "短学期02_强化学习与智能体实训",
+      "title": "短学期 LecExp07",
+      "date": "2026-07-17",
+      "tags": [
+        "具身智能",
+        "AMP",
+        "PPO",
+        "Unitree G1",
+        "粗糙地形",
+        "短学期",
+        "实验"
+      ],
+      "description": "G1 粗糙地形行走实验报告——AMP 状态/LSGAN/风格奖励与任务奖励公式实现；GPU 全量训练待补",
+      "source": "note_content/短学期02_强化学习与智能体实训/短学期_LecExp07.md",
+      "href": "pages/notes/短学期02_强化学习与智能体实训/短学期_LecExp07.html"
+    },
     {
       "slug": "短学期02_强化学习与智能体实训/短学期_Lec07",
       "courseSlug": "短学期02_强化学习与智能体实训",
