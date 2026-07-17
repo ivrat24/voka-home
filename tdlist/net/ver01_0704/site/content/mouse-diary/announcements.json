@@ -1,4 +1,65 @@
 {
-  "generatedAt": "2026-07-17T11:49:20",
-  "announcements": []
+  "generatedAt": "2026-07-17T18:40:33",
+  "announcements": [
+    {
+      "id": "announce-home-board-20260717",
+      "path": "更新公告/首页更新公告栏已对读者开放.md",
+      "title": "首页更新公告栏已对读者开放",
+      "category": "更新公告",
+      "favorite": true,
+      "featured": false,
+      "plannedAt": "",
+      "createdAt": "2026-07-17T18:40:00+08:00",
+      "updatedAt": "2026-07-17T18:40:00+08:00",
+      "content": "读者端首页现已显示「更新公告」滑动栏：优先展示精选/置顶，再按更新时间取最新共 5 条，并自动循环播放。编辑端在鼠の事件簿发布后，通过 GitHub 同步即可同步到读者端。"
+    },
+    {
+      "id": "announce-guitar-echo-20260717",
+      "path": "更新公告/虚拟编曲吉他回音共鸣时长.md",
+      "title": "虚拟编曲：吉他回音共鸣时长",
+      "category": "更新公告",
+      "favorite": false,
+      "featured": false,
+      "plannedAt": "",
+      "createdAt": "2026-07-17T12:00:00+08:00",
+      "updatedAt": "2026-07-17T12:00:00+08:00",
+      "content": "钢琴键盘工具新增「回音共鸣时长」调节，回声衰减更清晰，方便试听编配细节。"
+    },
+    {
+      "id": "announce-lec07-20260716",
+      "path": "更新公告/课程笔记Lec07上线.md",
+      "title": "课程笔记：Lec07 / LecExp07 已上线",
+      "category": "更新公告",
+      "favorite": false,
+      "featured": false,
+      "plannedAt": "",
+      "createdAt": "2026-07-16T20:00:00+08:00",
+      "updatedAt": "2026-07-16T20:00:00+08:00",
+      "content": "短学期强化学习课程新增 Policy Optimization 相关笔记与实验页，可在「课程笔记」分区打开阅读。"
+    },
+    {
+      "id": "announce-brand-visitor-20260715",
+      "path": "更新公告/读者端访客大厅文案更新.md",
+      "title": "读者端访客大厅文案更新",
+      "category": "更新公告",
+      "favorite": false,
+      "featured": false,
+      "plannedAt": "",
+      "createdAt": "2026-07-15T15:30:00+08:00",
+      "updatedAt": "2026-07-15T15:30:00+08:00",
+      "content": "读者端品牌展示为「鼠窝」，首页 Hero 为「鼠窝·访客大厅」；课程 / 智能体试验 / 虚拟编曲 / 事件簿分区文案已按访客视角调整。"
+    },
+    {
+      "id": "announce-favicon-20260714",
+      "path": "更新公告/站点图标与分区花瓣图标.md",
+      "title": "站点图标与分区花瓣图标",
+      "category": "更新公告",
+      "favorite": false,
+      "featured": false,
+      "plannedAt": "",
+      "createdAt": "2026-07-14T11:00:00+08:00",
+      "updatedAt": "2026-07-14T11:00:00+08:00",
+      "content": "站点 favicon 更换为六瓣心形小花，功能分区同步使用对应花瓣图标，浏览识别更清晰。"
+    }
+  ]
 }

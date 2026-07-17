@@ -4798,6 +4798,14 @@ html:not([data-site-mode="local"]) .local-only {
   text-align: right;
 }
 
+.home-update-slide--empty .home-update-slide__preview {
+  opacity: 0.85;
+}
+
+.home-update-slide--empty .home-update-slide__more {
+  display: none;
+}
+
 .home-updates-foot a {
   color: var(--text-muted);
   text-decoration: none;

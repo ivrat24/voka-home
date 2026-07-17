@@ -135,18 +135,45 @@ function resumeCarousel() {
   }
 }
 
+function renderEmptyCarousel() {
+  const section = document.getElementById("home-updates-section");
+  const track = document.getElementById("home-updates-track");
+  const dots = document.getElementById("home-updates-dots");
+  const nav = section?.querySelector(".home-updates-nav");
+  if (!section || !track) return;
+
+  stopCarousel();
+  section.hidden = false;
+  carouselIndex = 0;
+  if (nav) nav.hidden = true;
+  if (dots) dots.innerHTML = "";
+  track.innerHTML = `
+    <article class="home-update-slide is-active home-update-slide--empty" data-index="0">
+      <div class="home-update-slide__inner">
+        <header class="home-update-slide__head">
+          <span class="home-update-badge">更新</span>
+        </header>
+        <h3 class="home-update-slide__title">暂无更新公告</h3>
+        <p class="home-update-slide__preview">编辑端在「鼠の事件簿 → 更新公告」发布后，同步到读者端即可在此轮播展示。</p>
+      </div>
+    </article>
+  `;
+}
+
 function renderCarousel() {
   const section = document.getElementById("home-updates-section");
   const track = document.getElementById("home-updates-track");
   const dots = document.getElementById("home-updates-dots");
+  const nav = section?.querySelector(".home-updates-nav");
   if (!section || !track) return;
 
   if (!announcements.length) {
-    section.hidden = true;
+    renderEmptyCarousel();
     return;
   }
 
   section.hidden = false;
+  if (nav) nav.hidden = false;
   carouselIndex = 0;
   track.innerHTML = announcements.map((item, i) => renderSlide(item, i)).join("");
 
@@ -251,10 +278,10 @@ export async function initHomeUpdates() {
 
   try {
     announcements = await fetchAnnouncementsForHome();
-    renderCarousel();
   } catch {
-    section.hidden = true;
+    announcements = [];
   }
+  renderCarousel();
 }
 
 export function refreshHomeUpdates() {

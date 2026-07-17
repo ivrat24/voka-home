@@ -78,7 +78,7 @@ export async function fetchJson(url, embeddedKey) {
 
   if (embeddedKey) {
     const embedded = await loadEmbeddedJson(embeddedKey);
-    if (embedded) return embedded;
+    if (embedded !== null && embedded !== undefined) return embedded;
   }
 
   throw new Error(`无法加载 ${url}`);

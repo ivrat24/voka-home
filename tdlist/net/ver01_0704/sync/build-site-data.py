@@ -156,8 +156,10 @@ def collect_diary_mood_board() -> dict | None:
 
 def main() -> None:
     all_announcements = collect_all_diary_announcements()
+    home_announcements = all_announcements[:HOME_ANNOUNCEMENTS_LIMIT]
     mood_board = collect_diary_mood_board()
-    write_diary_public_json(all_announcements, mood_board)
+    # 读者端首页只读最多 5 条（收藏/置顶优先，再按时间）
+    write_diary_public_json(home_announcements, mood_board)
 
     payload = {
         "generatedAt": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -167,7 +169,7 @@ def main() -> None:
         "playlist": read_json(SOURCES["playlist"]),
         "noteSources": collect_note_sources(),
         "pdfExportCss": collect_pdf_export_css(),
-        "diaryAnnouncements": all_announcements[:HOME_ANNOUNCEMENTS_LIMIT],
+        "diaryAnnouncements": home_announcements,
         "diaryMoodBoard": mood_board,
     }
 
