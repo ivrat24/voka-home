@@ -188,6 +188,11 @@
             <h3>公告列表</h3>
             <p class="muted">收藏优先，按发布时间倒序</p>
           </div>
+          <div class="diary-announce-export local-only">
+            <button type="button" class="btn btn-ghost" id="export-announce-btn">导出我的公告到读者端</button>
+            <p class="muted diary-announce-export__hint">用本页公告覆盖读者端首页轮播（精选优先，最多 5 条）</p>
+            <p id="export-announce-status" class="diary-status muted" role="status" aria-live="polite"></p>
+          </div>
           <div class="diary-memo-list" id="announce-list">
             <p class="diary-empty muted">加载中…</p>
           </div>

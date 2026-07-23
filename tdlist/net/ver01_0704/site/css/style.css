@@ -851,6 +851,18 @@ code {
 
 .sync-panel .section-lead { margin: 0; }
 
+.sync-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.sync-section > .sync-status {
+  margin: 0.75rem 0 0;
+  white-space: pre-wrap;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -4403,6 +4415,26 @@ html:not([data-site-mode="local"]) .local-only {
 .diary-list__head p {
   margin: 0;
   font-size: 0.82rem;
+}
+
+.diary-announce-export {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 0.85rem;
+  padding: 0.85rem 1rem;
+  border: 1px dashed color-mix(in srgb, #f472b6 45%, var(--border-box));
+  border-radius: 12px;
+  background: color-mix(in srgb, #f472b6 8%, transparent);
+}
+
+.diary-announce-export__hint {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+#export-announce-status {
+  margin: 0;
+  white-space: pre-wrap;
 }
 
 .diary-filter-bar {

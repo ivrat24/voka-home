@@ -9,6 +9,7 @@ import {
   defaultPlannedInputValue,
   deleteMemo,
   detectDiaryStorage,
+  exportEditorAnnouncementsToReader,
   fromDatetimeLocalValue,
   getDiaryStorageMode,
   listAnnouncements,
@@ -634,6 +635,32 @@ async function handleAnnounceSave() {
   }
 }
 
+async function handleExportAnnouncements() {
+  if (!canEditNotes()) return;
+  const statusEl = document.getElementById("export-announce-status");
+  const setExportStatus = (message) => {
+    if (statusEl) statusEl.textContent = message;
+  };
+
+  setExportStatus("正在导出你写的更新公告…");
+  try {
+    const result = await exportEditorAnnouncementsToReader();
+    const titles = (result.announcements || []).map((a) => a.title).filter(Boolean);
+    setExportStatus(
+      [
+        `已覆盖读者端数据（${result.count} 条，精选优先最多 5 条）。`,
+        titles.length ? `首页将展示：${titles.join("；")}` : "",
+        "请告诉 Agent「已导出」，即可推送到 GitHub。",
+      ]
+        .filter(Boolean)
+        .join(" "),
+    );
+    await refreshAnnounceList();
+  } catch (error) {
+    setExportStatus(error.message || "导出失败");
+  }
+}
+
 function renderAnnounceList() {
   renderList(
     document.getElementById("announce-list"),
@@ -798,6 +825,7 @@ function bindEvents() {
 
   document.getElementById("announce-save-btn")?.addEventListener("click", () => void handleAnnounceSave());
   document.getElementById("announce-clear-btn")?.addEventListener("click", resetAnnounceComposer);
+  document.getElementById("export-announce-btn")?.addEventListener("click", () => void handleExportAnnouncements());
 
   document.getElementById("mood-content-input")?.addEventListener("input", updateMoodCharCount);
   document.getElementById("mood-save-btn")?.addEventListener("click", () => void handleMoodSave());

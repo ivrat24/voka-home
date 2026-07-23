@@ -342,9 +342,23 @@ def _memo_signature(memo: dict) -> str:
     return f"{memo.get('category')}::{memo.get('title')}::{(memo.get('content') or '')[:120]}"
 
 
-def import_diary_memos_for_sync(memos: list[dict]) -> int:
-    if not memos:
+def clear_announcement_files() -> int:
+    announce_dir = DIARY_DIR / ANNOUNCE_CATEGORY
+    if not announce_dir.exists():
         return 0
+    removed = 0
+    for path in announce_dir.glob("*.md"):
+        path.unlink(missing_ok=True)
+        removed += 1
+    return removed
+
+
+def import_diary_memos_for_sync(memos: list[dict], *, replace_announcements: bool = False) -> int:
+    if not memos and not replace_announcements:
+        return 0
+
+    if replace_announcements:
+        clear_announcement_files()
 
     existing = collect_diary_memos()
     existing_ids = {str(m.get("id")) for m in existing if m.get("id")}
@@ -411,7 +425,7 @@ def import_diary_memos_for_sync(memos: list[dict]) -> int:
         existing_sigs.add(signature)
         imported += 1
 
-    if imported:
+    if imported or replace_announcements:
         maybe_rebuild_diary_export()
     return imported
 
@@ -508,6 +522,25 @@ class VokaHandler(BaseHTTPRequestHandler):
                 return self._json(200, {"ok": True, "tree": collect_tree()})
             except subprocess.CalledProcessError as exc:
                 return self._json(500, {"error": str(exc)})
+        if path == "/api/diary/import-memos":
+            memos = data.get("memos") or data.get("diaryMemos") or []
+            if not isinstance(memos, list):
+                return self._json(400, {"error": "memos 必须是数组"})
+            replace = bool(data.get("replaceAnnouncements", True))
+            announces = [m for m in memos if isinstance(m, dict) and m.get("category") == ANNOUNCE_CATEGORY]
+            imported = import_diary_memos_for_sync(memos if not replace else announces, replace_announcements=replace)
+            home = pick_announcements_for_home(
+                [m for m in collect_diary_memos() if m.get("category") == ANNOUNCE_CATEGORY]
+            )
+            return self._json(
+                200,
+                {
+                    "ok": True,
+                    "imported": imported,
+                    "announcementCount": len(home),
+                    "announcements": home,
+                },
+            )
         if path == "/api/diary/memos":
             category = (data.get("category") or "备忘").strip()
             content = (data.get("content") or "").strip()
@@ -862,7 +895,10 @@ class VokaHandler(BaseHTTPRequestHandler):
         diary_memos = data.get("diaryMemos")
         imported_diary = 0
         if isinstance(diary_memos, list) and diary_memos:
-            imported_diary = import_diary_memos_for_sync(diary_memos)
+            imported_diary = import_diary_memos_for_sync(
+                diary_memos,
+                replace_announcements=True,
+            )
 
         try:
             rebuild_site()

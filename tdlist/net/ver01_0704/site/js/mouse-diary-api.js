@@ -239,6 +239,42 @@ export async function collectDiaryMemosForSync() {
   return [...merged.values()];
 }
 
+/** 将编辑端公告（浏览器 + 本地文件）覆盖写入读者端导出数据 */
+export async function exportEditorAnnouncementsToReader() {
+  const localAnnouncements = readLocalMemos().filter((m) => m.category === ANNOUNCE_CATEGORY && m.content);
+  const merged = await collectDiaryMemosForSync();
+  const mergedAnnouncements = merged.filter((m) => m.category === ANNOUNCE_CATEGORY && m.content);
+
+  // 优先用浏览器里你自己写的公告；没有再回退到本地文件里的公告
+  const announcements = localAnnouncements.length ? localAnnouncements : mergedAnnouncements;
+  if (!announcements.length) {
+    throw new Error("未找到你写的更新公告。请先在「鼠の事件簿 → 更新公告」确认能看到内容。");
+  }
+
+  try {
+    const health = await fetch(`${API_ROOT}/health`, { signal: AbortSignal.timeout(2000) });
+    if (!health.ok) throw new Error("offline");
+  } catch {
+    throw new Error("本地同步服务未运行。请先运行：python sync/server.py");
+  }
+
+  const data = await apiFetch("/import-memos", {
+    method: "POST",
+    body: JSON.stringify({
+      memos: announcements,
+      replaceAnnouncements: true,
+    }),
+  });
+
+  storageMode = null;
+  return {
+    imported: data.imported || 0,
+    count: data.announcementCount || announcements.length,
+    announcements: data.announcements || [],
+    source: localAnnouncements.length ? "browser" : "files",
+  };
+}
+
 async function fetchAllMemosRaw() {
   await detectDiaryStorage();
 
@@ -265,8 +301,25 @@ export async function listAnnouncements() {
     return sortAnnouncements(await fetchPublishedAnnouncementsRaw());
   }
 
-  const all = await fetchAllMemosRaw();
-  return sortAnnouncements(all.filter((m) => m.category === ANNOUNCE_CATEGORY));
+  await detectDiaryStorage();
+  const localAnnouncements = readLocalMemos().filter((m) => m.category === ANNOUNCE_CATEGORY);
+
+  if (storageMode === "server") {
+    try {
+      const data = await apiFetch("/memos");
+      const serverAnnouncements = (data.memos || []).filter((m) => m.category === ANNOUNCE_CATEGORY);
+      const merged = new Map();
+      for (const item of [...serverAnnouncements, ...localAnnouncements]) {
+        const key = item.id || `${item.title}::${(item.content || "").slice(0, 80)}`;
+        merged.set(key, item);
+      }
+      return sortAnnouncements([...merged.values()]);
+    } catch {
+      return sortAnnouncements(localAnnouncements);
+    }
+  }
+
+  return sortAnnouncements(localAnnouncements);
 }
 
 export async function listMoods() {
@@ -305,12 +358,21 @@ export async function fetchAnnouncementsForHome() {
 
   await detectDiaryStorage();
 
+  const localAnnouncements = readLocalMemos().filter((m) => m.category === ANNOUNCE_CATEGORY);
+
   if (storageMode === "server") {
     try {
-      const data = await apiFetch("/announcements");
-      return pickAnnouncementsForHome(data.announcements || []);
+      const data = await apiFetch("/memos");
+      const serverAnnouncements = (data.memos || []).filter((m) => m.category === ANNOUNCE_CATEGORY);
+      // 编辑端：浏览器里的公告与本地文件合并，避免只显示仓库种子数据
+      const merged = new Map();
+      for (const item of [...serverAnnouncements, ...localAnnouncements]) {
+        const key = item.id || `${item.title}::${(item.content || "").slice(0, 80)}`;
+        merged.set(key, item);
+      }
+      return pickAnnouncementsForHome([...merged.values()]);
     } catch {
-      return pickAnnouncementsForHome(await listAnnouncements());
+      return pickAnnouncementsForHome(localAnnouncements);
     }
   }
 
