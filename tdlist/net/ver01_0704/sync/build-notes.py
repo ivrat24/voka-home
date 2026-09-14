@@ -211,16 +211,17 @@ def render_optimized_note_html(md: str) -> str:
 
 
 def parse_network_map_source(body: str) -> dict:
-    """Parse ```network fence into {title, id, defaultView, views:{local,global}}."""
-    meta: dict[str, str] = {"title": "网络图", "id": "", "default": "local"}
+    """Parse ```network fence into {title, id, defaultView, collapsed, views:{local,global}}."""
+    meta: dict[str, str] = {"title": "网络图", "id": "", "default": "local", "collapsed": "true"}
     views: dict[str, dict] = {}
     current: str | None = None
     nodes: list[dict] = []
     edges: list[dict] = []
     focus: list[str] = []
+    preset = ""
 
     def flush() -> None:
-        nonlocal nodes, edges, focus
+        nonlocal nodes, edges, focus, preset
         if not current:
             return
         views[current] = {
@@ -228,7 +229,9 @@ def parse_network_map_source(body: str) -> dict:
             "edges": edges,
             "focus": focus,
         }
-        nodes, edges, focus = [], [], []
+        if current == "global" and preset:
+            views[current]["preset"] = preset
+        nodes, edges, focus, preset = [], [], [], ""
 
     for raw in body.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
         line = raw.strip()
@@ -239,15 +242,20 @@ def parse_network_map_source(body: str) -> dict:
             flush()
             current = section.group(1).lower()
             continue
-        if current is None and "=" in line and not re.search(r"[>→]", line):
+        if "=" in line and not re.search(r"[>→]", line) and "|" not in line:
             key, _, val = line.partition("=")
             key = key.strip().lower()
             val = val.strip()
-            if key in {"title", "id", "default", "defaultview"}:
-                meta["default" if key == "defaultview" else key] = val
-            continue
+            if current is None:
+                if key == "defaultview":
+                    meta["default"] = val
+                elif key in {"title", "id", "default", "collapsed", "expanded"}:
+                    meta[key] = val
+                continue
+            if key == "preset":
+                preset = val.lower()
+                continue
         if current is None:
-            # allow omitting [local] when only one view
             current = "local"
         edge = re.match(r"^([\w\-.]+)\s*(?:->|>|→)\s*([\w\-.]+)(?:\|(.*))?$", line)
         if edge:
@@ -274,10 +282,16 @@ def parse_network_map_source(body: str) -> dict:
     flush()
     if not views:
         return {}
+    collapsed = True
+    if str(meta.get("expanded", "")).lower() == "true":
+        collapsed = False
+    elif str(meta.get("collapsed", "true")).lower() == "false":
+        collapsed = False
     return {
         "title": meta.get("title") or "网络图",
         "id": meta.get("id") or "",
         "defaultView": (meta.get("default") or "local").lower(),
+        "collapsed": collapsed,
         "views": views,
     }
 
@@ -393,20 +407,22 @@ def render_network_map_html(body: str) -> str:
     default_view = data.get("defaultView") or "local"
     if default_view not in data["views"]:
         default_view = "local" if "local" in data["views"] else next(iter(data["views"]))
-    view = data["views"][default_view]
-    svg = _render_network_view_svg(view, mode=default_view, title=data["title"])
     # Keep JSON safe inside <script> (avoid breaking on </script>)
     payload = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
     map_id = html.escape(data.get("id") or "", quote=True)
+    collapsed = data.get("collapsed", True)
+    collapsed_cls = "is-collapsed" if collapsed else "is-expanded"
+    expanded_attr = "0" if collapsed else "1"
     return (
-        f'<figure class="note-network-map" data-network-map data-default-view="{html.escape(default_view, quote=True)}" '
-        f'data-map-id="{map_id}">'
-        f'<div class="note-network-map__toolbar" aria-hidden="true">'
-        f'<div class="note-network-map__heading"><span class="note-network-map__kicker">Network Map</span>'
-        f'<strong class="note-network-map__title">{html.escape(data["title"])}</strong></div>'
-        f'<div class="note-network-map__actions"><span class="muted">加载交互控件…</span></div></div>'
-        f'<div class="note-network-map__viewport" data-view="{html.escape(default_view, quote=True)}">'
-        f'<div class="note-network-map__stage">{svg}</div></div>'
+        f'<figure class="note-network-map {collapsed_cls}" data-network-map '
+        f'data-default-view="{html.escape(default_view, quote=True)}" '
+        f'data-map-id="{map_id}" data-expanded="{expanded_attr}">'
+        f'<div class="note-network-map__toolbar">'
+        f'<div class="note-network-map__heading"><span class="note-network-map__kicker">Network Transmit</span>'
+        f'<strong class="note-network-map__title">{html.escape(data["title"])}</strong>'
+        f'<span class="note-network-map__hint muted">默认折叠 · 点击展开交互示意</span></div></div>'
+        f'<div class="note-network-map__viewport" data-view="{html.escape(default_view, quote=True)}" hidden>'
+        f'<div class="note-network-map__stage"></div></div>'
         f'<script type="application/json" class="note-network-map__data">{payload}</script>'
         f"</figure>"
     )

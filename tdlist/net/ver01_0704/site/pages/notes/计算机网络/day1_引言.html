@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="接入网；动态网络传输示意（局部/全局）">
+  <meta name="description" content="接入网；动态网络传输示意">
   <title>Day1 引言 · 课程笔记 · 鼠窝</title>
   <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
@@ -52,7 +52,7 @@
         <h1 id="note-page-title">Day1 引言</h1>
         <p class="note-meta"><time datetime="2026-09-14">2026-09-14</time></p>
         <div class="note-tags"><span class="note-tag">计算机网络</span><span class="note-tag">引言</span><span class="note-tag">Day1</span></div>
-        <p class="note-description">接入网；动态网络传输示意（局部/全局）</p>
+        <p class="note-description">接入网；动态网络传输示意</p>
       </header>
       <div class="note-body note-body--optimized content-body">
         <section class="note-module">
@@ -335,16 +335,20 @@
 <h3 id="概念对照quick-distinctions" class="note-heading note-heading--h3">概念对照（Quick Distinctions）</h3>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>名称</th><th>全称要点</th><th>一句话职责</th></tr></thead><tbody><tr><td><strong>接入网</strong></td><td>Access Network</td><td>端系统到网络边缘出口的“上到网”路径</td></tr><tr><td><strong>RAN</strong></td><td>Radio Access Network</td><td>无线形态的接入网</td></tr><tr><td><strong>GW</strong></td><td>Gateway</td><td>不同网络/协议之间的边界转换与互连</td></tr><tr><td><strong>BRAS</strong></td><td>Broadband Remote Access Server</td><td>固网宽带用户认证上线与策略控制点</td></tr><tr><td><strong>OLT/ONU</strong></td><td>光线路终端 / 光网络单元</td><td>FTTH/PON 的局端与用户侧</td></tr><tr><td><strong>IP 云</strong></td><td>IP Cloud（城域/核心 IP 网）</td><td>接入之后的运营商 IP 转发域（偏核心侧）</td></tr></tbody></table></div>
 <blockquote class="note-quote"><p class="note-paragraph">说明：具体设备名称随厂商与 4G/5G、固网改造方案会变化，考试与笔记优先抓住<strong>功能定义与在拓扑中的位置</strong>。</p></blockquote>
-<h2 id="附录动态网络图局部--全局--传输动画" class="note-heading note-heading--h2">附录：动态网络图（局部 / 全局 + 传输动画）</h2>
-<p class="note-paragraph">风格参考「昨日重现」Internet Map：链路高亮 + <strong>数据包沿线传输</strong>。可用 <code> </code><code></code><code>network </code> 代码块启用；页面加载后支持 <strong>局部 / 全局</strong> 切换、<strong>传输速度</strong>、暂停/播放；全局视图可拖拽平移与滚轮缩放。</p>
-<figure class="note-network-map" data-network-map data-default-view="local" data-map-id="cn-access-internet"><div class="note-network-map__toolbar" aria-hidden="true"><div class="note-network-map__heading"><span class="note-network-map__kicker">Network Map</span><strong class="note-network-map__title">接入与互联网示意</strong></div><div class="note-network-map__actions"><span class="muted">加载交互控件…</span></div></div><div class="note-network-map__viewport" data-view="local"><div class="note-network-map__stage"><svg class="note-network-map__canvas" viewBox="0 0 640 240" width="100%" height="100%" role="img" aria-label="接入与互联网示意"><line class="nmap-edge" x1="56.0" y1="120.0" x2="232.0" y2="120.0" /><line class="nmap-edge" x1="232.0" y1="120.0" x2="408.0" y2="120.0" /><line class="nmap-edge" x1="408.0" y1="120.0" x2="584.0" y2="120.0" /><g class="nmap-node is-muted" data-node-id="Host" transform="translate(56.0, 120.0)"><rect x="-36.0" y="-18" width="72.0" height="36" rx="12" fill="#60a5fa" fill-opacity="0.18" stroke="#60a5fa" stroke-width="1.6" /><text text-anchor="middle" dominant-baseline="middle" class="nmap-label">端系统</text></g><g class="nmap-node is-focus" data-node-id="ONT" transform="translate(232.0, 120.0)"><rect x="-48.0" y="-18" width="96.0" height="36" rx="12" fill="#38bdf8" fill-opacity="0.18" stroke="#38bdf8" stroke-width="1.6" /><text text-anchor="middle" dominant-baseline="middle" class="nmap-label">光猫/ONT</text></g><g class="nmap-node is-focus" data-node-id="OLT" transform="translate(408.0, 120.0)"><rect x="-36.0" y="-18" width="72.0" height="36" rx="12" fill="#34d399" fill-opacity="0.18" stroke="#34d399" stroke-width="1.6" /><text text-anchor="middle" dominant-baseline="middle" class="nmap-label">OLT</text></g><g class="nmap-node is-muted" data-node-id="BRAS" transform="translate(584.0, 120.0)"><rect x="-36.0" y="-18" width="72.0" height="36" rx="12" fill="#fbbf24" fill-opacity="0.18" stroke="#fbbf24" stroke-width="1.6" /><text text-anchor="middle" dominant-baseline="middle" class="nmap-label">BRAS</text></g></svg></div></div><script type="application/json" class="note-network-map__data">{"title": "接入与互联网示意", "id": "cn-access-internet", "defaultView": "local", "views": {"local": {"nodes": [{"id": "Host", "label": "端系统", "role": "host"}, {"id": "ONT", "label": "光猫/ONT", "role": "cpe"}, {"id": "OLT", "label": "OLT", "role": "access"}, {"id": "BRAS", "label": "BRAS", "role": "edge"}], "edges": [{"from": "Host", "to": "ONT", "label": ""}, {"from": "ONT", "to": "OLT", "label": ""}, {"from": "OLT", "to": "BRAS", "label": ""}], "focus": ["ONT", "OLT"]}, "global": {"nodes": [{"id": "User", "label": "用户/校园", "role": "host"}, {"id": "Access", "label": "接入网", "role": "access"}, {"id": "Metro", "label": "IP云/城域", "role": "core"}, {"id": "Tier1", "label": "Tier-1", "role": "core"}, {"id": "Peer", "label": "对端网络", "role": "peer"}], "edges": [{"from": "User", "to": "Access", "label": ""}, {"from": "Access", "to": "Metro", "label": ""}, {"from": "Metro", "to": "Tier1", "label": ""}, {"from": "Tier1", "to": "Peer", "label": ""}], "focus": []}}}</script></figure>
+<h2 id="附录动态网络图局部接入--全局网络--传输动画" class="note-heading note-heading--h2">附录：动态网络图（局部接入 / 全局网络 + 传输动画）</h2>
+<p class="note-paragraph">风格参考「昨日重现」Internet Map。<strong>默认折叠</strong>，点击标题展开；展开后可切换：</p>
+<ul class="note-list">
+<li><strong>局部接入</strong>：一条接入路径上的节点与报文传输（如 Host→ONT→OLT→BRAS）</li>
+<li><strong>全局网络</strong>：<strong>大规模互联网拓扑</strong>（IX / Tier-1·2 / stub AS / 端系统点），不是「用户→接入→城域→骨干」的层次梯子图；可拖拽平移与滚轮缩放</li>
+</ul>
+<figure class="note-network-map is-collapsed" data-network-map data-default-view="local" data-map-id="cn-access-internet" data-expanded="0"><div class="note-network-map__toolbar"><div class="note-network-map__heading"><span class="note-network-map__kicker">Network Transmit</span><strong class="note-network-map__title">接入与互联网示意</strong><span class="note-network-map__hint muted">默认折叠 · 点击展开交互示意</span></div></div><div class="note-network-map__viewport" data-view="local" hidden><div class="note-network-map__stage"></div></div><script type="application/json" class="note-network-map__data">{"title": "接入与互联网示意", "id": "cn-access-internet", "defaultView": "local", "collapsed": true, "views": {"local": {"nodes": [{"id": "Host", "label": "端系统", "role": "host"}, {"id": "ONT", "label": "光猫/ONT", "role": "cpe"}, {"id": "OLT", "label": "OLT", "role": "access"}, {"id": "BRAS", "label": "BRAS", "role": "edge"}], "edges": [{"from": "Host", "to": "ONT", "label": ""}, {"from": "ONT", "to": "OLT", "label": ""}, {"from": "OLT", "to": "BRAS", "label": ""}], "focus": ["ONT", "OLT"]}, "global": {"nodes": [{"id": "Campus", "label": "校园/用户侧", "role": "host"}, {"id": "BRAS", "label": "BRAS", "role": "edge"}, {"id": "CDN", "label": "内容源", "role": "peer"}], "edges": [], "focus": [], "preset": "internet"}}}</script></figure>
 <p class="note-paragraph"><strong>写法要点</strong></p>
 <ol class="note-list">
-<li>元数据：<code>title=</code> / <code>id=</code> / <code>default=local|global</code></li>
-<li>分区：<code>[local]</code> 局部、<code>[global]</code> 全局</li>
-<li>节点：<code>id|显示名|角色</code>（角色可选：<code>host</code> / <code>cpe</code> / <code>access</code> / <code>edge</code> / <code>core</code> / <code>peer</code>）</li>
-<li>边：<code>A&gt;B</code> 或 <code>A-&gt;B</code>（主路径按拓扑自动串联，全局会叠加背景流量）</li>
-<li>聚焦：<code>focus: id1,id2</code>（局部高亮，其余淡化）</li>
+<li>元数据：<code>title=</code> / <code>id=</code> / <code>default=local|global</code> / <code>collapsed=true|false</code>（默认折叠）</li>
+<li>分区：<code>[local]</code> 局部接入路径；<code>[global]</code> 全局大规模示意</li>
+<li>全局：<code>preset=internet</code>（默认）生成 IX/骨干/末梢网状拓扑；节点列表仅作<strong>故事标注</strong>钉在 IX 附近，勿再写层次梯子</li>
+<li>局部节点：<code>id|显示名|角色</code>（<code>host</code> / <code>cpe</code> / <code>access</code> / <code>edge</code> / <code>core</code> / <code>peer</code>）</li>
+<li>边：<code>A&gt;B</code>；<code>focus: id1,id2</code> 局部高亮</li>
 </ol>
 </section>
       </div>

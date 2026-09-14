@@ -1,6 +1,6 @@
 /**
  * Note network map — inspired by「昨日重现」Internet Map:
- * local / global views + packet transmission animation along edges.
+ * collapsed by default; local access path; global = large-scale mesh.
  */
 
 const ROLE_COLORS = {
@@ -10,11 +10,14 @@ const ROLE_COLORS = {
   edge: "#fbbf24",
   core: "#a78bfa",
   peer: "#f472b6",
+  ix: "#94a3b8",
+  transit: "#64748b",
+  stub: "#7a8894",
   default: "#94a3b8",
 };
 
 const NS = "http://www.w3.org/2000/svg";
-const SPEED_BASELINE = 0.00115;
+const SPEED_BASELINE = 0.00105;
 
 function parseMapData(root) {
   const raw = root.querySelector(".note-network-map__data")?.textContent?.trim();
@@ -26,7 +29,34 @@ function parseMapData(root) {
   }
 }
 
-function layoutNodes(nodes, edges, width, height) {
+function escapeXml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function hashSeed(str) {
+  let h = 2166136261;
+  const s = String(str || "nmap");
+  for (let i = 0; i < s.length; i += 1) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function mulberry32(a) {
+  return function rand() {
+    let t = (a += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function layoutLocalChain(nodes, edges, width, height) {
   const ids = nodes.map((n) => n.id);
   const indeg = Object.fromEntries(ids.map((id) => [id, 0]));
   const outs = Object.fromEntries(ids.map((id) => [id, []]));
@@ -60,16 +90,19 @@ function layoutNodes(nodes, edges, width, height) {
     frontier = next.length ? next : ids.filter((id) => !placed.has(id));
   }
 
-  const padX = 64;
-  const padY = 52;
+  const padX = 72;
+  const padY = 58;
   const positions = {};
   const colW = layers.length <= 1 ? width / 2 : (width - padX * 2) / (layers.length - 1 || 1);
 
   layers.forEach((layer, li) => {
     const x = layers.length === 1 ? width / 2 : padX + li * colW;
-    const rowH = layer.length <= 1 ? height / 2 : (height - padY * 2) / (layer.length - 1 || 1);
+    const rowH = layer.length <= 1 ? 0 : (height - padY * 2) / (layer.length - 1 || 1);
     layer.forEach((id, ni) => {
-      const y = layer.length === 1 ? height / 2 : padY + ni * rowH;
+      const y =
+        layer.length === 1
+          ? height * 0.52 + (li % 2 === 0 ? -8 : 10)
+          : padY + ni * rowH;
       positions[id] = { x, y };
     });
   });
@@ -77,16 +110,186 @@ function layoutNodes(nodes, edges, width, height) {
   return positions;
 }
 
-function escapeXml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+/** Large-scale Internet mesh (IX / transit / stub / host), not a layer ladder. */
+function buildInternetScale(seedStr, storyNodes = []) {
+  const rand = mulberry32(hashSeed(seedStr) || 1);
+  const W = 1180;
+  const H = 700;
+  const nodes = [];
+  const edges = [];
+  const byId = {};
+
+  const pushNode = (n) => {
+    nodes.push(n);
+    byId[n.id] = n;
+  };
+
+  const IX = [
+    { id: "ix100", x: 220, y: 190, label: "IX-100\nCore" },
+    { id: "ix101", x: 580, y: 120, label: "IX-101\nEast" },
+    { id: "ix102", x: 430, y: 300, label: "IX-102\nMid" },
+    { id: "ix103", x: 760, y: 290, label: "IX-103\nSouth" },
+    { id: "ix104", x: 960, y: 430, label: "IX-104\nCoast" },
+    { id: "ix105", x: 340, y: 500, label: "IX-105\nWest" },
+    { id: "ix106", x: 140, y: 390, label: "IX-106\nNorth" },
+    { id: "ix107", x: 260, y: 620, label: "IX-107\nEdge" },
+    { id: "ix108", x: 840, y: 580, label: "IX-108\nFar" },
+    { id: "ix109", x: 1060, y: 180, label: "IX-109\nRim" },
+  ];
+
+  IX.forEach((ix) => {
+    pushNode({
+      id: ix.id,
+      label: ix.label,
+      role: "ix",
+      kind: "ix",
+      story: true,
+      x: ix.x,
+      y: ix.y,
+    });
+  });
+
+  const transit = [
+    { id: "as2", x: 410, y: 200, label: "AS-2\nTier-1", ix: ["ix100", "ix101", "ix102", "ix107"] },
+    { id: "as3", x: 700, y: 370, label: "AS-3\nTier-1", ix: ["ix100", "ix103", "ix104", "ix108"] },
+    { id: "as4", x: 530, y: 430, label: "AS-4\nTier-1", ix: ["ix102", "ix104", "ix105", "ix106"] },
+    { id: "as11", x: 480, y: 560, label: "AS-11\nTier-2", ix: ["ix105", "ix107"] },
+    { id: "as12", x: 820, y: 210, label: "AS-12\nTier-2", ix: ["ix101", "ix104", "ix109"] },
+  ];
+
+  transit.forEach((t) => {
+    pushNode({
+      id: t.id,
+      label: t.label,
+      role: "transit",
+      kind: "transit",
+      story: true,
+      x: t.x,
+      y: t.y,
+    });
+    t.ix.forEach((ixId) => edges.push({ from: t.id, to: ixId }));
+  });
+  edges.push({ from: "as2", to: "as3" }, { from: "as3", to: "as4" }, { from: "as2", to: "as4" });
+
+  [
+    ["ix100", "ix102"],
+    ["ix101", "ix102"],
+    ["ix101", "ix109"],
+    ["ix103", "ix104"],
+    ["ix104", "ix108"],
+    ["ix105", "ix107"],
+    ["ix106", "ix100"],
+    ["ix102", "ix103"],
+  ].forEach(([a, b]) => edges.push({ from: a, to: b }));
+
+  const stubIds = [];
+  const clusters = [
+    [180, "ix100", 7],
+    [188, "ix102", 6],
+    [195, "ix103", 6],
+    [202, "ix104", 5],
+    [208, "ix105", 5],
+    [214, "ix106", 5],
+    [219, "ix107", 5],
+    [225, "ix108", 4],
+    [230, "ix109", 5],
+    [235, "ix101", 5],
+  ];
+
+  clusters.forEach(([start, ixId, count]) => {
+    const ix = byId[ixId];
+    for (let i = 0; i < count; i += 1) {
+      const asn = start + i;
+      const id = `as${asn}`;
+      const ang = (Math.PI * 2 * i) / count + asn * 0.11 + rand() * 0.2;
+      const r = 40 + (asn % 5) * 8 + rand() * 6;
+      pushNode({
+        id,
+        label: `AS-${asn}`,
+        role: "stub",
+        kind: "stub",
+        story: false,
+        x: ix.x + Math.cos(ang) * r,
+        y: ix.y + Math.sin(ang) * r,
+      });
+      edges.push({ from: id, to: ixId });
+      stubIds.push(id);
+      for (let h = 0; h < 2; h += 1) {
+        const hid = `${id}h${h}`;
+        const ha = ang + 0.45 + h * 0.9;
+        pushNode({
+          id: hid,
+          label: "",
+          role: "host",
+          kind: "host",
+          story: false,
+          x: byId[id].x + Math.cos(ha) * 11,
+          y: byId[id].y + Math.sin(ha) * 11,
+        });
+        edges.push({ from: hid, to: id });
+      }
+    }
+  });
+
+  for (let i = 0; i < stubIds.length; i += 6) {
+    edges.push({ from: stubIds[i], to: stubIds[(i + 13) % stubIds.length] });
+  }
+
+  // Optional story overlays from markdown [global] nodes — pin near IXes
+  const pinIx = ["ix100", "ix102", "ix103", "ix105", "ix101"];
+  (storyNodes || []).slice(0, 6).forEach((sn, i) => {
+    const ix = byId[pinIx[i % pinIx.length]];
+    const ang = -0.9 + i * 0.55;
+    const id = sn.id || `story${i}`;
+    if (byId[id]) return;
+    pushNode({
+      id,
+      label: sn.label || id,
+      role: sn.role || "host",
+      kind: "story",
+      story: true,
+      x: ix.x + Math.cos(ang) * 68,
+      y: ix.y + Math.sin(ang) * 52,
+    });
+    edges.push({ from: id, to: ix.id });
+  });
+
+  return {
+    width: W,
+    height: H,
+    nodes,
+    edges,
+    focus: (storyNodes || []).map((n) => n.id).filter(Boolean),
+    stubIds,
+  };
 }
 
-function escapeAttr(str) {
-  return escapeXml(str).replace(/'/g, "&#39;");
+function resolveGlobalView(data) {
+  const raw = data.views?.global || {};
+  const preset = String(raw.preset || data.globalPreset || "internet").toLowerCase();
+  const customNodes = raw.nodes || [];
+  const customEdges = raw.edges || [];
+  const looksHierarchical =
+    customNodes.length > 0 &&
+    customNodes.length <= 8 &&
+    customEdges.length >= customNodes.length - 1 &&
+    customEdges.length <= customNodes.length + 1;
+
+  if (preset === "custom" && customNodes.length) {
+    return { ...raw, mode: "custom" };
+  }
+  // Default / internet: ignore thin layer ladders and build scale mesh
+  if (preset === "internet" || looksHierarchical || !customNodes.length) {
+    const built = buildInternetScale(data.id || data.title || "internet", customNodes);
+    return {
+      ...built,
+      title: raw.title,
+      preset: "internet",
+      mode: "global",
+    };
+  }
+  // Medium custom graphs: keep positions via local layout later
+  return { ...raw, mode: "custom" };
 }
 
 function collectPrimaryPath(nodes, edges) {
@@ -115,24 +318,54 @@ function collectPrimaryPath(nodes, edges) {
 function collectAmbientPaths(nodes, edges, count) {
   if (nodes.length < 2 || edges.length < 1) return [];
   const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+  const usable = edges.filter((e) => byId[e.from] && byId[e.to]);
   const paths = [];
   for (let i = 0; i < count; i += 1) {
-    const e = edges[i % edges.length];
-    if (byId[e.from] && byId[e.to]) {
-      paths.push({ path: [e.from, e.to], kind: "ambient", phase: 0.15 + i * 0.09 });
-    }
+    const e = usable[(i * 7) % usable.length];
+    if (!e) break;
+    paths.push({ path: [e.from, e.to], kind: "ambient", phase: 0.08 + i * 0.07 });
   }
   return paths;
 }
 
+function curvedPath(a, b, bend = 0.18) {
+  const mx = (a.x + b.x) / 2;
+  const my = (a.y + b.y) / 2;
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const cx = mx - dy * bend;
+  const cy = my + dx * bend;
+  return `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`;
+}
+
+function nodeRadius(n, mode) {
+  if (mode === "global") {
+    if (n.kind === "ix") return 8.5;
+    if (n.kind === "transit") return 7.5;
+    if (n.kind === "host") return 2.1;
+    if (n.kind === "story") return 9;
+    return 3.4;
+  }
+  return 15;
+}
+
 function createSvg(view, options = {}) {
+  const mode = options.mode || "local";
   const nodes = view?.nodes || [];
   const edges = view?.edges || [];
   const focus = new Set(view?.focus || []);
-  const isGlobal = options.mode === "global";
-  const width = isGlobal ? 960 : 680;
-  const height = Math.max(240, 80 + Math.max(nodes.length, 3) * 46);
-  const positions = layoutNodes(nodes, edges, width, height);
+  const isGlobal = mode === "global";
+  const width = view.width || (isGlobal ? 1180 : 720);
+  const height = view.height || (isGlobal ? 700 : Math.max(260, 100 + Math.max(nodes.length, 3) * 36));
+
+  let positions = {};
+  if (nodes.every((n) => Number.isFinite(n.x) && Number.isFinite(n.y))) {
+    nodes.forEach((n) => {
+      positions[n.id] = { x: n.x, y: n.y };
+    });
+  } else {
+    positions = layoutLocalChain(nodes, edges, width, height);
+  }
 
   const svg = document.createElementNS(NS, "svg");
   svg.setAttribute("class", "note-network-map__canvas");
@@ -142,22 +375,47 @@ function createSvg(view, options = {}) {
   svg.setAttribute("role", "img");
   svg.setAttribute("aria-label", view?.title || "网络传输示意");
 
+  // soft grid for global density
+  if (isGlobal) {
+    const defs = document.createElementNS(NS, "defs");
+    defs.innerHTML = `
+      <pattern id="nmap-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148,163,184,0.12)" stroke-width="1"/>
+      </pattern>`;
+    svg.appendChild(defs);
+    const bg = document.createElementNS(NS, "rect");
+    bg.setAttribute("width", String(width));
+    bg.setAttribute("height", String(height));
+    bg.setAttribute("fill", "url(#nmap-grid)");
+    bg.setAttribute("opacity", "0.55");
+    svg.appendChild(bg);
+  }
+
   const gEdges = document.createElementNS(NS, "g");
   gEdges.setAttribute("class", "nmap-edges");
-  edges.forEach((e) => {
+  edges.forEach((e, idx) => {
     const a = positions[e.from];
     const b = positions[e.to];
     if (!a || !b) return;
+    const na = nodes.find((n) => n.id === e.from);
+    const nb = nodes.find((n) => n.id === e.to);
     const muted = focus.size && !focus.has(e.from) && !focus.has(e.to);
-    const line = document.createElementNS(NS, "line");
-    line.setAttribute("class", `nmap-edge${muted ? " is-muted" : ""}`);
-    line.setAttribute("x1", String(a.x));
-    line.setAttribute("y1", String(a.y));
-    line.setAttribute("x2", String(b.x));
-    line.setAttribute("y2", String(b.y));
-    line.dataset.a = e.from;
-    line.dataset.b = e.to;
-    gEdges.appendChild(line);
+    const backbone =
+      isGlobal &&
+      ((na?.kind === "ix" && nb?.kind === "ix") ||
+        (na?.kind === "transit" && nb?.kind === "transit") ||
+        (na?.kind === "transit" && nb?.kind === "ix") ||
+        (na?.kind === "ix" && nb?.kind === "transit"));
+    const path = document.createElementNS(NS, "path");
+    const bend = isGlobal ? (backbone ? 0.06 : 0.12 + (idx % 3) * 0.02) : 0.16;
+    path.setAttribute("d", curvedPath(a, b, bend));
+    path.setAttribute(
+      "class",
+      `nmap-edge${muted && !isGlobal ? " is-muted" : ""}${backbone ? " is-backbone" : ""}${isGlobal && !backbone ? " is-mesh" : ""}`,
+    );
+    path.dataset.a = e.from;
+    path.dataset.b = e.to;
+    gEdges.appendChild(path);
   });
   svg.appendChild(gEdges);
 
@@ -165,34 +423,40 @@ function createSvg(view, options = {}) {
   gNodes.setAttribute("class", "nmap-nodes");
   nodes.forEach((n) => {
     const p = positions[n.id] || { x: width / 2, y: height / 2 };
-    const role = n.role || "default";
+    const role = n.role || n.kind || "default";
     const color = ROLE_COLORS[role] || ROLE_COLORS.default;
-    const focused = !focus.size || focus.has(n.id);
-    const label = n.label || n.id;
-    const tw = Math.min(168, Math.max(76, label.length * 12 + 28));
+    const focused = !focus.size || focus.has(n.id) || n.story;
+    const r = nodeRadius(n, mode);
     const g = document.createElementNS(NS, "g");
-    g.setAttribute("class", `nmap-node${focused ? " is-focus" : " is-muted"}`);
+    g.setAttribute(
+      "class",
+      `nmap-node nmap-node--${n.kind || role}${focused || isGlobal ? "" : " is-muted"}${n.story ? " is-story" : ""}`,
+    );
     g.dataset.nodeId = n.id;
     g.setAttribute("transform", `translate(${p.x}, ${p.y})`);
 
-    const rect = document.createElementNS(NS, "rect");
-    rect.setAttribute("x", String(-tw / 2));
-    rect.setAttribute("y", "-18");
-    rect.setAttribute("width", String(tw));
-    rect.setAttribute("height", "36");
-    rect.setAttribute("rx", "12");
-    rect.setAttribute("fill", color);
-    rect.setAttribute("fill-opacity", "0.2");
-    rect.setAttribute("stroke", color);
-    rect.setAttribute("stroke-width", "1.7");
-    g.appendChild(rect);
+    const circle = document.createElementNS(NS, "circle");
+    circle.setAttribute("r", String(r));
+    circle.setAttribute("fill", color);
+    circle.setAttribute("fill-opacity", n.kind === "host" ? "0.75" : isGlobal ? "0.55" : "0.28");
+    circle.setAttribute("stroke", color);
+    circle.setAttribute("stroke-width", n.kind === "ix" || !isGlobal ? "1.8" : "1.1");
+    g.appendChild(circle);
 
-    const text = document.createElementNS(NS, "text");
-    text.setAttribute("text-anchor", "middle");
-    text.setAttribute("dominant-baseline", "middle");
-    text.setAttribute("class", "nmap-label");
-    text.textContent = label;
-    g.appendChild(text);
+    const showLabel =
+      !isGlobal || n.story || n.kind === "ix" || n.kind === "transit" || n.kind === "story";
+    if (showLabel && n.label) {
+      String(n.label)
+        .split("\n")
+        .forEach((line, i) => {
+          const text = document.createElementNS(NS, "text");
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("y", String((isGlobal ? 16 : 28) + i * 11));
+          text.setAttribute("class", `nmap-label${isGlobal ? " nmap-label--sm" : ""}`);
+          text.textContent = line;
+          g.appendChild(text);
+        });
+    }
     gNodes.appendChild(g);
   });
   svg.appendChild(gNodes);
@@ -204,7 +468,7 @@ function createSvg(view, options = {}) {
   return { svg, positions, width, height, packetLayer };
 }
 
-function ensureToolbar(root, data) {
+function ensureShell(root, data) {
   let bar = root.querySelector(".note-network-map__toolbar");
   if (!bar) {
     bar = document.createElement("div");
@@ -213,21 +477,26 @@ function ensureToolbar(root, data) {
   }
   const title = data.title || "网络传输示意";
   const speed = root._nmapSpeed ?? 100;
+  const expanded = root.dataset.expanded === "1";
   bar.innerHTML = `
-    <div class="note-network-map__heading">
-      <span class="note-network-map__kicker">Network Transmit</span>
-      <strong class="note-network-map__title">${escapeXml(title)}</strong>
-      <span class="note-network-map__status muted" data-nmap-status>待机</span>
-    </div>
-    <div class="note-network-map__actions" role="group" aria-label="视图与传输控制">
-      <button type="button" class="btn btn-ghost btn-sm" data-nmap-view="local" aria-pressed="false">局部</button>
-      <button type="button" class="btn btn-ghost btn-sm" data-nmap-view="global" aria-pressed="false">全局</button>
+    <button type="button" class="note-network-map__toggle" data-nmap-action="expand" aria-expanded="${expanded ? "true" : "false"}">
+      <span class="note-network-map__chevron" aria-hidden="true"></span>
+      <span class="note-network-map__heading">
+        <span class="note-network-map__kicker">Network Transmit</span>
+        <strong class="note-network-map__title">${escapeXml(title)}</strong>
+        <span class="note-network-map__hint muted">${expanded ? "点击收起" : "默认折叠 · 点击展开交互示意"}</span>
+      </span>
+    </button>
+    <div class="note-network-map__actions" role="group" aria-label="视图与传输控制" ${expanded ? "" : "hidden"}>
+      <button type="button" class="btn btn-ghost btn-sm" data-nmap-view="local" aria-pressed="false">局部接入</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-nmap-view="global" aria-pressed="false">全局网络</button>
       <label class="note-network-map__speed" title="调节数据包传输速度">
-        <span>传输速度</span>
+        <span>速度</span>
         <input type="range" min="50" max="160" step="5" value="${speed}" data-nmap-speed aria-label="传输速度" />
       </label>
       <button type="button" class="btn btn-ghost btn-sm" data-nmap-action="toggle" aria-pressed="true">暂停</button>
       <button type="button" class="btn btn-ghost btn-sm" data-nmap-action="reset" title="重置缩放">复位</button>
+      <span class="note-network-map__status muted" data-nmap-status>待机</span>
     </div>
   `;
   return bar;
@@ -257,7 +526,7 @@ function startFlows(root, packets, positions) {
       const pts = p.path.map((id) => positions[id]).filter(Boolean);
       if (pts.length < 2) return null;
       const el = document.createElementNS(NS, "circle");
-      el.setAttribute("r", p.kind === "ambient" ? "3" : "4.4");
+      el.setAttribute("r", p.kind === "ambient" ? "2.6" : "4.2");
       el.setAttribute("cx", String(pts[0].x));
       el.setAttribute("cy", String(pts[0].y));
       el.setAttribute(
@@ -269,7 +538,7 @@ function startFlows(root, packets, positions) {
         el,
         pts,
         kind: p.kind,
-        baseSegMs: p.kind === "ambient" ? 920 : 680,
+        baseSegMs: p.kind === "ambient" ? 1100 : 720,
         phase: p.phase || 0,
       };
     })
@@ -299,12 +568,6 @@ function startFlows(root, packets, positions) {
       const b = f.pts[Math.min(i + 1, f.pts.length - 1)];
       f.el.setAttribute("cx", String(a.x + (b.x - a.x) * t));
       f.el.setAttribute("cy", String(a.y + (b.y - a.y) * t));
-    });
-
-    // pulse active edges under primary packets
-    const svg = root.querySelector(".note-network-map__canvas");
-    svg?.querySelectorAll(".nmap-edge").forEach((line) => {
-      line.classList.toggle("is-active", !line.classList.contains("is-muted"));
     });
 
     root._nmapAnimHandle = requestAnimationFrame(frame);
@@ -367,7 +630,7 @@ function setupPanZoom(viewport, stage, enabled) {
   viewport.onwheel = (event) => {
     event.preventDefault();
     const delta = event.deltaY > 0 ? 0.92 : 1.08;
-    scale = Math.min(2.4, Math.max(0.55, scale * delta));
+    scale = Math.min(2.6, Math.max(0.45, scale * delta));
     apply();
   };
   viewport._nmapReset = () => {
@@ -379,7 +642,10 @@ function setupPanZoom(viewport, stage, enabled) {
 }
 
 function applyView(root, data, mode) {
-  const view = data.views?.[mode] || data.views?.local || data.views?.global;
+  const view =
+    mode === "global"
+      ? resolveGlobalView(data)
+      : data.views?.local || data.views?.global;
   if (!view) return;
 
   stopFlows(root);
@@ -411,26 +677,41 @@ function applyView(root, data, mode) {
 
   const status = root.querySelector("[data-nmap-status]");
   if (status) {
-    status.textContent = mode === "global" ? "全局传输中" : "局部传输中";
+    status.textContent = mode === "global" ? "大规模网络传输中" : "局部接入传输中";
   }
 
-  const primary = collectPrimaryPath(view.nodes || [], view.edges || []);
+  const primary = collectPrimaryPath(
+    (view.nodes || []).filter((n) => n.kind !== "host"),
+    view.edges || [],
+  );
   const packets = [];
-  if (primary.length >= 2) {
+  if (mode === "local" && primary.length >= 2) {
     packets.push({ path: primary, kind: "ok", phase: 0 });
-    packets.push({ path: primary, kind: "ok", phase: 0.42 });
+    packets.push({ path: primary, kind: "ok", phase: 0.45 });
   }
   if (mode === "global") {
-    packets.push(...collectAmbientPaths(view.nodes || [], view.edges || [], 6));
+    // Highlight a few longer routes across the mesh
+    const story = (view.nodes || []).filter((n) => n.story && n.kind === "story");
+    const ix = (view.nodes || []).filter((n) => n.kind === "ix");
+    if (story.length >= 2) {
+      packets.push({ path: [story[0].id, ix[0]?.id, story[1].id].filter(Boolean), kind: "ok", phase: 0 });
+    } else if (ix.length >= 3) {
+      packets.push({ path: [ix[0].id, "as2", ix[1].id], kind: "ok", phase: 0 });
+      packets.push({ path: [ix[2].id, "as3", ix[3]?.id || ix[0].id], kind: "ok", phase: 0.33 });
+    }
+    packets.push(...collectAmbientPaths(view.nodes || [], view.edges || [], 14));
   } else if ((view.edges || []).length > 1) {
     packets.push(...collectAmbientPaths(view.nodes || [], view.edges || [], 2));
   }
 
-  // highlight path edges
   const edgeKeys = new Set();
-  for (let i = 0; i < primary.length - 1; i += 1) {
-    edgeKeys.add([primary[i], primary[i + 1]].sort().join("|"));
-  }
+  packets
+    .filter((p) => p.kind === "ok")
+    .forEach((p) => {
+      for (let i = 0; i < p.path.length - 1; i += 1) {
+        edgeKeys.add([p.path[i], p.path[i + 1]].sort().join("|"));
+      }
+    });
   painted.svg.querySelectorAll(".nmap-edge").forEach((line) => {
     const key = [line.dataset.a, line.dataset.b].sort().join("|");
     line.classList.toggle("is-path", edgeKeys.has(key));
@@ -446,6 +727,28 @@ function applyView(root, data, mode) {
   startFlows(root, packets, painted.positions);
 }
 
+function setExpanded(root, data, expanded) {
+  root.dataset.expanded = expanded ? "1" : "0";
+  root.classList.toggle("is-collapsed", !expanded);
+  root.classList.toggle("is-expanded", expanded);
+  ensureShell(root, data);
+
+  const viewport = root.querySelector(".note-network-map__viewport");
+  if (viewport) viewport.hidden = !expanded;
+
+  if (!expanded) {
+    stopFlows(root);
+    return;
+  }
+
+  const initial = root.dataset.activeView || root.dataset.defaultView || data.defaultView || "local";
+  const hasLocal = Boolean(data.views?.local);
+  const hasGlobal = Boolean(data.views?.global) || true;
+  const start =
+    hasLocal && initial === "local" ? "local" : hasGlobal && initial === "global" ? "global" : hasLocal ? "local" : "global";
+  applyView(root, data, start);
+}
+
 function bindMap(root) {
   if (root.dataset.nmapReady === "1") return;
   const data = parseMapData(root);
@@ -454,19 +757,31 @@ function bindMap(root) {
   root.dataset.nmapReady = "1";
   root._nmapSpeed = 100;
   root._nmapPaused = false;
-  ensureToolbar(root, data);
 
-  const initial = root.dataset.defaultView || data.defaultView || "local";
-  const hasLocal = Boolean(data.views.local);
-  const hasGlobal = Boolean(data.views.global);
-  const start = hasLocal && initial === "local" ? "local" : hasGlobal ? "global" : "local";
-  applyView(root, data, start);
+  // collapsed by default unless explicitly expanded=true / collapsed=false
+  const wantExpanded =
+    root.dataset.expanded === "1" ||
+    data.expanded === true ||
+    String(data.collapsed).toLowerCase() === "false";
+  const startCollapsed = !wantExpanded;
+
+  // Ensure global view key exists for toggle even if markdown only had local
+  if (!data.views.global) {
+    data.views.global = { nodes: [], edges: [], preset: "internet" };
+  }
+
+  setExpanded(root, data, !startCollapsed);
 
   root.addEventListener("click", (event) => {
+    if (event.target.closest("[data-nmap-action=expand]")) {
+      const next = root.dataset.expanded !== "1";
+      setExpanded(root, data, next);
+      return;
+    }
     const viewBtn = event.target.closest("[data-nmap-view]");
     if (viewBtn) {
       const mode = viewBtn.getAttribute("data-nmap-view");
-      if (mode && data.views[mode]) applyView(root, data, mode);
+      if (mode) applyView(root, data, mode);
       return;
     }
     if (event.target.closest("[data-nmap-action=reset]")) {
@@ -481,7 +796,11 @@ function bindMap(root) {
         btn.setAttribute("aria-pressed", root._nmapPaused ? "false" : "true");
       }
       const status = root.querySelector("[data-nmap-status]");
-      if (status) status.textContent = root._nmapPaused ? "已暂停" : `${root.dataset.activeView === "global" ? "全局" : "局部"}传输中`;
+      if (status) {
+        status.textContent = root._nmapPaused
+          ? "已暂停"
+          : `${root.dataset.activeView === "global" ? "大规模网络" : "局部接入"}传输中`;
+      }
     }
   });
 

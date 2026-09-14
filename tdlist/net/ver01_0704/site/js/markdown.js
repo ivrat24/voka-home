@@ -152,19 +152,22 @@ function renderNoteDiagramHtml(codeLang, body) {
 }
 
 function parseNetworkMapSource(body) {
-  const meta = { title: "网络图", id: "", default: "local" };
+  const meta = { title: "网络图", id: "", default: "local", collapsed: "true" };
   const views = {};
   let current = null;
   let nodes = [];
   let edges = [];
   let focus = [];
+  let preset = "";
 
   const flush = () => {
     if (!current) return;
     views[current] = { nodes, edges, focus };
+    if (current === "global" && preset) views[current].preset = preset;
     nodes = [];
     edges = [];
     focus = [];
+    preset = "";
   };
 
   for (const raw of String(body || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n")) {
@@ -176,13 +179,19 @@ function parseNetworkMapSource(body) {
       current = section[1].toLowerCase();
       continue;
     }
-    if (current == null && line.includes("=") && !/[>→]/.test(line)) {
+    if (line.includes("=") && !/[>→]/.test(line) && !line.includes("|")) {
       const idx = line.indexOf("=");
       const key = line.slice(0, idx).trim().toLowerCase();
       const val = line.slice(idx + 1).trim();
-      if (key === "defaultview") meta.default = val;
-      else if (["title", "id", "default"].includes(key)) meta[key] = val;
-      continue;
+      if (current == null) {
+        if (key === "defaultview") meta.default = val;
+        else if (["title", "id", "default", "collapsed", "expanded"].includes(key)) meta[key] = val;
+        continue;
+      }
+      if (key === "preset") {
+        preset = val.toLowerCase();
+        continue;
+      }
     }
     if (current == null) current = "local";
     const edge = line.match(/^([\w\-.]+)\s*(?:->|>|→)\s*([\w\-.]+)(?:\|(.*))?$/);
@@ -205,10 +214,15 @@ function parseNetworkMapSource(body) {
   }
   flush();
   if (!Object.keys(views).length) return null;
+  const collapsed =
+    String(meta.expanded || "").toLowerCase() === "true"
+      ? false
+      : String(meta.collapsed ?? "true").toLowerCase() !== "false";
   return {
     title: meta.title || "网络图",
     id: meta.id || "",
     defaultView: (meta.default || "local").toLowerCase(),
+    collapsed,
     views,
   };
 }
@@ -223,12 +237,13 @@ function renderNetworkMapHtml(body) {
     defaultView = data.views.local ? "local" : Object.keys(data.views)[0];
   }
   const payload = JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e");
+  const collapsedClass = data.collapsed === false ? "is-expanded" : "is-collapsed";
   return (
-    `<figure class="note-network-map" data-network-map data-default-view="${escapeHtml(defaultView)}" data-map-id="${escapeHtml(data.id || "")}">` +
-    `<div class="note-network-map__toolbar" aria-hidden="true"><div class="note-network-map__heading">` +
-    `<span class="note-network-map__kicker">Network Map</span><strong class="note-network-map__title">${escapeHtml(data.title)}</strong></div>` +
-    `<div class="note-network-map__actions"><span class="muted">加载交互控件…</span></div></div>` +
-    `<div class="note-network-map__viewport" data-view="${escapeHtml(defaultView)}"><div class="note-network-map__stage"></div></div>` +
+    `<figure class="note-network-map ${collapsedClass}" data-network-map data-default-view="${escapeHtml(defaultView)}" data-map-id="${escapeHtml(data.id || "")}" data-expanded="${data.collapsed === false ? "1" : "0"}">` +
+    `<div class="note-network-map__toolbar"><div class="note-network-map__heading">` +
+    `<span class="note-network-map__kicker">Network Transmit</span><strong class="note-network-map__title">${escapeHtml(data.title)}</strong>` +
+    `<span class="note-network-map__hint muted">默认折叠 · 点击展开交互示意</span></div></div>` +
+    `<div class="note-network-map__viewport" data-view="${escapeHtml(defaultView)}" hidden><div class="note-network-map__stage"></div></div>` +
     `<script type="application/json" class="note-network-map__data">${payload}</script>` +
     `</figure>`
   );

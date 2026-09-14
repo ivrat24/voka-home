@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-14T12:20:41",
+  "generatedAt": "2026-09-14T12:47:58",
   "contentDir": "note_content",
   "courses": [
     {
@@ -96,7 +96,7 @@
         "引言",
         "Day1"
       ],
-      "description": "接入网；动态网络传输示意（局部/全局）",
+      "description": "接入网；动态网络传输示意",
       "source": "note_content/计算机网络/day1_引言.md",
       "href": "pages/notes/计算机网络/day1_引言.html"
     },

@@ -2,7 +2,7 @@
 title: Day1 引言
 date: 2026-09-14
 tags: [计算机网络, 引言, Day1]
-description: 接入网；动态网络传输示意（局部/全局）
+description: 接入网；动态网络传输示意
 ---
 
 # Day1 引言（Introduction）
@@ -415,14 +415,18 @@ Internet / 业务平台
 
 > 说明：具体设备名称随厂商与 4G/5G、固网改造方案会变化，考试与笔记优先抓住**功能定义与在拓扑中的位置**。
 
-## 附录：动态网络图（局部 / 全局 + 传输动画）
+## 附录：动态网络图（局部接入 / 全局网络 + 传输动画）
 
-风格参考「昨日重现」Internet Map：链路高亮 + **数据包沿线传输**。可用 ` ```network ` 代码块启用；页面加载后支持 **局部 / 全局** 切换、**传输速度**、暂停/播放；全局视图可拖拽平移与滚轮缩放。
+风格参考「昨日重现」Internet Map。**默认折叠**，点击标题展开；展开后可切换：
+
+- **局部接入**：一条接入路径上的节点与报文传输（如 Host→ONT→OLT→BRAS）
+- **全局网络**：**大规模互联网拓扑**（IX / Tier-1·2 / stub AS / 端系统点），不是「用户→接入→城域→骨干」的层次梯子图；可拖拽平移与滚轮缩放
 
 ```network
 title=接入与互联网示意
 id=cn-access-internet
 default=local
+collapsed=true
 
 [local]
 Host|端系统|host
@@ -435,21 +439,16 @@ OLT>BRAS
 focus: ONT,OLT
 
 [global]
-User|用户/校园|host
-Access|接入网|access
-Metro|IP云/城域|core
-Tier1|Tier-1|core
-Peer|对端网络|peer
-User>Access
-Access>Metro
-Metro>Tier1
-Tier1>Peer
+preset=internet
+Campus|校园/用户侧|host
+BRAS|BRAS|edge
+CDN|内容源|peer
 ```
 
 **写法要点**
 
-1. 元数据：`title=` / `id=` / `default=local|global`
-2. 分区：`[local]` 局部、`[global]` 全局
-3. 节点：`id|显示名|角色`（角色可选：`host` / `cpe` / `access` / `edge` / `core` / `peer`）
-4. 边：`A>B` 或 `A->B`（主路径按拓扑自动串联，全局会叠加背景流量）
-5. 聚焦：`focus: id1,id2`（局部高亮，其余淡化）
+1. 元数据：`title=` / `id=` / `default=local|global` / `collapsed=true|false`（默认折叠）
+2. 分区：`[local]` 局部接入路径；`[global]` 全局大规模示意
+3. 全局：`preset=internet`（默认）生成 IX/骨干/末梢网状拓扑；节点列表仅作**故事标注**钉在 IX 附近，勿再写层次梯子
+4. 局部节点：`id|显示名|角色`（`host` / `cpe` / `access` / `edge` / `core` / `peer`）
+5. 边：`A>B`；`focus: id1,id2` 局部高亮
