@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="蒙特卡洛估计、表格型 TD、Q-Learning、资格迹 TD(λ) 与 MC/TD/DP 方法对比">
   <title>短学期 Lec02 · 课程笔记 · 鼠窝</title>
-    <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
   <link rel="stylesheet" href="../../../css/style.css">
@@ -55,21 +55,21 @@
         <p class="note-description">蒙特卡洛估计、表格型 TD、Q-Learning、资格迹 TD(λ) 与 MC/TD/DP 方法对比</p>
       </header>
       <div class="note-body note-body--optimized content-body">
-        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+        <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="回顾" class="note-heading">回顾</h2>
+<h2 id="回顾" class="note-heading note-heading--h2">回顾</h2>
 <p class="note-paragraph">Lec01 已建立 <strong>MDP = (S, A, P, R, γ)</strong> 与价值函数框架，本讲在此基础上学习<strong>无模型（Model-Free）</strong>的估计与控制方法。</p>
-<h4 id="mdp-与策略" class="note-heading">MDP 与策略</h4>
+<h4 id="mdp-与策略" class="note-heading note-heading--h4">MDP 与策略</h4>
 <ul class="note-list">
 <li><strong>策略</strong> π(a|s)：在状态 s 下选择动作 a 的概率（或确定性映射 <span class="note-math-inline" data-math-inline="a=\pi(s)"></span>）</li>
 <li><strong>回报</strong> <span class="note-math-inline" data-math-inline="G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots"></span></li>
 <li><strong>状态价值</strong> <span class="note-math-inline" data-math-inline="V^\pi(s) = \mathbb{E}_\pi[G_t \mid S_t=s]"></span></li>
 <li><strong>动作价值</strong> <span class="note-math-inline" data-math-inline="Q^\pi(s,a) = \mathbb{E}_\pi[G_t \mid S_t=s, A_t=a]"></span></li>
 </ul>
-<h4 id="bellman-期望方程复习" class="note-heading">Bellman 期望方程（复习）</h4>
+<h4 id="bellman-期望方程复习" class="note-heading note-heading--h4">Bellman 期望方程（复习）</h4>
 <div class="note-math-block" data-math-display="V^\pi(s) = \sum_a \pi(a|s) \sum_{s&#x27;,r} p(s&#x27;,r|s,a)\big[r + \gamma V^\pi(s&#x27;)\big]"></div>
 <div class="note-math-block" data-math-display="Q^\pi(s,a) = \sum_{s&#x27;,r} p(s&#x27;,r|s,a)\big[r + \gamma \sum_{a&#x27;} \pi(a&#x27;|s&#x27;) Q^\pi(s&#x27;,a&#x27;)\big]"></div>
-<h4 id="动态规划的局限" class="note-heading">动态规划的局限</h4>
+<h4 id="动态规划的局限" class="note-heading note-heading--h4">动态规划的局限</h4>
 <p class="note-paragraph"><strong>价值迭代 / 策略迭代</strong>需要已知 <span class="note-math-inline" data-math-inline="p(s&#x27;,r|s,a)"></span>。真实环境中转移模型往往未知，因此需要：</p>
 <ul class="note-list">
 <li><strong>蒙特卡洛（MC）</strong>：用完整回合的<strong>实际回报</strong>估计价值</li>
@@ -78,23 +78,23 @@
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="蒙特卡洛方法mc-method" class="note-heading">蒙特卡洛方法（MC method）</h2>
+<h2 id="蒙特卡洛方法mc-method" class="note-heading note-heading--h2">蒙特卡洛方法（MC method）</h2>
 <p class="note-paragraph"><strong>核心思想</strong>：依赖<strong>重复采样</strong>（多次完整 episode）来估计期望——用经验平均逼近真实价值。</p>
-<h4 id="适用条件" class="note-heading">适用条件</h4>
+<h4 id="适用条件" class="note-heading note-heading--h4">适用条件</h4>
 <ul class="note-list">
 <li><strong>回合制（Episodic）</strong>任务：有明确终止状态（如 CartPole 倒下、游戏结束）</li>
 <li><strong>模型无关</strong>：不需要知道 <span class="note-math-inline" data-math-inline="P(s&#x27;|s,a)"></span>，只需与环境交互得到 <span class="note-math-inline" data-math-inline="(s,a,r,s&#x27;)"></span> 轨迹</li>
 </ul>
-<h4 id="值函数与回报" class="note-heading">值函数与回报</h4>
+<h4 id="值函数与回报" class="note-heading note-heading--h4">值函数与回报</h4>
 <ul class="note-list">
 <li><strong>累计奖励（回报）</strong>：从某时刻 t 到回合结束的折扣和 <span class="note-math-inline" data-math-inline="G_t"></span></li>
 <li><strong>值函数</strong>：回报的期望 <span class="note-math-inline" data-math-inline="V^\pi(s) \approx \mathbb{E}[G_t \mid S_t=s]"></span></li>
 <li><strong>MC 估计</strong>：对同一状态 s 收集多次访问的 <span class="note-math-inline" data-math-inline="G_t"></span>，取平均</li>
 </ul>
-<h4 id="首次访问-vs-每次访问" class="note-heading">首次访问 vs 每次访问</h4>
+<h4 id="首次访问-vs-每次访问" class="note-heading note-heading--h4">首次访问 vs 每次访问</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>变体</th><th>做法</th></tr></thead><tbody><tr><td><strong>First-Visit MC</strong></td><td>每个 episode 中，状态 s 只在<strong>第一次</strong>被访问时用 <span class="note-math-inline" data-math-inline="G_t"></span> 更新</td></tr><tr><td><strong>Every-Visit MC</strong></td><td>同一 episode 内 s 每出现一次，都用对应的 <span class="note-math-inline" data-math-inline="G_t"></span> 更新</td></tr></tbody></table></div>
 <p class="note-paragraph">两者在样本足够时均收敛到 <span class="note-math-inline" data-math-inline="V^\pi(s)"></span>；First-Visit 更常用、分析更简洁。</p>
-<h4 id="增量式更新公式" class="note-heading">增量式更新公式</h4>
+<h4 id="增量式更新公式" class="note-heading note-heading--h4">增量式更新公式</h4>
 <p class="note-paragraph">不必存储全部回报再求均值，可在线更新：</p>
 <div class="note-math-block" data-math-display="V(S_t) \leftarrow V(S_t) + \alpha \big(G_t - V(S_t)\big)"></div>
 <ul class="note-list">
@@ -103,7 +103,7 @@
 </ul>
 <p class="note-paragraph">等价地，第 k 次访问状态 s 时：</p>
 <div class="note-math-block" data-math-display="V_k(s) = V_{k-1}(s) + \frac{1}{k}\big(G_k - V_{k-1}(s)\big)"></div>
-<h4 id="mc-策略评估实现细节" class="note-heading">MC 策略评估（实现细节）</h4>
+<h4 id="mc-策略评估实现细节" class="note-heading note-heading--h4">MC 策略评估（实现细节）</h4>
 <p class="note-paragraph"><strong>输入</strong>：固定策略 π、环境 env、学习率 schedule <span class="note-math-inline" data-math-inline="\alpha_t(s)"></span>、折扣 γ</p>
 <p class="note-paragraph"><strong>输出</strong>：各状态估计 <span class="note-math-inline" data-math-inline="V^\pi(s)"></span></p>
 <p class="note-paragraph"><strong>伪代码</strong>：</p>
@@ -122,7 +122,7 @@
 <li><strong>无模型</strong>：只需 <code>env.step(a)</code> 返回 <span class="note-math-inline" data-math-inline="(s&#x27;, r, done)"></span>，不需知道 <span class="note-math-inline" data-math-inline="P"></span></li>
 </ol>
 <p class="note-paragraph"><strong>Grid World 示例</strong>：从起点按 π 走 1000 条路径，统计每个格子作为起点的平均回报 → 收敛到 <span class="note-math-inline" data-math-inline="V^\pi"></span>。</p>
-<h4 id="mc-控制求最优策略实现细节" class="note-heading">MC 控制（求最优策略，实现细节）</h4>
+<h4 id="mc-控制求最优策略实现细节" class="note-heading note-heading--h4">MC 控制（求最优策略，实现细节）</h4>
 <p class="note-paragraph"><strong>Generalized Policy Iteration（GPI）</strong>：评估 ↔ 改进 交替进行。</p>
 <p class="note-paragraph"><strong>伪代码（MC Control + ε-soft）</strong>：</p>
 <pre class="note-code-block"><code>初始化 Q(s,a) ← 0, π 为 ε-soft 随机策略
@@ -142,14 +142,14 @@
 <li>改进步：<span class="note-math-inline" data-math-inline="\pi(s)=\arg\max_a Q(s,a)"></span>（带 ε 随机扰动）</li>
 <li>收敛条件：策略不再变化，或 <span class="note-math-inline" data-math-inline="\max_{s,a}|Q_{k+1}-Q_k|&lt;\epsilon"></span></li>
 </ol>
-<h4 id="非平稳动态环境处理" class="note-heading">非平稳（动态）环境处理</h4>
+<h4 id="非平稳动态环境处理" class="note-heading note-heading--h4">非平稳（动态）环境处理</h4>
 <p class="note-paragraph">当环境或策略缓慢变化时，旧样本不再代表当前分布：</p>
 <ul class="note-list">
 <li><strong>常数步长</strong> <span class="note-math-inline" data-math-inline="\alpha"></span>：自动遗忘旧数据，跟踪最新价值</li>
 <li><strong>滑动窗口</strong>：只保留最近 W 条 episode 的回报求平均</li>
 <li><strong>指数衰减权重</strong>：近期样本权重更大</li>
 </ul>
-<h4 id="总结" class="note-heading">总结</h4>
+<h4 id="总结" class="note-heading note-heading--h4">总结</h4>
 <ul class="note-list">
 <li>从<strong>完整经验回合</strong>中学习，更新发生在 episode <strong>结束之后</strong></li>
 <li><strong>无 bootstrap</strong>：<span class="note-math-inline" data-math-inline="G_t"></span> 是真实观测到的回报，偏差小、方差大</li>
@@ -158,9 +158,9 @@
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="时序差分方法" class="note-heading">时序差分方法</h2>
+<h2 id="时序差分方法" class="note-heading note-heading--h2">时序差分方法</h2>
 <p class="note-paragraph"><strong>核心思想</strong>：每步交互后立即更新，用<strong>当前估计</strong>作为下一步的「目标」——<strong>自举（bootstrap）</strong>。</p>
-<h4 id="td0-预测实现细节" class="note-heading">TD(0) 预测（实现细节）</h4>
+<h4 id="td0-预测实现细节" class="note-heading note-heading--h4">TD(0) 预测（实现细节）</h4>
 <p class="note-paragraph">对给定策略 π，单步更新公式：</p>
 <div class="note-math-block" data-math-display="V(S_t) \leftarrow V(S_t) + \alpha \big[R_{t+1} + \gamma V(S_{t+1}) - V(S_t)\big], \quad
 \delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)"></div>
@@ -179,11 +179,11 @@ S_t ← S_{t+1}
 <li>与 MC 对比：MC 用真实 <span class="note-math-inline" data-math-inline="G_t"></span>，TD 用 <span class="note-math-inline" data-math-inline="R_{t+1}+\gamma V(S_{t+1})"></span> 估计</li>
 </ol>
 <p class="note-paragraph"><strong>批量 vs 在线</strong>：TD(0) 天然在线；也可收集 batch 后更新，但通常逐步交互即时更新。</p>
-<h4 id="n-步回报" class="note-heading">n 步回报</h4>
+<h4 id="n-步回报" class="note-heading note-heading--h4">n 步回报</h4>
 <p class="note-paragraph">在 MC（完整 <span class="note-math-inline" data-math-inline="G_t"></span>）与 TD(0)（一步）之间插值：</p>
 <div class="note-math-block" data-math-display="G_t^{(n)} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n V(S_{t+n})"></div>
 <p class="note-paragraph"><span class="note-math-inline" data-math-inline="n=1"></span> 即 TD(0)，<span class="note-math-inline" data-math-inline="n\to\infty"></span> 即 MC。</p>
-<h4 id="表格型时序差分方法" class="note-heading">表格型时序差分方法</h4>
+<h4 id="表格型时序差分方法" class="note-heading note-heading--h4">表格型时序差分方法</h4>
 <p class="note-paragraph">当状态空间 S、动作空间 A <strong>有限且规模较小</strong>时，可用<strong>表格（Tabular）</strong>直接存储价值函数——这是 TD 方法最经典、最易实现的形态。</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>存储对象</th><th>表格内容</th><th>典型更新</th></tr></thead><tbody><tr><td>状态价值</td><td><span class="note-math-inline" data-math-inline="V(s)"></span>，每个状态一格</td><td>TD(0) 预测</td></tr><tr><td>动作价值</td><td><span class="note-math-inline" data-math-inline="Q(s,a)"></span>，每个 (s,a) 一格</td><td>SARSA / Q-Learning</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>操作过程（表格型 TD 控制通用流程）</strong>：</p>
@@ -208,7 +208,7 @@ S_t ← S_{t+1}
 <li>适用：Grid World、小型博弈、离散 CartPole 状态离散化等</li>
 <li>局限：状态/action 数量爆炸时表格无法存储 → 需<strong>函数逼近</strong>（DQN 等）</li>
 </ul>
-<h4 id="sarsaon-policy-控制实现细节" class="note-heading">SARSA（On-Policy 控制，实现细节）</h4>
+<h4 id="sarsaon-policy-控制实现细节" class="note-heading note-heading--h4">SARSA（On-Policy 控制，实现细节）</h4>
 <p class="note-paragraph"><strong>核心更新</strong>：</p>
 <div class="note-math-block" data-math-display="Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha \big[R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t)\big]"></div>
 <p class="note-paragraph">其中 <span class="note-math-inline" data-math-inline="A_{t+1}"></span> 由<strong>当前 ε-greedy 策略</strong>实际采样——TD 目标含「下一步真实会做的动作」。</p>
@@ -233,7 +233,7 @@ S_t ← S_{t+1}
 <li>表格存储：<code>Q[state][action]</code> 字典或二维数组</li>
 <li>ε 可衰减：训练初期 1.0 → 后期 0.05，平衡探索与利用</li>
 </ol>
-<h4 id="q-learningoff-policy-控制" class="note-heading">Q-Learning（Off-Policy 控制）</h4>
+<h4 id="q-learningoff-policy-控制" class="note-heading note-heading--h4">Q-Learning（Off-Policy 控制）</h4>
 <p class="note-paragraph"><strong>Q-Learning</strong> 是最常用的<strong>表格型 Off-Policy TD 控制</strong>算法，直接学习最优动作价值 <span class="note-math-inline" data-math-inline="Q^*"></span>，而不必显式维护当前策略。</p>
 <p class="note-paragraph"><strong>核心更新公式</strong>：</p>
 <div class="note-math-block" data-math-display="Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha \big[R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t)\big]"></div>
@@ -275,9 +275,9 @@ for ep in range(num_episodes):
         Q[s][a] += alpha * (r + gamma * best_next - Q[s][a])
         s = s2
 </code></pre>
-<h4 id="sarsa-vs-q-learning" class="note-heading">SARSA vs Q-Learning</h4>
+<h4 id="sarsa-vs-q-learning" class="note-heading note-heading--h4">SARSA vs Q-Learning</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th></th><th>SARSA</th><th>Q-Learning</th></tr></thead><tbody><tr><td>策略类型</td><td>On-Policy</td><td>Off-Policy</td></tr><tr><td>TD 目标</td><td><span class="note-math-inline" data-math-inline="R + \gamma Q(s&#x27;, a&#x27;)"></span>，<span class="note-math-inline" data-math-inline="a&#x27;"></span> 为实际执行</td><td><span class="note-math-inline" data-math-inline="R + \gamma \max_{a&#x27;} Q(s&#x27;, a&#x27;)"></span></td></tr><tr><td>行为</td><td>更保守，考虑探索带来的风险</td><td>更激进，朝最优动作学习</td></tr><tr><td>典型场景</td><td>悬崖行走（cliff walk）等需安全探索</td><td>离线数据、经验回放（如 DQN 基础）</td></tr></tbody></table></div>
-<h4 id="实现要点" class="note-heading">实现要点</h4>
+<h4 id="实现要点" class="note-heading note-heading--h4">实现要点</h4>
 <ol class="note-list">
 <li>初始化 <span class="note-math-inline" data-math-inline="Q(s,a)"></span>（或 <span class="note-math-inline" data-math-inline="V(s)"></span>）为 0 或小随机数</li>
 <li>每步：选动作 → 环境 step → 计算 TD 目标 → 更新 Q/V</li>
@@ -287,22 +287,22 @@ for ep in range(num_episodes):
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="资格迹方法eligibility-traces" class="note-heading">资格迹方法（Eligibility Traces）</h2>
+<h2 id="资格迹方法eligibility-traces" class="note-heading note-heading--h2">资格迹方法（Eligibility Traces）</h2>
 <p class="note-paragraph"><strong>核心思想</strong>：用资格迹 <span class="note-math-inline" data-math-inline="e(s)"></span> 或 <span class="note-math-inline" data-math-inline="e(s,a)"></span> 记录「近期被访问的程度」，把当前步的 TD 误差<strong>反向传播</strong>给轨迹上的多个状态，在 MC（整条轨迹）与 TD(0)（仅当前态）之间通过 λ <strong>平滑插值</strong>。</p>
-<h4 id="动机" class="note-heading">动机</h4>
+<h4 id="动机" class="note-heading note-heading--h4">动机</h4>
 <ul class="note-list">
 <li><strong>TD(0)</strong>：只更新 <span class="note-math-inline" data-math-inline="S_t"></span>，信用分配范围太窄</li>
 <li><strong>MC</strong>：更新 episode 内所有访问状态，无偏但<strong>方差大</strong></li>
 <li><strong>资格迹</strong>：近期访问的状态获得更大更新权重，兼顾样本效率与稳定性</li>
 </ul>
-<h4 id="tdλmc-与-td-的桥梁" class="note-heading">TD(λ)：MC 与 TD 的桥梁</h4>
+<h4 id="tdλmc-与-td-的桥梁" class="note-heading note-heading--h4">TD(λ)：MC 与 TD 的桥梁</h4>
 <div class="note-math-block" data-math-display="G_t^{(\lambda)} = (1-\lambda) \sum_{n=1}^{\infty} \lambda^{n-1} G_t^{(n)}"></div>
 <ul class="note-list">
 <li><span class="note-math-inline" data-math-inline="\lambda=0"></span> → <strong>TD(0)</strong>（一步 bootstrap）</li>
 <li><span class="note-math-inline" data-math-inline="\lambda \to 1"></span> → 接近 <strong>MC</strong>（完整回报）</li>
 <li><span class="note-math-inline" data-math-inline="0&lt;\lambda&lt;1"></span> → 多步回报的指数加权平均</li>
 </ul>
-<h4 id="操作过程反向视角-tdλ实现细节" class="note-heading">操作过程（反向视角 TD(λ)，实现细节）</h4>
+<h4 id="操作过程反向视角-tdλ实现细节" class="note-heading note-heading--h4">操作过程（反向视角 TD(λ)，实现细节）</h4>
 <p class="note-paragraph">以<strong>状态价值评估</strong>为例，<strong>累积资格迹（Accumulating Trace）</strong>：</p>
 <p class="note-paragraph"><strong>数据结构</strong>：</p>
 <ul class="note-list">
@@ -338,9 +338,9 @@ if done:
 <li><strong>表格型</strong>：<code>|S|</code> 较小时可遍历全部 s；大状态空间用稀疏迹或函数逼近</li>
 <li><strong>SARSA(λ) / Watkins Q(λ)</strong>：将 V/E 换为 Q/E(s,a)，δ 公式见下节</li>
 </ol>
-<h4 id="替换迹-vs-累积迹" class="note-heading">替换迹 vs 累积迹</h4>
+<h4 id="替换迹-vs-累积迹" class="note-heading note-heading--h4">替换迹 vs 累积迹</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>变体</th><th>当前步更新规则</th><th>特点</th></tr></thead><tbody><tr><td><strong>累积迹</strong></td><td><span class="note-math-inline" data-math-inline="e(S_t) \leftarrow e(S_t) + 1"></span></td><td>同状态多次访问时迹可累加，更新更强</td></tr><tr><td><strong>替换迹</strong></td><td><span class="note-math-inline" data-math-inline="e(S_t) \leftarrow 1"></span></td><td>同状态迹不超过 1，更稳定，实践中常用</td></tr></tbody></table></div>
-<h4 id="与-sarsa--q-learning-结合" class="note-heading">与 SARSA / Q-Learning 结合</h4>
+<h4 id="与-sarsa--q-learning-结合" class="note-heading note-heading--h4">与 SARSA / Q-Learning 结合</h4>
 <p class="note-paragraph">动作价值版本将 <span class="note-math-inline" data-math-inline="V"></span> 换为 <span class="note-math-inline" data-math-inline="Q(s,a)"></span>，迹 <span class="note-math-inline" data-math-inline="e(s,a)"></span> 加在当前访问的 <span class="note-math-inline" data-math-inline="(S_t, A_t)"></span> 上：</p>
 <ul class="note-list">
 <li><strong>SARSA(λ)</strong>（On-Policy）：</li>
@@ -352,7 +352,7 @@ if done:
 </ul>
 <div class="note-math-block" data-math-display="\delta_t = R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t)"></div>
 <p class="note-paragraph">  若下一步动作<strong>违背</strong>贪心策略，则将该步之后的迹清零（避免异策略污染）。</p>
-<h4 id="实现要点-2" class="note-heading">实现要点</h4>
+<h4 id="实现要点-2" class="note-heading note-heading--h4">实现要点</h4>
 <ul class="note-list">
 <li>超参 <span class="note-math-inline" data-math-inline="\lambda \in [0,1]"></span> 控制「看多远的回报」：λ 大更接近 MC，λ 小更接近 TD(0)</li>
 <li>每步需遍历<strong>全部状态</strong>更新 <span class="note-math-inline" data-math-inline="e(s)"></span> 与 <span class="note-math-inline" data-math-inline="V(s)"></span>——表格型小状态空间可行；大空间需稀疏迹或函数逼近</li>
@@ -361,17 +361,17 @@ if done:
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="mctd-与动态规划对比" class="note-heading">MC、TD 与动态规划对比</h2>
+<h2 id="mctd-与动态规划对比" class="note-heading note-heading--h2">MC、TD 与动态规划对比</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>维度</th><th>动态规划（DP）</th><th>蒙特卡洛（MC）</th><th>时序差分（TD）</th></tr></thead><tbody><tr><td>环境模型</td><td><strong>需要</strong>转移模型 <span class="note-math-inline" data-math-inline="p(s&#x27;,r \mid s,a)"></span></td><td>不需要</td><td>不需要</td></tr><tr><td>更新依据</td><td>Bellman 方程全量备份</td><td>完整 episode 的真实回报 <span class="note-math-inline" data-math-inline="G_t"></span></td><td>一步/多步 TD 目标（含 bootstrap）</td></tr><tr><td>更新时机</td><td>遍历所有状态</td><td><strong>回合结束后</strong></td><td><strong>每步交互后</strong></td></tr><tr><td>Bootstrap</td><td>是（用模型）</td><td><strong>否</strong></td><td><strong>是</strong>（用当前估计）</td></tr><tr><td>偏差-方差</td><td>无采样误差（模型准确时）</td><td>无偏、<strong>高方差</strong></td><td>有偏（bootstrap）、<strong>低方差</strong></td></tr><tr><td>任务类型</td><td>表格型 MDP</td><td>回合制 episodic</td><td>Episodic + Continuing</td></tr><tr><td>典型算法</td><td>价值迭代、策略迭代</td><td>MC 策略评估/控制</td><td>TD(0)、表格型 SARSA/Q-Learning、TD(λ)</td></tr></tbody></table></div>
-<h4 id="统一视角" class="note-heading">统一视角</h4>
+<h4 id="统一视角" class="note-heading note-heading--h4">统一视角</h4>
 <ul class="note-list">
 <li><strong>DP</strong>：「全知」地利用模型做 Bellman 备份</li>
 <li><strong>MC</strong>：「眼见为实」，用采样轨迹的回报平均</li>
 <li><strong>TD</strong>：「走一步看一步」，用 <span class="note-math-inline" data-math-inline="R_{t+1} + \gamma V(S_{t+1})"></span> 把 MC 的「等回合结束」变成「每步更新」</li>
 </ul>
-<h4 id="本讲脉络" class="note-heading">本讲脉络</h4>
+<h4 id="本讲脉络" class="note-heading note-heading--h4">本讲脉络</h4>
 <p class="note-paragraph">Lec01 建立 MDP 与 Bellman 框架 → <strong>Lec02</strong> 学习无模型估计（MC / TD / TD(λ) 资格迹）→ 后续 Deep RL（DQN 等）即用函数逼近 + TD 误差训练神经网络。</p>
-</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#回顾">回顾</a></li><li class="note-toc-item note-toc-item--h4"><a href="#mdp-与策略">MDP 与策略</a></li><li class="note-toc-item note-toc-item--h4"><a href="#bellman-期望方程复习">Bellman 期望方程（复习）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#动态规划的局限">动态规划的局限</a></li><li class="note-toc-item note-toc-item--h2"><a href="#蒙特卡洛方法mc-method">蒙特卡洛方法（MC method）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#适用条件">适用条件</a></li><li class="note-toc-item note-toc-item--h4"><a href="#值函数与回报">值函数与回报</a></li><li class="note-toc-item note-toc-item--h4"><a href="#首次访问-vs-每次访问">首次访问 vs 每次访问</a></li><li class="note-toc-item note-toc-item--h4"><a href="#增量式更新公式">增量式更新公式</a></li><li class="note-toc-item note-toc-item--h4"><a href="#mc-策略评估实现细节">MC 策略评估（实现细节）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#mc-控制求最优策略实现细节">MC 控制（求最优策略，实现细节）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#非平稳动态环境处理">非平稳（动态）环境处理</a></li><li class="note-toc-item note-toc-item--h4"><a href="#总结">总结</a></li><li class="note-toc-item note-toc-item--h2"><a href="#时序差分方法">时序差分方法</a></li><li class="note-toc-item note-toc-item--h4"><a href="#td0-预测实现细节">TD(0) 预测（实现细节）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#n-步回报">n 步回报</a></li><li class="note-toc-item note-toc-item--h4"><a href="#表格型时序差分方法">表格型时序差分方法</a></li><li class="note-toc-item note-toc-item--h4"><a href="#sarsaon-policy-控制实现细节">SARSA（On-Policy 控制，实现细节）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#q-learningoff-policy-控制">Q-Learning（Off-Policy 控制）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#sarsa-vs-q-learning">SARSA vs Q-Learning</a></li><li class="note-toc-item note-toc-item--h4"><a href="#实现要点">实现要点</a></li><li class="note-toc-item note-toc-item--h2"><a href="#资格迹方法eligibility-traces">资格迹方法（Eligibility Traces）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#动机">动机</a></li><li class="note-toc-item note-toc-item--h4"><a href="#tdλmc-与-td-的桥梁">TD(λ)：MC 与 TD 的桥梁</a></li><li class="note-toc-item note-toc-item--h4"><a href="#操作过程反向视角-tdλ实现细节">操作过程（反向视角 TD(λ)，实现细节）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#替换迹-vs-累积迹">替换迹 vs 累积迹</a></li><li class="note-toc-item note-toc-item--h4"><a href="#与-sarsa--q-learning-结合">与 SARSA / Q-Learning 结合</a></li><li class="note-toc-item note-toc-item--h4"><a href="#实现要点-2">实现要点</a></li><li class="note-toc-item note-toc-item--h2"><a href="#mctd-与动态规划对比">MC、TD 与动态规划对比</a></li><li class="note-toc-item note-toc-item--h4"><a href="#统一视角">统一视角</a></li><li class="note-toc-item note-toc-item--h4"><a href="#本讲脉络">本讲脉络</a></li></ol></aside></div>
+</section>
       </div>
     </article>
 

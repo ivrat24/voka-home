@@ -39,6 +39,11 @@ MATERIALS_DIR_NAME = "materials"
 
 mimetypes.add_type("application/x-ipynb+json", ".ipynb")
 mimetypes.add_type("application/zip", ".zip")
+# Windows 默认常把 .mjs 判成 text/plain，浏览器会拒绝作为 ES module 执行
+mimetypes.add_type("text/javascript", ".mjs")
+mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("text/css", ".css")
+mimetypes.add_type("application/wasm", ".wasm")
 MAX_MATERIAL_BYTES = 50 * 1024 * 1024
 ALLOWED_MATERIAL_EXTENSIONS = {
     ".ipynb",
@@ -967,6 +972,15 @@ class VokaHandler(BaseHTTPRequestHandler):
         if not target.exists() or not target.is_file():
             return self.send_error(404)
         mime, _ = mimetypes.guess_type(str(target))
+        suffix = target.suffix.lower()
+        if suffix in {".js", ".mjs"}:
+            mime = "text/javascript; charset=utf-8"
+        elif suffix == ".css":
+            mime = "text/css; charset=utf-8"
+        elif suffix == ".json":
+            mime = "application/json; charset=utf-8"
+        elif suffix == ".wasm":
+            mime = "application/wasm"
         content = target.read_bytes()
         self.send_response(200)
         self._cors()

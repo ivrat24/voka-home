@@ -38,11 +38,10 @@ async function ensureShell() {
 
   initCursorTrail();
 
-  try {
-    await initMusicPlayer();
-  } catch (error) {
+  // 勿阻塞首页课程/公告渲染；播放器可在后台挂载
+  void initMusicPlayer().catch((error) => {
     console.warn("[Music] 播放器初始化失败:", error);
-  }
+  });
 
   try {
     initTimerWidget();
@@ -134,14 +133,15 @@ async function enterPage(pageId, context = {}) {
   }
 
   if (pageId === "home") {
-    await loadCoursePreview(basePath);
+    // 并行加载，避免某一接口卡住导致整页停在「加载中」
+    await Promise.allSettled([
+      loadCoursePreview(basePath),
+      import("./home-updates.js").then((m) => m.initHomeUpdates()),
+      import("./home-mood-board.js").then((m) => m.initHomeMoodBoard()),
+    ]);
     if (canEditNotes()) {
       initGitHubSync(siteConfig);
     }
-    const { initHomeUpdates } = await import("./home-updates.js");
-    await initHomeUpdates();
-    const { initHomeMoodBoard } = await import("./home-mood-board.js");
-    await initHomeMoodBoard();
   } else if (pageId === "course") {
     await loadCourseNoteIndex(basePath);
     if (canEditNotes()) {
@@ -160,6 +160,8 @@ async function enterPage(pageId, context = {}) {
     await hydrateNotePageMeta(basePath);
     const { typesetMathIn } = await import("./math-render.js");
     typesetMathIn(document.querySelector(".note-body"));
+    const { initNoteNetworkMaps } = await import("./note-network-map.js");
+    initNoteNetworkMaps(document);
   } else if (pageId === "agent-lab") {
     if (canEditNotes()) {
       await loadAgentLabUpdates(basePath);

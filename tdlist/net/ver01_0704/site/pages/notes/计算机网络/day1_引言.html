@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="接入网；动态网络传输示意（局部/全局）">
+  <title>Day1 引言 · 课程笔记 · 鼠窝</title>
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="计算机网络/day1_引言">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text"><span class="local-only">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span><span class="published-only">鼠窝</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=计算机网络">计算机网络</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">Day1 引言</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">Day1 引言</h1>
+        <p class="note-meta"><time datetime="2026-09-14">2026-09-14</time></p>
+        <div class="note-tags"><span class="note-tag">计算机网络</span><span class="note-tag">引言</span><span class="note-tag">Day1</span></div>
+        <p class="note-description">接入网；动态网络传输示意（局部/全局）</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <section class="note-module">
+<h1 id="day1-引言introduction" class="note-heading note-heading--h1">Day1 引言（Introduction）</h1>
+<h2 id="网络基本功能basic-network-functions" class="note-heading note-heading--h2">网络基本功能（Basic Network Functions）</h2>
+<ul class="note-list">
+<li><strong>信息传递</strong>（Information Transfer）</li>
+</ul>
+<h2 id="网络区分依据basis-for-distinguishing-networks" class="note-heading note-heading--h2">网络区分依据（Basis for Distinguishing Networks）</h2>
+<ul class="note-list">
+<li>按所提供的<strong>服务</strong>（Service）区分</li>
+</ul>
+<h2 id="服务区分依据basis-for-distinguishing-services" class="note-heading note-heading--h2">服务区分依据（Basis for Distinguishing Services）</h2>
+<h3 id="性能与能力performance-amp-capability" class="note-heading note-heading--h3">性能与能力（Performance &amp; Capability）</h3>
+<ul class="note-list">
+<li><strong>功能</strong>（Function）</li>
+<li><strong>延迟</strong>（Delay / Latency）</li>
+<li><strong>带宽</strong>（Bandwidth）</li>
+<li><strong>丢失率</strong>（Loss Rate / Packet Loss Rate）</li>
+</ul>
+<h3 id="结构与接口structure-amp-interface" class="note-heading note-heading--h3">结构与接口（Structure &amp; Interface）</h3>
+<ul class="note-list">
+<li><strong>端结点</strong>（End Node / End System）数目</li>
+<li><strong>服务接口</strong>（Service Interface）</li>
+</ul>
+<h3 id="外特性external-characteristics" class="note-heading note-heading--h3">外特性（External Characteristics）</h3>
+<ul class="note-list">
+<li><strong>可靠性</strong>（Reliability）</li>
+<li><strong>实时</strong>（Real-time） / <strong>非实时</strong>（Non-real-time）</li>
+</ul>
+<h2 id="按覆盖范围划分的网络networks-by-coverage-area" class="note-heading note-heading--h2">按覆盖范围划分的网络（Networks by Coverage Area）</h2>
+<p class="note-paragraph">按地理覆盖范围，常见四类：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>类型</th><th>英文</th><th>典型覆盖范围</th><th>典型场景</th></tr></thead><tbody><tr><td><strong>个域网</strong></td><td>Personal Area Network（PAN）</td><td>数米～约 10 米</td><td>手机与耳机、手表、键鼠等短距互联</td></tr><tr><td><strong>局域网</strong></td><td>Local Area Network（LAN）</td><td>房间、楼层、校园、园区（约百米～数公里）</td><td>宿舍网、实验室网、校园网接入侧</td></tr><tr><td><strong>城域网</strong></td><td>Metropolitan Area Network（MAN）</td><td>一座城市或都市圈（约数十公里）</td><td>城域光纤环、市内机构互联</td></tr><tr><td><strong>广域网</strong></td><td>Wide Area Network（WAN）</td><td>跨城市、跨国家乃至全球</td><td>运营商骨干网、互联网核心</td></tr></tbody></table></div>
+<h3 id="概念要点key-concepts" class="note-heading note-heading--h3">概念要点（Key Concepts）</h3>
+<ul class="note-list">
+<li><strong>个域网（PAN）</strong>：以人为中心的短距离网络，设备少、距离近，常见技术如蓝牙（Bluetooth）、近场通信（NFC）等。</li>
+<li><strong>局域网（LAN）</strong>：同一地点内共享资源与通信，由个人/单位自主建设与管理；常见技术如以太网（Ethernet）、Wi-Fi。</li>
+<li><strong>城域网（MAN）</strong>：覆盖一城范围，规模介于局域网与广域网之间，常用于连接市内多个局域网。</li>
+<li><strong>广域网（WAN）</strong>：远距离、大范围互联，通常依赖电信运营商线路与路由设备，是互联网（Internet）的主体形态之一。</li>
+</ul>
+<h3 id="主要区别distinctions" class="note-heading note-heading--h3">主要区别（Distinctions）</h3>
+<ol class="note-list">
+<li><strong>覆盖范围（Coverage）</strong>：PAN ＜ LAN ＜ MAN ＜ WAN（由近到远）。</li>
+<li><strong>归属与管理（Ownership &amp; Management）</strong>：LAN 多为本地自建自管；MAN / WAN 更多由运营商或区域机构提供与运维。</li>
+<li><strong>时延与带宽倾向（Latency &amp; Bandwidth）</strong>：一般距离越近，延迟越低、可用带宽越高；WAN 受距离与中继影响更大。</li>
+<li><strong>技术与成本（Technology &amp; Cost）</strong>：PAN / LAN 侧重短距高速与易用；MAN / WAN 侧重长距传输、交换与计费/租用链路。</li>
+</ol>
+<blockquote class="note-quote"><p class="note-paragraph">说明：上述划分是按<strong>地理范围</strong>的常用分类，与按<strong>服务</strong>、<strong>拓扑</strong>等其他分类维度可同时使用，并不互相排斥。</p></blockquote>
+<h2 id="互联网互联结构ispixp-与-tierinternet-interconnection" class="note-heading note-heading--h2">互联网互联结构：ISP、IXP 与 Tier（Internet Interconnection）</h2>
+<p class="note-paragraph">互联网（Internet）并非单一网络，而是由众多自治系统（Autonomous System，AS）通过商业与技术关系互联而成。其中最常提到的角色是 <strong>ISP</strong>、<strong>IXP</strong>，以及按层级划分的 <strong>Tier</strong>。</p>
+<h3 id="ispinternet-service-provider互联网服务提供商" class="note-heading note-heading--h3">ISP（Internet Service Provider，互联网服务提供商）</h3>
+<ul class="note-list">
+<li><strong>定义</strong>：向用户或其他网络提供互联网接入与相关服务的组织（如电信运营商、校园/企业接入商）。</li>
+<li><strong>典型服务</strong>：接入（Access）、IP 地址分配配合、域名相关支持、专线/VPN、内容加速等。</li>
+<li><strong>关系直觉</strong>：家庭宽带、手机流量套餐背后，通常都对应某家 ISP。</li>
+</ul>
+<h3 id="ixpinternet-exchange-point互联网交换中心--交换点" class="note-heading note-heading--h3">IXP（Internet Exchange Point，互联网交换中心 / 交换点）</h3>
+<ul class="note-list">
+<li><strong>定义</strong>：多方网络在同一地点集中互联、交换流量的设施（物理机房 + 交换设备）。</li>
+<li><strong>作用</strong>：让多家 ISP / 内容网络在本地直接交换流量，减少绕行上级链路，降低时延与成本。</li>
+<li><strong>对比</strong>：</li>
+</ul>
+<p class="note-paragraph">  - <strong>经上级 ISP 转接（Transit）</strong>：流量“向上买路走”，通常付费。</p>
+<p class="note-paragraph">  - <strong>在 IXP 对等（Peering）</strong>：双方直接互连交换流量，常按约定结算或免费对等。</p>
+<h3 id="tier层级tier-1--tier-2--tier-3" class="note-heading note-heading--h3">Tier（层级）：Tier-1 / Tier-2 / Tier-3</h3>
+<p class="note-paragraph">按在全球互联中的地位与结算关系，ISP 常被粗分为三级（教材常用模型，实际边界会模糊）：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>层级</th><th>名称</th><th>主要特征</th></tr></thead><tbody><tr><td><strong>Tier-1</strong></td><td>顶级 / 一级 ISP</td><td>拥有全球骨干；与其他顶级 ISP <strong>结算无关对等（Settlement-free Peering）</strong>，理论上可不向任何其他 ISP 购买过境（Transit）即可到达全网</td></tr><tr><td><strong>Tier-2</strong></td><td>区域 / 二级 ISP</td><td>覆盖一国或地区；既可与部分网络对等，也常需向更高层购买 Transit</td></tr><tr><td><strong>Tier-3</strong></td><td>接入 / 三级 ISP</td><td>主要面向终端用户接入；通常向上游购买 Transit，较少参与全球骨干对等</td></tr></tbody></table></div>
+<h3 id="关键关系how-they-fit-together" class="note-heading note-heading--h3">关键关系（How They Fit Together）</h3>
+<ol class="note-list">
+<li><strong>用户 → Tier-3 / 接入 ISP</strong>：家庭、校园、企业先接到本地接入商。</li>
+<li><strong>接入 ISP → Tier-2 / Tier-1</strong>：流量经上级转发，或在 <strong>IXP</strong> 与其他网络直接交换。</li>
+<li><strong>Tier-1 之间</strong>：通过骨干直连或大型 IXP 完成全球范围可达。</li>
+</ol>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">用户 / 校园网</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">接入 ISP（多为 Tier-3）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">区域 ISP（Tier-2） · 可经 IXP 对等</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--core" role="listitem">顶级 ISP（Tier-1）↔ Tier-1 骨干对等</div></div></figure>
+<blockquote class="note-quote"><p class="note-paragraph">旁路：区域 ISP 也可在 <strong>IXP</strong> 与其他 ISP / CDN <strong>Peering（对等）</strong>；向上多为 <strong>Transit（过境）</strong>。</p></blockquote>
+<h3 id="易混辨析distinctions" class="note-heading note-heading--h3">易混辨析（Distinctions）</h3>
+<ol class="note-list">
+<li><strong>ISP vs IXP</strong>：ISP 是“提供接入与连通的网络运营者”；IXP 是“多方相遇交换流量的场所/设施”。</li>
+<li><strong>Peering vs Transit</strong>：对等侧重互惠直连；过境是付费让上游帮你转发到更远的目的地。</li>
+<li><strong>Tier 不是严格行政等级</strong>：同一公司在不同区域角色可能不同；CDN、云厂商也会深度参与互联，使边界更复杂。</li>
+</ol>
+<h2 id="网络边缘与网络核心network-edge-amp-network-core" class="note-heading note-heading--h2">网络边缘与网络核心（Network Edge &amp; Network Core）</h2>
+<p class="note-paragraph">从结构上看，互联网常被划分为 <strong>网络边缘（Network Edge）</strong> 与 <strong>网络核心（Network Core）</strong> 两部分。</p>
+<h3 id="网络边缘network-edge" class="note-heading note-heading--h3">网络边缘（Network Edge）</h3>
+<ul class="note-list">
+<li><strong>定义</strong>：位于网络“外围”、直接面向用户与应用的一侧；主机在此接入网络，运行各类网络应用。</li>
+<li><strong>主要组成</strong>：</li>
+</ul>
+<p class="note-paragraph">  - <strong>端系统（End System / Host）</strong>：网络边缘的主体，既是通信的起点也是终点。</p>
+<p class="note-paragraph">  - <strong>接入网（Access Network）</strong>：把端系统连接到边缘路由器（Edge Router）的链路与设备（如家庭宽带、校园接入、蜂窝接入）。</p>
+<p class="note-paragraph">  - <strong>边缘路由器（Edge Router）</strong>：接入网与运营商/校园更大网络之间的分界设备（概念上属于“边缘侧出口”）。</p>
+<h4 id="端系统end-system及其组成" class="note-heading note-heading--h4">端系统（End System）及其组成</h4>
+<ul class="note-list">
+<li><strong>端系统</strong>：运行应用程序、产生或消费数据的设备，也称主机（Host）。</li>
+<li><strong>常见类型</strong>：</li>
+</ul>
+<p class="note-paragraph">  - <strong>客户机（Client）</strong>：主动发起请求的一端（如浏览器所在的电脑、手机）。</p>
+<p class="note-paragraph">  - <strong>服务器（Server）</strong>：提供服务、响应请求的一端（如 Web 服务器、邮件服务器）。</p>
+<p class="note-paragraph">  - 也可同为对等体（Peer），如部分 P2P 应用中的节点。</p>
+<ul class="note-list">
+<li><strong>组成（逻辑视角）</strong>：</li>
+</ul>
+<p class="note-paragraph">  1. <strong>应用进程（Application Process）</strong>：浏览器、邮件客户端、视频 App 等，使用网络服务收发数据。</p>
+<p class="note-paragraph">  2. <strong>协议栈（Protocol Stack）</strong>：端系统内的分层协议实现（如应用层 → 传输层 → 网络层 → 链路/物理相关部分），负责分段、寻址、可靠/不可靠传输等。</p>
+<p class="note-paragraph">  3. <strong>网络接口（Network Interface）</strong>：网卡（NIC）、Wi-Fi / 蜂窝模块等，把比特送到接入链路。</p>
+<p class="note-paragraph">  4. <strong>操作系统与套接字（OS &amp; Socket）</strong>：为应用提供编程接口（API），把应用数据交给协议栈。</p>
+<blockquote class="note-quote"><p class="note-paragraph">要点：端系统“在边缘思考应用”，通过套接字把消息交给网络；真正在网络中转发分组的工作，主要由网络核心完成。</p></blockquote>
+<h3 id="网络核心network-core" class="note-heading note-heading--h3">网络核心（Network Core）</h3>
+<ul class="note-list">
+<li><strong>定义</strong>：由互联的路由器（Router）与通信链路（Link）构成的网状转发基础设施，负责在端系统之间搬运分组（Packet）。</li>
+<li><strong>主要组成</strong>：</li>
+</ul>
+<p class="note-paragraph">  - <strong>路由器 / 分组交换机（Router / Packet Switch）</strong>：根据目的地址选择下一跳，转发分组。</p>
+<p class="note-paragraph">  - <strong>通信链路（Communication Link）</strong>：光纤、铜缆、无线等物理介质，连接交换机与路由器。</p>
+<p class="note-paragraph">  - <strong>更广意义上还可包含</strong>：运营商骨干、区域汇聚、部分交换中心（IXP）中的互联设施。</p>
+<ul class="note-list">
+<li><strong>核心工作方式（概念）</strong>：</li>
+</ul>
+<p class="note-paragraph">  - <strong>分组交换（Packet Switching）</strong>：把数据切成分组，共享链路；相对电路交换更灵活、利用率更高（引言级理解即可）。</p>
+<p class="note-paragraph">  - <strong>存储转发（Store-and-Forward）</strong>：路由器先收完整分组再转发。</p>
+<p class="note-paragraph">  - <strong>路由与转发（Routing &amp; Forwarding）</strong>：路由决定“走哪条路”，转发执行“从哪个口送出”。</p>
+<h3 id="边缘-vs-核心contrast" class="note-heading note-heading--h3">边缘 vs 核心（Contrast）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>对比项</th><th>网络边缘（Edge）</th><th>网络核心（Core）</th></tr></thead><tbody><tr><td>主要角色</td><td>端系统、接入网</td><td>路由器、骨干/汇聚链路</td></tr><tr><td>关注点</td><td>应用、用户体验、接入方式</td><td>连通、转发、容量与路由</td></tr><tr><td>数据角色</td><td>产生 / 消费数据</td><td>搬运 / 交换数据</td></tr><tr><td>典型设备</td><td>PC、手机、服务器、家庭网关</td><td>核心/边缘路由器、光纤干线</td></tr></tbody></table></div>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">端系统：应用 + 协议栈 + 网卡</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">接入网（Access）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">边缘路由器</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--core" role="listitem">网络核心：路由器 ↔ 链路 ↔ 路由器</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">对端边缘路由器 → 对端接入网 → 对端端系统</div></div></figure>
+<h2 id="接入网access-network" class="note-heading note-heading--h2">接入网（Access Network）</h2>
+<h3 id="定义与位置definition-amp-position" class="note-heading note-heading--h3">定义与位置（Definition &amp; Position）</h3>
+<ul class="note-list">
+<li><strong>接入网（Access Network）</strong>：把端系统（家庭、校园、企业、手机等）连接到边缘路由器、进而连入网络核心的那一段网络。</li>
+<li><strong>在整体中的位置</strong>：</li>
+</ul>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">端系统（Host）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">接入网（Access Network）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">边缘路由器 / 接入控制点（如 BRAS）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--core" role="listitem">网络核心 / IP 云</div></div></figure>
+<ul class="note-list">
+<li><strong>职责一句话</strong>：解决“最后一公里 / 最后一段”（Last Mile）——用户如何物理与逻辑地“上到网”。</li>
+</ul>
+<h3 id="基本问题what-access-must-solve" class="note-heading note-heading--h3">基本问题（What Access Must Solve）</h3>
+<ol class="note-list">
+<li><strong>物理连接</strong>：用何种介质（铜缆、同轴、光纤、无线）到达用户。</li>
+<li><strong>共享还是独享</strong>：链路带宽是专用（Dedicated）还是多用户共享（Shared）。</li>
+<li><strong>上线与鉴权</strong>：用户如何认证、获得 IP、受带宽/策略约束（固网常经 BRAS）。</li>
+<li><strong>汇聚上联</strong>：众多用户流量如何汇聚后进入城域 IP 网 / 骨干。</li>
+</ol>
+<h3 id="接入网分类types-of-access-networks" class="note-heading note-heading--h3">接入网分类（Types of Access Networks）</h3>
+<h4 id="1-家庭接入residential-access" class="note-heading note-heading--h4">1. 家庭接入（Residential Access）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>方式</th><th>英文 / 要点</th><th>介质与特征</th></tr></thead><tbody><tr><td><strong>拨号接入</strong></td><td>Dial-up</td><td>电话线 + Modem；速率低，基本淘汰（了解即可）</td></tr><tr><td><strong>数字用户线</strong></td><td>DSL（Digital Subscriber Line），常见 ADSL/VDSL</td><td>利用电话铜线（双绞线）；上下行常不对称；局端为 DSLAM</td></tr><tr><td><strong>同轴 / 有线电视接入</strong></td><td>Cable / HFC（Hybrid Fiber-Coax）</td><td>同轴电缆到户，干线多用光纤；同轴段常多用户共享</td></tr><tr><td><strong>光纤到户</strong></td><td>FTTH（Fiber To The Home）</td><td>光纤直达用户侧；高带宽、主流家宽形态</td></tr><tr><td><strong>光纤到驻地</strong></td><td>FTTP（Fiber To The Premises）</td><td>光纤到用户驻地的总称，常涵盖 FTTH / FTTB 等</td></tr><tr><td><strong>光纤到楼/路边等</strong></td><td>FTTB / FTTC 等</td><td>光纤到楼/路边，楼内再铜缆或网线延伸</td></tr></tbody></table></div>
+<h5 id="dsldigital-subscriber-line数字用户线" class="note-heading note-heading--h5">DSL（Digital Subscriber Line，数字用户线）</h5>
+<ul class="note-list">
+<li><strong>思路</strong>：在已有电话双绞线上同时传语音与数据（经分离器/滤波器隔离频段）。</li>
+<li><strong>常见变体</strong>：</li>
+</ul>
+<p class="note-paragraph">  - <strong>ADSL</strong>（Asymmetric DSL）：下行远大于上行，适合浏览/视频。</p>
+<p class="note-paragraph">  - <strong>VDSL / VDSL2</strong>：更高速率，但对线距更敏感。</p>
+<ul class="note-list">
+<li><strong>局端设备</strong>：<strong>DSLAM</strong>（Digital Subscriber Line Access Multiplexer）汇聚多路 DSL 用户。</li>
+<li><strong>局限</strong>：速率随铜线长度与线质下降；长期被光纤家宽替代，但仍是重要概念。</li>
+</ul>
+<h5 id="同轴电缆接入coaxial-cable--cable--hfc" class="note-heading note-heading--h5">同轴电缆接入（Coaxial Cable / Cable / HFC）</h5>
+<ul class="note-list">
+<li><strong>同轴电缆（Coaxial Cable）</strong>：中心导体 + 绝缘 + 屏蔽层，抗干扰较好，曾广泛用于有线电视。</li>
+<li><strong>HFC（Hybrid Fiber-Coax）</strong>：光纤到小区/光节点，再用同轴分配到户。</li>
+<li><strong>局端概念</strong>：<strong>CMTS</strong>（Cable Modem Termination System）终结用户侧 Cable Modem。</li>
+<li><strong>特点</strong>：最后一公里同轴段多为<strong>共享介质</strong>，高峰时可能争用带宽。</li>
+</ul>
+<h5 id="fttp--ftth--fttb光纤到驻地系列" class="note-heading note-heading--h5">FTTP / FTTH / FTTB（光纤到驻地系列）</h5>
+<ul class="note-list">
+<li><strong>FTTP（Fiber To The Premises）</strong>：光纤延伸到用户驻地（premises）的统称。</li>
+<li><strong>FTTH（Fiber To The Home）</strong>：光纤进家，用户侧为 ONT/光猫；属于 FTTP 的典型形态。</li>
+<li><strong>FTTB（Fiber To The Building）</strong>：光纤到楼，楼内再用网线/铜缆入户。</li>
+<li><strong>FTTC（Fiber To The Curb/Cabinet）</strong>：光纤到路边/交接箱，余段仍可能走铜线（可与 VDSL 等组合）。</li>
+<li><strong>实现载体</strong>：多为 <strong>PON</strong>（Passive Optical Network，无源光网络）。</li>
+</ul>
+<p class="note-paragraph"><strong>FTTH / PON 常见结构</strong></p>
+<ul class="note-list">
+<li><strong>OLT</strong>（Optical Line Terminal，光线路终端）：局端设备，面向众多用户光路。</li>
+<li><strong>ODN</strong>（Optical Distribution Network，光分配网）：光纤 + <strong>光分路器（Splitter）</strong> 等无源设施。</li>
+<li><strong>ONU / ONT</strong>（Optical Network Unit / Terminal，光网络单元/终端）：用户侧光猫。</li>
+<li><strong>PON</strong>（Passive Optical Network）：局端到用户侧以无源分光为主，降低有源设备数量。</li>
+</ul>
+<figure class="note-diagram note-diagram--tree"><div class="note-diagram-title">结构示意</div><div class="note-tree"><div class="note-flow-step note-flow-step--accent note-tree-root">OLT（局端）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-tree-branch"><div class="note-flow-step note-flow-step--accent">ONU/ONT（用户1）</div><div class="note-flow-step note-flow-step--accent">ONU/ONT（用户2）</div><div class="note-flow-step note-flow-step--accent">ONU/ONT（用户…）</div></div></div></figure>
+<blockquote class="note-quote"><p class="note-paragraph">中间经光纤与<strong>光分路器（Splitter）</strong> 构成 ODN；上图为逻辑汇聚关系。</p></blockquote>
+<p class="note-paragraph"><strong>三类有线接入对照</strong></p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>类型</th><th>入户介质</th><th>局端要点</th><th>共享性直觉</th></tr></thead><tbody><tr><td>DSL</td><td>电话双绞线</td><td>DSLAM</td><td>每用户一对线，偏独享（受线距限制）</td></tr><tr><td>Cable/HFC</td><td>同轴（+光纤干线）</td><td>CMTS</td><td>同轴段常共享</td></tr><tr><td>FTTH/FTTP</td><td>光纤</td><td>OLT + PON</td><td>分光共享光功率/容量，规划后相对稳定</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>家庭侧常见设备</strong></p>
+<ul class="note-list">
+<li><strong>调制解调器 / 光猫（Modem / ONT）</strong>：完成接入技术终结（DSL/Cable/光纤）。</li>
+<li><strong>家庭网关 / 路由器（Home Gateway / Router）</strong>：NAT、DHCP、Wi-Fi、防火墙等。</li>
+<li><strong>无线接入点（AP，Access Point）</strong>：提供家庭 WLAN（常与路由一体）。</li>
+</ul>
+<h4 id="2-机构--园区接入enterprise--campus-access" class="note-heading note-heading--h4">2. 机构 / 园区接入（Enterprise / Campus Access）</h4>
+<ul class="note-list">
+<li><strong>以太网局域网（Ethernet LAN）</strong>：交换机互联主机，再经边界路由器/防火墙上联 ISP。</li>
+<li><strong>无线局域网（WLAN / Wi-Fi）</strong>：AP 覆盖办公室、教室；站（Station）经 AP 接入有线网。</li>
+<li><strong>特点</strong>：本地自建自管为主；出口再经专线、以太网专线或运营商接入进入 Internet。</li>
+</ul>
+<h4 id="3-无线广域--移动接入wireless-wide-area--cellular-access" class="note-heading note-heading--h4">3. 无线广域 / 移动接入（Wireless Wide-Area / Cellular Access）</h4>
+<ul class="note-list">
+<li><strong>蜂窝移动网接入</strong>：经 <strong>RAN（无线接入网）</strong> 进核心网，再进 IP 网络。</li>
+<li><strong>代际概念</strong>：2G/3G/4G/5G 空口与网元名称不同，但“终端 → 无线接入 → 核心网 → Internet”结构一致。</li>
+<li><strong>公共 Wi-Fi 热点</strong>：机场、商场等 WLAN，背后仍落到有线接入与运营商/机构出口。</li>
+</ul>
+<h4 id="4-其他接入形态other" class="note-heading note-heading--h4">4. 其他接入形态（Other）</h4>
+<ul class="note-list">
+<li><strong>专线接入（Leased Line）</strong>：企业点对点或到 ISP 的固定带宽链路。</li>
+<li><strong>卫星接入（Satellite）</strong>：高时延，覆盖偏远地区。</li>
+<li><strong>电力线载波等</strong>：了解即可，非课程主干。</li>
+</ul>
+<h3 id="有线接入-vs-无线接入wired-vs-wireless" class="note-heading note-heading--h3">有线接入 vs 无线接入（Wired vs Wireless）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>对比</th><th>有线接入（Wired）</th><th>无线接入（Wireless）</th></tr></thead><tbody><tr><td>典型</td><td>DSL、Cable、FTTH、以太网</td><td>Wi-Fi、蜂窝（RAN）</td></tr><tr><td>优点</td><td>稳定、易做高带宽与低干扰</td><td>移动性好、部署灵活</td></tr><tr><td>约束</td><td>需布线、位置固定</td><td>易受干扰、共享介质、覆盖与切换问题</td></tr></tbody></table></div>
+<h3 id="共享与独享速率相关概念sharing-amp-rate" class="note-heading note-heading--h3">共享与独享、速率相关概念（Sharing &amp; Rate）</h3>
+<ul class="note-list">
+<li><strong>独享带宽（Dedicated）</strong>：逻辑/物理上该用户可用容量相对独立（如部分专线、PON 中经分光后的光路容量仍受规划约束）。</li>
+<li><strong>共享带宽（Shared）</strong>：多用户争用同一段介质（如 HFC 同轴段、Wi-Fi 信道、蜂窝小区资源）。</li>
+<li><strong>接入速率（Access Rate）</strong>：用户侧标称上下行速率；受套餐、线路质量、共享拥塞影响。</li>
+<li><strong>不对称接入（Asymmetric）</strong>：如下行 &gt; 上行（ADSL、许多家宽套餐），契合浏览/视频类业务。</li>
+</ul>
+<h3 id="物理介质速览physical-media-in-access" class="note-heading note-heading--h3">物理介质速览（Physical Media in Access）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>介质</th><th>英文</th><th>接入中的典型用途</th></tr></thead><tbody><tr><td>双绞线</td><td>Twisted Pair</td><td>电话线（DSL）、楼内网线（Ethernet）</td></tr><tr><td>同轴电缆</td><td>Coaxial Cable</td><td>有线电视 / HFC</td></tr><tr><td>光纤</td><td>Optical Fiber</td><td>FTTH、局端中继、RAN 回传</td></tr><tr><td>无线信道</td><td>Wireless Channel</td><td>Wi-Fi、蜂窝空口、卫星</td></tr></tbody></table></div>
+<h3 id="接入过程逻辑步骤固网示意" class="note-heading note-heading--h3">接入过程（逻辑步骤，固网示意）</h3>
+<ol class="note-list">
+<li>终端经家庭网关连到 ONU/光猫或 Modem。</li>
+<li>接入汇聚（如 OLT）把多用户流量集中。</li>
+<li><strong>BRAS</strong>（或等价设备）完成认证、授权、地址与策略。</li>
+<li>流量进入 <strong>IP 云 / 城域网</strong>，再到达 Internet 或其他业务网。</li>
+</ol>
+<p class="note-paragraph">移动侧则把步骤 1–2 替换为：<strong>UE → RAN → 核心网网关（GW）</strong>，再进入 IP 网络。</p>
+<h3 id="接入网与边缘核心的关系fit-in-the-big-picture" class="note-heading note-heading--h3">接入网与边缘、核心的关系（Fit in the Big Picture）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>层次</th><th>主要对象</th></tr></thead><tbody><tr><td>网络边缘</td><td>端系统 + <strong>接入网</strong> + 边缘侧出口</td></tr><tr><td>接入控制 / 边界</td><td>BRAS、各类 GW、边缘路由器</td></tr><tr><td>网络核心</td><td>路由器网状互联、运营商 IP 云与骨干</td></tr></tbody></table></div>
+<blockquote class="note-quote"><p class="note-paragraph">接入网属于<strong>网络边缘</strong>的组成部分；BRAS/部分 GW 常被视为接入与核心之间的<strong>控制与分界点</strong>。</p></blockquote>
+<h2 id="运营商接入侧常见网元rangwbrasip-云access-side-elements" class="note-heading note-heading--h2">运营商接入侧常见网元：RAN、GW、BRAS、IP 云（Access-Side Elements）</h2>
+<p class="note-paragraph">在运营商（ISP）网络中，用户经接入侧设备进入更大的 <strong>IP 网络</strong>。下列缩写在教材与工程材料中常见，需先掌握<strong>定义与职责边界</strong>（可与上一节对照）。</p>
+<h3 id="ranradio-access-network无线接入网" class="note-heading note-heading--h3">RAN（Radio Access Network，无线接入网）</h3>
+<ul class="note-list">
+<li><strong>定义</strong>：移动通信中，位于用户终端（UE）与核心网之间的无线侧网络，负责无线空口接入与无线资源相关处理。</li>
+<li><strong>典型组成</strong>：基站（Base Station，如 4G 的 eNB、5G 的 gNB）、无线控制器/集中单元（因代际而异）、回传/前传链路等。</li>
+<li><strong>作用</strong>：完成终端的无线接入、无线信道调度、与核心网之间的用户面/控制面衔接（概念层）。</li>
+<li><strong>边界</strong>：RAN 侧重“无线怎么接进来”；真正的会话管理、移动性管理等多在核心网（Core Network）侧。</li>
+<li><strong>归属</strong>：RAN 是<strong>无线形态的接入网</strong>。</li>
+</ul>
+<h3 id="gwgateway网关" class="note-heading note-heading--h3">GW（Gateway，网关）</h3>
+<ul class="note-list">
+<li><strong>定义</strong>：连接不同网络、不同协议或不同管理域的网间互连设备/功能实体，在边界上完成转换、转发或策略控制。</li>
+<li><strong>为什么需要</strong>：两侧可能协议不同、地址体系不同、或归属不同运营商/企业网，需要“门口翻译官”。</li>
+<li><strong>常见类型（按场景）</strong>：</li>
+</ul>
+<p class="note-paragraph">  - <strong>家庭网关 / 用户侧网关（Home Gateway / CPE）</strong>：家庭光猫/路由器，连接家庭 LAN 与运营商接入。</p>
+<p class="note-paragraph">  - <strong>接入网关 / 边缘网关</strong>：接入网与上层 IP 网络之间的汇聚出口。</p>
+<p class="note-paragraph">  - <strong>核心网网关（Core Gateway）</strong>：如移动核心网中的数据网关（历史名如 GGSN / P-GW，5G 中对应 UPF 等用户面功能，名称随代际变化）。</p>
+<p class="note-paragraph">  - <strong>应用层网关 / 协议网关</strong>：在更高层做协议转换（如部分语音/物联网场景）。</p>
+<ul class="note-list">
+<li><strong>要点</strong>：GW 是<strong>角色名</strong>，不是单一固定产品型号；看到 “××GW” 要结合它所夹在哪两个网络之间理解。</li>
+</ul>
+<h3 id="brasbroadband-remote-access-server宽带远程接入服务器" class="note-heading note-heading--h3">BRAS（Broadband Remote Access Server，宽带远程接入服务器）</h3>
+<ul class="note-list">
+<li><strong>定义</strong>：固网宽带接入中的关键控制设备，位于用户接入汇聚之后、进入运营商 IP 城域/骨干之前，对宽带用户进行认证、授权、计费与策略控制（常合称 AAA 相关能力）。</li>
+<li><strong>核心功能</strong>：</li>
+</ul>
+<p class="note-paragraph">  1. <strong>用户接入终结</strong>：终结 PPPoE / IPoE 等接入会话（因运营商方案而异）。</p>
+<p class="note-paragraph">  2. <strong>认证与授权（Authentication &amp; Authorization）</strong>：校验账号套餐，下发带宽、VLAN、ACL 等策略。</p>
+<p class="note-paragraph">  3. <strong>地址与会话管理</strong>：为用户分配/关联公网或私网 IP，维护在线会话。</p>
+<p class="note-paragraph">  4. <strong>计费与管控（Accounting / Policy）</strong>：流量/时长统计，限速、QoS、家长控制类策略入口之一。</p>
+<p class="note-paragraph">  5. <strong>上联到 IP 网络</strong>：把已“合法上线”的用户流量送入运营商 <strong>IP 云 / 城域 IP 网</strong>。</p>
+<ul class="note-list">
+<li><strong>位置直觉</strong>：家庭光猫 → 接入汇聚（如 OLT 等）→ <strong>BRAS</strong> → IP 城域网 / 骨干。</li>
+<li><strong>易混</strong>：BRAS 不是普通二层交换机；它是“宽带用户上线控制点”，偏控制 + 转发边缘。</li>
+</ul>
+<h3 id="相关接入网元补充related-elements" class="note-heading note-heading--h3">相关接入网元补充（Related Elements）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>名称</th><th>英文</th><th>含义</th></tr></thead><tbody><tr><td><strong>DSLAM</strong></td><td>Digital Subscriber Line Access Multiplexer</td><td>DSL 局端复用/接入设备</td></tr><tr><td><strong>CMTS</strong></td><td>Cable Modem Termination System</td><td>有线电缆侧局端终结设备</td></tr><tr><td><strong>OLT</strong></td><td>Optical Line Terminal</td><td>光纤接入局端</td></tr><tr><td><strong>ONU/ONT</strong></td><td>Optical Network Unit/Terminal</td><td>光纤接入用户侧</td></tr><tr><td><strong>CPE</strong></td><td>Customer Premises Equipment</td><td>用户驻地设备（光猫、家宽路由等）</td></tr><tr><td><strong>AP</strong></td><td>Access Point</td><td>无线局域网接入点</td></tr><tr><td><strong>UE</strong></td><td>User Equipment</td><td>用户终端（手机等）</td></tr><tr><td><strong>AAA</strong></td><td>Authentication, Authorization, Accounting</td><td>认证、授权、计费</td></tr></tbody></table></div>
+<h3 id="ip-云ip-cloud--ip-metropolitan-core-fabric" class="note-heading note-heading--h3">IP 云（IP Cloud / IP Metropolitan-Core Fabric）</h3>
+<ul class="note-list">
+<li><strong>定义（运营商标述）</strong>：运营商内部以 IP/MPLS 等技术构成的、可路由转发的大范围 IP 网络区域，常形象称为 <strong>IP 云</strong>；用户经 BRAS/GW 进入后，在“云”内按目的地址路由到互联网、IDC、其他城域或业务平台。</li>
+<li><strong>包含什么（概念上）</strong>：城域核心路由器、汇聚路由器、相关链路，以及通向骨干网、对等点（IXP）、内容网络的出口。</li>
+<li><strong>为什么叫“云”</strong>：对接入侧而言，内部具体拓扑被抽象成一片可达的 IP 转发域——“进了云，就能按 IP 找到路”。</li>
+<li><strong>与网络核心的关系</strong>：IP 云属于运营商视角下的 <strong>网络核心/城域核心</strong> 实现形态；教材中的 Network Core 与工程上的 IP 云是同一大类思想的不同表述粒度。</li>
+<li><strong>注意</strong>：IP 云通常<strong>不属于接入网本身</strong>，而是接入完成之后进入的上层转发域。</li>
+</ul>
+<h3 id="串联关系how-they-connect" class="note-heading note-heading--h3">串联关系（How They Connect）</h3>
+<p class="note-paragraph"><strong>移动侧（示意）</strong></p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">手机（UE）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">RAN（无线接入网：基站等）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--core" role="listitem">核心网侧 GW / 用户面网关</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--core" role="listitem">运营商 IP 网络（IP 云 / 骨干）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">Internet</div></div></figure>
+<p class="note-paragraph"><strong>固网宽带侧（示意）</strong></p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">电脑 / 家庭路由器</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">家庭网关（光猫等）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">接入汇聚（如 OLT）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">BRAS（认证上线、策略）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--core" role="listitem">IP 云（城域/骨干 IP 转发）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">Internet / 业务平台</div></div></figure>
+<h3 id="概念对照quick-distinctions" class="note-heading note-heading--h3">概念对照（Quick Distinctions）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>名称</th><th>全称要点</th><th>一句话职责</th></tr></thead><tbody><tr><td><strong>接入网</strong></td><td>Access Network</td><td>端系统到网络边缘出口的“上到网”路径</td></tr><tr><td><strong>RAN</strong></td><td>Radio Access Network</td><td>无线形态的接入网</td></tr><tr><td><strong>GW</strong></td><td>Gateway</td><td>不同网络/协议之间的边界转换与互连</td></tr><tr><td><strong>BRAS</strong></td><td>Broadband Remote Access Server</td><td>固网宽带用户认证上线与策略控制点</td></tr><tr><td><strong>OLT/ONU</strong></td><td>光线路终端 / 光网络单元</td><td>FTTH/PON 的局端与用户侧</td></tr><tr><td><strong>IP 云</strong></td><td>IP Cloud（城域/核心 IP 网）</td><td>接入之后的运营商 IP 转发域（偏核心侧）</td></tr></tbody></table></div>
+<blockquote class="note-quote"><p class="note-paragraph">说明：具体设备名称随厂商与 4G/5G、固网改造方案会变化，考试与笔记优先抓住<strong>功能定义与在拓扑中的位置</strong>。</p></blockquote>
+<h2 id="附录动态网络图局部--全局--传输动画" class="note-heading note-heading--h2">附录：动态网络图（局部 / 全局 + 传输动画）</h2>
+<p class="note-paragraph">风格参考「昨日重现」Internet Map：链路高亮 + <strong>数据包沿线传输</strong>。可用 <code> </code><code></code><code>network </code> 代码块启用；页面加载后支持 <strong>局部 / 全局</strong> 切换、<strong>传输速度</strong>、暂停/播放；全局视图可拖拽平移与滚轮缩放。</p>
+<figure class="note-network-map" data-network-map data-default-view="local" data-map-id="cn-access-internet"><div class="note-network-map__toolbar" aria-hidden="true"><div class="note-network-map__heading"><span class="note-network-map__kicker">Network Map</span><strong class="note-network-map__title">接入与互联网示意</strong></div><div class="note-network-map__actions"><span class="muted">加载交互控件…</span></div></div><div class="note-network-map__viewport" data-view="local"><div class="note-network-map__stage"><svg class="note-network-map__canvas" viewBox="0 0 640 240" width="100%" height="100%" role="img" aria-label="接入与互联网示意"><line class="nmap-edge" x1="56.0" y1="120.0" x2="232.0" y2="120.0" /><line class="nmap-edge" x1="232.0" y1="120.0" x2="408.0" y2="120.0" /><line class="nmap-edge" x1="408.0" y1="120.0" x2="584.0" y2="120.0" /><g class="nmap-node is-muted" data-node-id="Host" transform="translate(56.0, 120.0)"><rect x="-36.0" y="-18" width="72.0" height="36" rx="12" fill="#60a5fa" fill-opacity="0.18" stroke="#60a5fa" stroke-width="1.6" /><text text-anchor="middle" dominant-baseline="middle" class="nmap-label">端系统</text></g><g class="nmap-node is-focus" data-node-id="ONT" transform="translate(232.0, 120.0)"><rect x="-48.0" y="-18" width="96.0" height="36" rx="12" fill="#38bdf8" fill-opacity="0.18" stroke="#38bdf8" stroke-width="1.6" /><text text-anchor="middle" dominant-baseline="middle" class="nmap-label">光猫/ONT</text></g><g class="nmap-node is-focus" data-node-id="OLT" transform="translate(408.0, 120.0)"><rect x="-36.0" y="-18" width="72.0" height="36" rx="12" fill="#34d399" fill-opacity="0.18" stroke="#34d399" stroke-width="1.6" /><text text-anchor="middle" dominant-baseline="middle" class="nmap-label">OLT</text></g><g class="nmap-node is-muted" data-node-id="BRAS" transform="translate(584.0, 120.0)"><rect x="-36.0" y="-18" width="72.0" height="36" rx="12" fill="#fbbf24" fill-opacity="0.18" stroke="#fbbf24" stroke-width="1.6" /><text text-anchor="middle" dominant-baseline="middle" class="nmap-label">BRAS</text></g></svg></div></div><script type="application/json" class="note-network-map__data">{"title": "接入与互联网示意", "id": "cn-access-internet", "defaultView": "local", "views": {"local": {"nodes": [{"id": "Host", "label": "端系统", "role": "host"}, {"id": "ONT", "label": "光猫/ONT", "role": "cpe"}, {"id": "OLT", "label": "OLT", "role": "access"}, {"id": "BRAS", "label": "BRAS", "role": "edge"}], "edges": [{"from": "Host", "to": "ONT", "label": ""}, {"from": "ONT", "to": "OLT", "label": ""}, {"from": "OLT", "to": "BRAS", "label": ""}], "focus": ["ONT", "OLT"]}, "global": {"nodes": [{"id": "User", "label": "用户/校园", "role": "host"}, {"id": "Access", "label": "接入网", "role": "access"}, {"id": "Metro", "label": "IP云/城域", "role": "core"}, {"id": "Tier1", "label": "Tier-1", "role": "core"}, {"id": "Peer", "label": "对端网络", "role": "peer"}], "edges": [{"from": "User", "to": "Access", "label": ""}, {"from": "Access", "to": "Metro", "label": ""}, {"from": "Metro", "to": "Tier1", "label": ""}, {"from": "Tier1", "to": "Peer", "label": ""}], "focus": []}}}</script></figure>
+<p class="note-paragraph"><strong>写法要点</strong></p>
+<ol class="note-list">
+<li>元数据：<code>title=</code> / <code>id=</code> / <code>default=local|global</code></li>
+<li>分区：<code>[local]</code> 局部、<code>[global]</code> 全局</li>
+<li>节点：<code>id|显示名|角色</code>（角色可选：<code>host</code> / <code>cpe</code> / <code>access</code> / <code>edge</code> / <code>core</code> / <code>peer</code>）</li>
+<li>边：<code>A&gt;B</code> 或 <code>A-&gt;B</code>（主路径按拓扑自动串联，全局会叠加背景流量）</li>
+<li>聚焦：<code>focus: id1,id2</code>（局部高亮，其余淡化）</li>
+</ol>
+</section>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%2Fday1_%E5%BC%95%E8%A8%80#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=计算机网络">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="local-only">© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</span><span class="published-only">© 2026 鼠窝 · v0.10.0</span></p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>

@@ -43,8 +43,15 @@ async function fetchPublishedMoodRaw() {
 }
 
 async function apiFetch(path, options = {}) {
+  const { signal: userSignal, ...rest } = options;
+  const timeout = AbortSignal.timeout(5000);
+  const signal =
+    userSignal && typeof AbortSignal.any === "function"
+      ? AbortSignal.any([userSignal, timeout])
+      : timeout;
   const res = await fetch(`${API_ROOT}${path}`, {
-    ...options,
+    ...rest,
+    signal,
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
   });
   const data = await res.json().catch(() => ({}));

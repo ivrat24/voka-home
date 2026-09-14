@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="监督学习 vs 强化学习、MDP/DQN、世界模型与具身智能仿真入门">
   <title>短学期 Lec01 · 课程笔记 · 鼠窝</title>
-    <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
   <link rel="stylesheet" href="../../../css/style.css">
@@ -55,14 +55,14 @@
         <p class="note-description">监督学习 vs 强化学习、MDP/DQN、世界模型与具身智能仿真入门</p>
       </header>
       <div class="note-body note-body--optimized content-body">
-        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+        <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="监督学习-vs-强化学习" class="note-heading">监督学习 vs 强化学习</h2>
+<h2 id="监督学习-vs-强化学习" class="note-heading note-heading--h2">监督学习 vs 强化学习</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>维度</th><th>监督学习</th><th>强化学习</th></tr></thead><tbody><tr><td>数据</td><td>有标签 (x, y)</td><td>无标签，只有交互轨迹</td></tr><tr><td>反馈</td><td><strong>即时</strong>反馈（每个样本有标准答案）</td><td><strong>延迟</strong>反馈（奖励/惩罚可能滞后）</td></tr><tr><td>目标</td><td>最小化预测误差</td><td>最大化长期累积奖励</td></tr><tr><td>决策</td><td>单步、独立样本</td><td>序列决策，前后状态相关</td></tr><tr><td>典型任务</td><td>分类、回归</td><td>控制、博弈、导航</td></tr></tbody></table></div>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="马尔可夫决策过程mdp" class="note-heading">马尔可夫决策过程（MDP）</h2>
+<h2 id="马尔可夫决策过程mdp" class="note-heading note-heading--h2">马尔可夫决策过程（MDP）</h2>
 <p class="note-paragraph">强化学习的数学框架：<strong>MDP = (S, A, P, R, γ)</strong></p>
 <ul class="note-list">
 <li><strong>S</strong>：状态空间</li>
@@ -71,40 +71,40 @@
 <li><strong>R(s,a)</strong> 或 <strong>R(s,a,s&#x27;)</strong>：奖励函数</li>
 <li><strong>γ ∈ [0,1]</strong>：折扣因子，平衡「眼前奖励」与「未来奖励」</li>
 </ul>
-<h4 id="随机过程与随机现象" class="note-heading">随机过程与随机现象</h4>
+<h4 id="随机过程与随机现象" class="note-heading note-heading--h4">随机过程与随机现象</h4>
 <p class="note-paragraph">系统在时间上演化，下一状态具有随机性；我们关心的是<strong>概率分布</strong>而非单条轨迹。</p>
-<h4 id="马尔可夫性质" class="note-heading">马尔可夫性质</h4>
+<h4 id="马尔可夫性质" class="note-heading note-heading--h4">马尔可夫性质</h4>
 <div class="note-math-block" data-math-display="P(S_{t+1} \mid S_t, S_{t-1}, \ldots) = P(S_{t+1} \mid S_t)"></div>
 <p class="note-paragraph"><strong>当前状态已包含做决策所需的全部历史信息</strong>——未来只依赖现在，不依赖更早的过去。</p>
-<h4 id="马尔可夫过程mp与马尔可夫链" class="note-heading">马尔可夫过程（MP）与马尔可夫链</h4>
+<h4 id="马尔可夫过程mp与马尔可夫链" class="note-heading note-heading--h4">马尔可夫过程（MP）与马尔可夫链</h4>
 <p class="note-paragraph">满足马尔可夫性质的随机过程；状态空间有限且离散时，称为<strong>马尔可夫链</strong>。</p>
-<h4 id="状态转移矩阵" class="note-heading">状态转移矩阵</h4>
+<h4 id="状态转移矩阵" class="note-heading note-heading--h4">状态转移矩阵</h4>
 <p class="note-paragraph">对离散状态，用矩阵 <strong>P</strong> 描述一步转移：</p>
 <div class="note-math-block" data-math-display="P_{ij} = P(S_{t+1}=j \mid S_t=i), \quad \sum_j P_{ij} = 1"></div>
 <p class="note-paragraph">矩阵乘法可计算多步转移概率。</p>
-<h4 id="马尔可夫奖励过程mrp与回报" class="note-heading">马尔可夫奖励过程（MRP）与回报</h4>
+<h4 id="马尔可夫奖励过程mrp与回报" class="note-heading note-heading--h4">马尔可夫奖励过程（MRP）与回报</h4>
 <p class="note-paragraph">在 MP 上加入奖励 <span class="note-math-inline" data-math-inline="R_{t+1}"></span>，定义<strong>回报</strong>（Return）：</p>
 <div class="note-math-block" data-math-display="G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots"></div>
 <p class="note-paragraph">γ 越小越「短视」，γ 越接近 1 越重视长期。</p>
-<h4 id="价值函数" class="note-heading">价值函数</h4>
+<h4 id="价值函数" class="note-heading note-heading--h4">价值函数</h4>
 <ul class="note-list">
 <li><strong>状态价值</strong> <span class="note-math-inline" data-math-inline="V(s) = \mathbb{E}[G_t \mid S_t=s]"></span>：从状态 s 出发，按某策略 π 能期望获得多少总奖励</li>
 <li><strong>动作价值</strong> <span class="note-math-inline" data-math-inline="Q(s,a) = \mathbb{E}[G_t \mid S_t=s, A_t=a]"></span>：在 s 下先执行 a，再按 π 继续</li>
 </ul>
-<h4 id="mrp-闭式解" class="note-heading">MRP 闭式解</h4>
+<h4 id="mrp-闭式解" class="note-heading note-heading--h4">MRP 闭式解</h4>
 <p class="note-paragraph">对有限状态 MRP，令 <strong>r</strong> 为期望奖励向量，<strong>P</strong> 为转移矩阵：</p>
 <div class="note-math-block" data-math-display="\mathbf{V} = (\mathbf{I} - \gamma \mathbf{P})^{-1} \mathbf{r}"></div>
 <p class="note-paragraph">（当 <span class="note-math-inline" data-math-inline="(\mathbf{I}-\gamma\mathbf{P})"></span> 可逆时成立）</p>
-<h4 id="bellman-期望方程" class="note-heading">Bellman 期望方程</h4>
+<h4 id="bellman-期望方程" class="note-heading note-heading--h4">Bellman 期望方程</h4>
 <p class="note-paragraph">价值函数满足递归关系——<strong>当前价值 = 即时奖励 + 折扣后的下一状态期望价值</strong>：</p>
 <div class="note-math-block" data-math-display="V^\pi(s) = \sum_a \pi(a|s) \sum_{s&#x27;,r} p(s&#x27;,r|s,a)\big[r + \gamma V^\pi(s&#x27;)\big]"></div>
 <div class="note-math-block" data-math-display="Q^\pi(s,a) = \sum_{s&#x27;,r} p(s&#x27;,r|s,a)\big[r + \gamma \sum_{a&#x27;} \pi(a&#x27;|s&#x27;) Q^\pi(s&#x27;,a&#x27;)\big]"></div>
-<h4 id="bellman-最优方程" class="note-heading">Bellman 最优方程</h4>
+<h4 id="bellman-最优方程" class="note-heading note-heading--h4">Bellman 最优方程</h4>
 <p class="note-paragraph">最优策略 π* 对应的最优价值：</p>
 <div class="note-math-block" data-math-display="V^*(s) = \max_a \sum_{s&#x27;,r} p(s&#x27;,r|s,a)\big[r + \gamma V^*(s&#x27;)\big]"></div>
 <div class="note-math-block" data-math-display="Q^*(s,a) = \sum_{s&#x27;,r} p(s&#x27;,r|s,a)\big[r + \gamma \max_{a&#x27;} Q^*(s&#x27;,a&#x27;)\big]"></div>
 <p class="note-paragraph">最优策略：<span class="note-math-inline" data-math-inline="\pi^*(s) = \arg\max_a Q^*(s,a)"></span></p>
-<h4 id="pomdp-建模" class="note-heading">POMDP 建模</h4>
+<h4 id="pomdp-建模" class="note-heading note-heading--h4">POMDP 建模</h4>
 <p class="note-paragraph"><strong>部分可观测 MDP</strong>：智能体看不到真实状态 S，只能得到观测 O。</p>
 <ul class="note-list">
 <li>引入<strong>信念状态</strong>（belief state）<span class="note-math-inline" data-math-inline="b(s) = P(S=s \mid o_{1:t}, a_{1:t-1})"></span></li>
@@ -113,32 +113,32 @@
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="策略优化与动态规划" class="note-heading">策略优化与动态规划</h2>
+<h2 id="策略优化与动态规划" class="note-heading note-heading--h2">策略优化与动态规划</h2>
 <p class="note-paragraph">给定 MDP，求最优策略 π<em> 的经典思路：</em><em>策略评估 → 策略改进 → 迭代至收敛</em>*。</p>
-<h4 id="策略优化policy-improvement" class="note-heading">策略优化（Policy Improvement）</h4>
+<h4 id="策略优化policy-improvement" class="note-heading note-heading--h4">策略优化（Policy Improvement）</h4>
 <p class="note-paragraph">若 <span class="note-math-inline" data-math-inline="Q^\pi(s, \pi&#x27;(s)) \ge V^\pi(s)"></span> 对所有 s 成立，则 π&#x27; 不差于 π。</p>
 <p class="note-paragraph"><strong>贪心改进</strong>：<span class="note-math-inline" data-math-inline="\pi&#x27;(s) = \arg\max_a Q^\pi(s,a)"></span></p>
-<h4 id="价值迭代value-iteration" class="note-heading">价值迭代（Value Iteration）</h4>
+<h4 id="价值迭代value-iteration" class="note-heading note-heading--h4">价值迭代（Value Iteration）</h4>
 <p class="note-paragraph">反复应用 Bellman <strong>最优</strong>算子，直到收敛：</p>
 <div class="note-math-block" data-math-display="V_{k+1}(s) = \max_a \sum_{s&#x27;,r} p(s&#x27;,r|s,a)\big[r + \gamma V_k(s&#x27;)\big]"></div>
 <p class="note-paragraph">收敛后：<span class="note-math-inline" data-math-inline="\pi^*(s) = \arg\max_a Q^*(s,a)"></span></p>
-<h4 id="收缩映射" class="note-heading">收缩映射</h4>
+<h4 id="收缩映射" class="note-heading note-heading--h4">收缩映射</h4>
 <p class="note-paragraph">Bellman 最优算子 <span class="note-math-inline" data-math-inline="T^*"></span> 在 sup 范数下是 <strong>γ-收缩映射</strong>：</p>
 <div class="note-math-block" data-math-display="\|T^* V - T^* U\|_\infty \le \gamma \|V - U\|_\infty"></div>
 <p class="note-paragraph">由 Banach 不动点定理，迭代 <span class="note-math-inline" data-math-inline="V_{k+1} = T^* V_k"></span> <strong>必收敛到唯一不动点</strong> <span class="note-math-inline" data-math-inline="V^*"></span>——即最优价值函数。</p>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="深度-q-学习dqn" class="note-heading">深度 Q 学习（DQN）</h2>
+<h2 id="深度-q-学习dqn" class="note-heading note-heading--h2">深度 Q 学习（DQN）</h2>
 <p class="note-paragraph">当状态空间巨大或连续时，无法表格存储 Q(s,a)，用神经网络 <strong>Q(s,a; θ)</strong> 近似。</p>
-<h4 id="核心算法dqn" class="note-heading">核心算法：DQN</h4>
+<h4 id="核心算法dqn" class="note-heading note-heading--h4">核心算法：DQN</h4>
 <ol class="note-list">
 <li>用经验回放（Experience Replay）打破样本相关性</li>
 <li>用目标网络 <span class="note-math-inline" data-math-inline="Q(s,a;\theta^-)"></span> 稳定训练目标</li>
 <li>最小化 TD 误差：</li>
 </ol>
 <div class="note-math-block" data-math-display="L(\theta) = \mathbb{E}\Big[\big(r + \gamma \max_{a&#x27;} Q(s&#x27;,a&#x27;;\theta^-) - Q(s,a;\theta)\big)^2\Big]"></div>
-<h4 id="td-更新bellman-残差" class="note-heading">TD 更新（Bellman 残差）</h4>
+<h4 id="td-更新bellman-残差" class="note-heading note-heading--h4">TD 更新（Bellman 残差）</h4>
 <p class="note-paragraph">单步更新形式：</p>
 <div class="note-math-block" data-math-display="Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma \max_{a&#x27;} Q(s&#x27;, a&#x27;) - Q(s, a) \right]"></div>
 <p class="note-paragraph">括号内为 <strong>TD 目标 − 当前估计</strong>，α 为学习率。</p>
@@ -151,10 +151,10 @@
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="基于模型的强化学习" class="note-heading">基于模型的强化学习</h2>
+<h2 id="基于模型的强化学习" class="note-heading note-heading--h2">基于模型的强化学习</h2>
 <p class="note-paragraph"><strong>Model-Free</strong>（如 DQN）：直接从交互学 Q 或策略，不显式学环境模型。</p>
 <p class="note-paragraph"><strong>Model-Based</strong>：先学环境模型 <span class="note-math-inline" data-math-inline="\hat{P}(s&#x27;|s,a)"></span> 或 <span class="note-math-inline" data-math-inline="\hat{r}(s,a)"></span>，再用于规划。</p>
-<h4 id="世界模型world-model" class="note-heading">世界模型（World Model）</h4>
+<h4 id="世界模型world-model" class="note-heading note-heading--h4">世界模型（World Model）</h4>
 <p class="note-paragraph">用神经网络预测「下一状态 / 下一观测 / 奖励」，在<strong>学到的模型里做想象 rollout（imagination）</strong>：</p>
 <ul class="note-list">
 <li>减少真实环境交互次数（样本效率更高）</li>
@@ -165,7 +165,7 @@
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="具身智能基本概念" class="note-heading">具身智能基本概念</h2>
+<h2 id="具身智能基本概念" class="note-heading note-heading--h2">具身智能基本概念</h2>
 <p class="note-paragraph"><strong>具身智能（Embodied AI）</strong>：智能体拥有物理或仿真身体，通过<strong>感知—行动闭环</strong>与环境交互，而非纯文本/纯符号推理。</p>
 <p class="note-paragraph">核心要素：</p>
 <ul class="note-list">
@@ -175,10 +175,10 @@
 <li><strong>任务</strong>：导航、操作、多步组合（如「找物—抓取—放置」）</li>
 </ul>
 <p class="note-paragraph">与「离身」AI 的区别：知识来自<strong>交互</strong>，必须处理部分可观测、延迟奖励、安全约束。</p>
-<h4 id="具身智能仿真平台" class="note-heading">具身智能仿真平台</h4>
+<h4 id="具身智能仿真平台" class="note-heading note-heading--h4">具身智能仿真平台</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>平台</th><th>特点</th></tr></thead><tbody><tr><td><strong>Isaac Sim / Isaac Lab</strong></td><td>NVIDIA，GPU 并行、高保真物理，适合 RL 大规模训练</td></tr><tr><td><strong>MuJoCo</strong></td><td>轻量、接触动力学准确，学术常用</td></tr><tr><td><strong>PyBullet / CoppeliaSim</strong></td><td>开源、易上手</td></tr><tr><td><strong>Habitat / AI2-THOR</strong></td><td>室内导航、交互式家务场景</td></tr><tr><td><strong>Gazebo + ROS</strong></td><td>机器人实机与仿真衔接</td></tr></tbody></table></div>
 <p class="note-paragraph">仿真 → Sim2Real 迁移是工程难点：域随机化、系统辨识、真实数据微调。</p>
-</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#监督学习-vs-强化学习">监督学习 vs 强化学习</a></li><li class="note-toc-item note-toc-item--h2"><a href="#马尔可夫决策过程mdp">马尔可夫决策过程（MDP）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#随机过程与随机现象">随机过程与随机现象</a></li><li class="note-toc-item note-toc-item--h4"><a href="#马尔可夫性质">马尔可夫性质</a></li><li class="note-toc-item note-toc-item--h4"><a href="#马尔可夫过程mp与马尔可夫链">马尔可夫过程（MP）与马尔可夫链</a></li><li class="note-toc-item note-toc-item--h4"><a href="#状态转移矩阵">状态转移矩阵</a></li><li class="note-toc-item note-toc-item--h4"><a href="#马尔可夫奖励过程mrp与回报">马尔可夫奖励过程（MRP）与回报</a></li><li class="note-toc-item note-toc-item--h4"><a href="#价值函数">价值函数</a></li><li class="note-toc-item note-toc-item--h4"><a href="#mrp-闭式解">MRP 闭式解</a></li><li class="note-toc-item note-toc-item--h4"><a href="#bellman-期望方程">Bellman 期望方程</a></li><li class="note-toc-item note-toc-item--h4"><a href="#bellman-最优方程">Bellman 最优方程</a></li><li class="note-toc-item note-toc-item--h4"><a href="#pomdp-建模">POMDP 建模</a></li><li class="note-toc-item note-toc-item--h2"><a href="#策略优化与动态规划">策略优化与动态规划</a></li><li class="note-toc-item note-toc-item--h4"><a href="#策略优化policy-improvement">策略优化（Policy Improvement）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#价值迭代value-iteration">价值迭代（Value Iteration）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#收缩映射">收缩映射</a></li><li class="note-toc-item note-toc-item--h2"><a href="#深度-q-学习dqn">深度 Q 学习（DQN）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#核心算法dqn">核心算法：DQN</a></li><li class="note-toc-item note-toc-item--h4"><a href="#td-更新bellman-残差">TD 更新（Bellman 残差）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#基于模型的强化学习">基于模型的强化学习</a></li><li class="note-toc-item note-toc-item--h4"><a href="#世界模型world-model">世界模型（World Model）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#具身智能基本概念">具身智能基本概念</a></li><li class="note-toc-item note-toc-item--h4"><a href="#具身智能仿真平台">具身智能仿真平台</a></li></ol></aside></div>
+</section>
       </div>
     </article>
 

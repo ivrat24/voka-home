@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-17T11:49:19",
+  "generatedAt": "2026-09-14T12:20:41",
   "contentDir": "note_content",
   "courses": [
     {
@@ -8,6 +8,12 @@
       "title": "短学期02 强化学习与智能体实训",
       "noteCount": 15,
       "latestDate": "2026-07-17"
+    },
+    {
+      "slug": "计算机网络",
+      "title": "计算机网络",
+      "noteCount": 2,
+      "latestDate": "2026-09-14"
     }
   ],
   "materials": [
@@ -67,6 +73,33 @@
     }
   ],
   "notes": [
+    {
+      "slug": "计算机网络/前言",
+      "courseSlug": "计算机网络",
+      "title": "前言",
+      "date": "2026-09-14",
+      "tags": [
+        "计算机网络",
+        "前言"
+      ],
+      "description": "课程成绩配置与基本说明",
+      "source": "note_content/计算机网络/前言.md",
+      "href": "pages/notes/计算机网络/前言.html"
+    },
+    {
+      "slug": "计算机网络/day1_引言",
+      "courseSlug": "计算机网络",
+      "title": "Day1 引言",
+      "date": "2026-09-14",
+      "tags": [
+        "计算机网络",
+        "引言",
+        "Day1"
+      ],
+      "description": "接入网；动态网络传输示意（局部/全局）",
+      "source": "note_content/计算机网络/day1_引言.md",
+      "href": "pages/notes/计算机网络/day1_引言.html"
+    },
     {
       "slug": "短学期02_强化学习与智能体实训/短学期_LecExp07",
       "courseSlug": "短学期02_强化学习与智能体实训",

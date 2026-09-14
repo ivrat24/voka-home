@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="具身智能概念、仿真平台、机械臂与灵巧手、足式/人型机器人及场景交互——连接 RL 与真实机器人部署">
   <title>短学期 Lec04 · 课程笔记 · 鼠窝</title>
-    <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
   <link rel="stylesheet" href="../../../css/style.css">
@@ -55,17 +55,17 @@
         <p class="note-description">具身智能概念、仿真平台、机械臂与灵巧手、足式/人型机器人及场景交互——连接 RL 与真实机器人部署</p>
       </header>
       <div class="note-body note-body--optimized content-body">
-        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+        <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="回顾与定位" class="note-heading">回顾与定位</h2>
+<h2 id="回顾与定位" class="note-heading note-heading--h2">回顾与定位</h2>
 <p class="note-paragraph">Lec01–Lec03 在<strong>离散/向量状态</strong>上建立了 MDP、MC/TD、函数逼近与神经网络。本讲进入 <strong>Embodied Intelligence（具身智能）</strong>：智能不再仅存在于“第三人称”标注数据里，而是通过<strong>物理实体</strong>与环境的持续交互涌现。</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>讲次</th><th>场景</th><th>状态空间</th><th>核心方法</th></tr></thead><tbody><tr><td>Lec01–02</td><td>表格 MDP、CartPole</td><td>低维、可枚举</td><td>MC / TD / Q-Learning</td></tr><tr><td>Lec03</td><td>Atari、连续控制铺垫</td><td>高维、需网络</td><td>DQN / 函数逼近</td></tr><tr><td><strong>Lec04</strong></td><td><strong>机械臂、四足、人型</strong></td><td>物理仿真 + 真实硬件</td><td><strong>Sim2Real、PPO、教师-学生蒸馏</strong></td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>本讲主线</strong>：仿真平台提供<strong>安全、可并行</strong>的试错环境 → RL 学策略 → 域随机化 / 蒸馏 / 少量真机数据 → 部署到真实机器人。</p>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="具身智能概念简介" class="note-heading">具身智能概念简介</h2>
-<h4 id="什么是具身智能" class="note-heading">什么是具身智能？</h4>
+<h2 id="具身智能概念简介" class="note-heading note-heading--h2">具身智能概念简介</h2>
+<h4 id="什么是具身智能" class="note-heading note-heading--h4">什么是具身智能？</h4>
 <p class="note-paragraph"><strong>具身智能（Embodied Intelligence）</strong> 指基于<strong>物理实体</strong>进行感知和行动的智能系统：智能体通过与环境交互获取信息、理解问题、做出决策并执行动作，从而产生智能行为与适应性。</p>
 <p class="note-paragraph"><strong>关键词</strong>：物理实体、感知、行动。</p>
 <p class="note-paragraph">与纯“大脑在缸里”的离线模型不同，具身系统必须处理：</p>
@@ -75,56 +75,47 @@
 <li>执行器饱和、摩擦、接触力</li>
 <li>安全约束</li>
 </ul>
-<h4 id="为什么需要具身" class="note-heading">为什么需要“具身”？</h4>
+<h4 id="为什么需要具身" class="note-heading note-heading--h4">为什么需要“具身”？</h4>
 <p class="note-paragraph"><strong>Held &amp; Hein 实验（1963）</strong>：两只幼猫接收<strong>完全相同</strong>的视觉信息，但只有<strong>主动行走</strong>的猫能学会正常行走；被动移动的猫丧失行走能力。</p>
 <p class="note-paragraph"><strong>启示</strong>：智能不仅来自观察，还来自<strong>主动运动与感知的耦合</strong>——第一人称经验不可替代。</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>视角</th><th>含义</th><th>典型数据</th></tr></thead><tbody><tr><td><strong>第一人称智能</strong></td><td>机器人自主感知世界、交互、完成复杂行为</td><td>本体感知、视觉、力觉轨迹</td></tr><tr><td><strong>第三人称智能</strong></td><td>人类标注标签，告诉模型“这是什么”</td><td>分类数据集、人工示范</td></tr></tbody></table></div>
 <p class="note-paragraph">RL 在具身场景下天然是<strong>第一人称</strong>：策略 <span class="note-math-inline" data-math-inline="\pi(a|s)"></span> 在自身传感器流上闭环决策。</p>
-<h4 id="核心挑战" class="note-heading">核心挑战</h4>
+<h4 id="核心挑战" class="note-heading note-heading--h4">核心挑战</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>挑战</th><th>说明</th><th>与 RL 的关系</th></tr></thead><tbody><tr><td><strong>采样效率低</strong></td><td>真机交互昂贵；RL 常需百万～千万步</td><td>仿真并行 + 离策略算法</td></tr><tr><td><strong>安全问题</strong></td><td>试错可能损坏机器人或环境</td><td>先在 Sim 训练，再谨慎 Sim2Real</td></tr><tr><td><strong>Sim–Real 差距</strong></td><td>动力学、摩擦、延迟不一致</td><td>域随机化、系统辨识、微调</td></tr></tbody></table></div>
-<h4 id="四条迁移路径" class="note-heading">四条迁移路径</h4>
-<pre class="note-code-block"><code>Real2Sim   从真实数据校准仿真模型
-Sim2Real   仿真训练 → 真机部署（最常用）
-Sim2Sim    不同仿真器之间迁移
-Real2Real  真机到真机（硬件更换、环境变化）
-</code></pre>
+<h4 id="四条迁移路径" class="note-heading note-heading--h4">四条迁移路径</h4>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">Real2Sim   从真实数据校准仿真模型</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">Sim2Real   仿真训练 → 真机部署（最常用）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">Sim2Sim    不同仿真器之间迁移</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">Real2Real  真机到真机（硬件更换、环境变化）</div></div></figure>
 <p class="note-paragraph"><strong>课程实验（下午）</strong> 走 <strong>Sim 内 RL</strong> 路线：在 <strong>MuJoCo Warp</strong> 人型机器人平地行走，为后续 Sim2Real 打基础。</p>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="具身智能仿真平台" class="note-heading">具身智能仿真平台</h2>
+<h2 id="具身智能仿真平台" class="note-heading note-heading--h2">具身智能仿真平台</h2>
 <p class="note-paragraph">仿真器是具身 RL 的“健身房”：可并行、可重置、可域随机化。</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>平台</th><th>定位</th><th>特点</th><th>典型用途</th></tr></thead><tbody><tr><td><strong>MuJoCo</strong></td><td>通用接触动力学引擎</td><td>Multi-Joint dynamics with <strong>Contact</strong>；快速精确</td><td>机械臂、灵巧手、腿足</td></tr><tr><td><strong>Isaac Gym</strong></td><td>NVIDIA RL 专用</td><td><strong>GPU 大规模并行</strong>仿真；凸分解；域随机化</td><td>四足、大批量 PPO</td></tr><tr><td><strong>Isaac Lab</strong></td><td>模块化机器人学习框架</td><td>基于 Isaac Sim；逼真渲染 + 高速仿真</td><td>统一研究流水线</td></tr><tr><td><strong>SAPIEN</strong></td><td>精细操作仿真</td><td>大规模铰接物体数据集；部件级理解</td><td>抓取、桌面操作</td></tr><tr><td><strong>Habitat-Sim</strong></td><td>室内移动操作</td><td>3D 扫描 / CAD；Bullet 刚体；多传感器</td><td>导航、移动机械臂</td></tr></tbody></table></div>
-<h4 id="选型速查" class="note-heading">选型速查</h4>
+<h4 id="选型速查" class="note-heading note-heading--h4">选型速查</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>任务类型</th><th>推荐平台</th></tr></thead><tbody><tr><td>接触丰富、关节多</td><td>MuJoCo / Isaac</td></tr><tr><td>需上万并行环境</td><td>Isaac Gym / MuJoCo Warp</td></tr><tr><td>桌面铰接物体</td><td>SAPIEN</td></tr><tr><td>室内导航 + 操作</td><td>Habitat-Sim</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>与课内实验</strong>：详见 <a href="短学期_LecExp04.html">LecExp04</a>（MuJoCo Warp 人型平地行走）；<a href="短学期_LecExp01.html">LecExp01</a> 的 CartPole 并行接口可直接迁移。</p>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="域随机化与-ppo具身-rl-基础" class="note-heading">域随机化与 PPO（具身 RL 基础）</h2>
-<h4 id="域随机化domain-randomization" class="note-heading">域随机化（Domain Randomization）</h4>
+<h2 id="域随机化与-ppo具身-rl-基础" class="note-heading note-heading--h2">域随机化与 PPO（具身 RL 基础）</h2>
+<h4 id="域随机化domain-randomization" class="note-heading note-heading--h4">域随机化（Domain Randomization）</h4>
 <p class="note-paragraph">在仿真中<strong>随机采样</strong>物理/视觉参数，使策略对模型误差鲁棒：</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>随机化对象</th><th>示例</th></tr></thead><tbody><tr><td>动力学</td><td>质量、摩擦、阻尼、电机增益</td></tr><tr><td>几何</td><td>连杆长度、碰撞体大小</td></tr><tr><td>传感</td><td>观测噪声、延迟、丢包</td></tr><tr><td>环境</td><td>地面高度、外力扰动</td></tr></tbody></table></div>
 <p class="note-paragraph">Dactyl 表明：<strong>随机化越充分，Sim 训练越久，但 Real 成功率越高</strong>。</p>
-<h4 id="ppo-在具身场景中的角色" class="note-heading">PPO 在具身场景中的角色</h4>
+<h4 id="ppo-在具身场景中的角色" class="note-heading note-heading--h4">PPO 在具身场景中的角色</h4>
 <p class="note-paragraph">本讲多数工作（Dactyl、HINF、BeamDojo、PIM 一阶段）底层为 <strong>PPO</strong> 或其在连续控制上的变体：</p>
 <div class="note-math-block" data-math-display="L^{\text{CLIP}} = \mathbb{E}\left[\min\left(r_t(\theta)\hat{A}_t,\ \text{clip}(r_t(\theta),1-\epsilon,1+\epsilon)\hat{A}_t\right)\right]"></div>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>具身特点</th><th>对 PPO 的影响</th></tr></thead><tbody><tr><td>连续高维动作</td><td>高斯策略 <span class="note-math-inline" data-math-inline="\pi_\theta(a|s)=\mathcal{N}(\mu_\theta(s),\Sigma)"></span></td></tr><tr><td>长 horizon</td><td>需 GAE、episode 截断、奖励缩放</td></tr><tr><td>并行仿真</td><td>Isaac / Warp 提供大批量 on-policy 样本</td></tr><tr><td>安全</td><td>动作限幅、扭矩惩罚、终止惩罚</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>与 Lec03 衔接</strong>：Q 网络用于离散/离线；<strong>腿足、灵巧手控制</strong>更常用 <strong>PPO / SAC</strong> 等策略梯度方法。</p>
-<h4 id="教师学生蒸馏通用模板" class="note-heading">教师–学生蒸馏（通用模板）</h4>
-<pre class="note-code-block"><code>[Sim + 特权观测] --RL--&gt; 教师 π_T(a | s_priv)
-                              |
-                    行为克隆 / KL 蒸馏
-                              v
-[Sim/Real +  onboard 传感] --&gt; 学生 π_S(a | s_obs) --微调--&gt; 真机
-</code></pre>
+<h4 id="教师学生蒸馏通用模板" class="note-heading note-heading--h4">教师–学生蒸馏（通用模板）</h4>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">s_priv)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">行为克隆 / KL 蒸馏</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">v</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">s_obs) --微调--&gt; 真机</div></div></figure>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>阶段</th><th>观测</th><th>目的</th></tr></thead><tbody><tr><td>教师</td><td>地形高度图、真实摩擦、物体位姿</td><td>学高质量行为</td></tr><tr><td>学生</td><td>IMU、关节编码器、含噪激光</td><td>可部署</td></tr><tr><td>微调</td><td>同学生 + 少量真机成功轨迹</td><td>弥合 Sim2Real</td></tr></tbody></table></div>
 <p class="note-paragraph">四足「地形解码器」、Dactyl「状态策略 + 视觉位姿 CNN」均属此模板。</p>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="机械臂与灵巧手" class="note-heading">机械臂与灵巧手</h2>
-<h4 id="openai-dactyl魔方灵巧操作" class="note-heading">OpenAI Dactyl（魔方灵巧操作）</h4>
+<h2 id="机械臂与灵巧手" class="note-heading note-heading--h2">机械臂与灵巧手</h2>
+<h4 id="openai-dactyl魔方灵巧操作" class="note-heading note-heading--h4">OpenAI Dactyl（魔方灵巧操作）</h4>
 <p class="note-paragraph"><strong>方法</strong>：PPO + <strong>域随机化（Domain Randomization）</strong>，无需人类标注从零学习。</p>
 <p class="note-paragraph"><strong>流水线</strong>：</p>
 <ol class="note-list">
@@ -135,22 +126,22 @@ Real2Real  真机到真机（硬件更换、环境变化）
 </ol>
 <p class="note-paragraph"><strong>硬件</strong>：Shadow 灵巧手 + PhaseSpace 动捕 + Basler RGB 相机。</p>
 <p class="note-paragraph"><strong>代价</strong>：未随机化 Sim 约 <strong>3 年</strong>模拟时间；全随机化约 <strong>100 年</strong>模拟时间——说明<strong>探索 + 随机化</strong>是 Sim2Real 核心成本。</p>
-<h4 id="robopianist弹钢琴" class="note-heading">RoboPianist（弹钢琴）</h4>
+<h4 id="robopianist弹钢琴" class="note-heading note-heading--h4">RoboPianist（弹钢琴）</h4>
 <ul class="note-list">
 <li>88 键电子琴建模为线性弹簧</li>
 <li>双手 Shadow 灵巧手按乐谱按键轨迹演奏</li>
 <li>能力：跨键盘弹奏、左手和弦、右手颤音（相邻键快速交替）</li>
 </ul>
-<h4 id="sim2real-难点课堂总结" class="note-heading">Sim2Real 难点（课堂总结）</h4>
+<h4 id="sim2real-难点课堂总结" class="note-heading note-heading--h4">Sim2Real 难点（课堂总结）</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>问题</th><th>表现</th></tr></thead><tbody><tr><td>泛化性不足</td><td>训练场景单一，真机失效</td></tr><tr><td>Sim–Real 差距</td><td>摩擦、质量、延迟不一致</td></tr><tr><td>视觉误差</td><td>位姿估计漂移导致闭环失败</td></tr></tbody></table></div>
-<h4 id="教师学生--真机微调" class="note-heading">教师–学生 + 真机微调</h4>
+<h4 id="教师学生--真机微调" class="note-heading note-heading--h4">教师–学生 + 真机微调</h4>
 <ol class="note-list">
 <li><strong>Sim 中 RL 训练教师策略</strong>：生成高质量轨迹与动作数据集</li>
 <li><strong>蒸馏学生策略</strong>：用教师数据监督学习</li>
 <li><strong>真机收集少量成功轨迹</strong>，对学生<strong>微调</strong></li>
 </ol>
 <p class="note-paragraph"><strong>部署问题</strong>：失误恢复弱、控制频率不足、质心偏移。</p>
-<h4 id="仿真训练的设计要点" class="note-heading">仿真训练的设计要点</h4>
+<h4 id="仿真训练的设计要点" class="note-heading note-heading--h4">仿真训练的设计要点</h4>
 <ul class="note-list">
 <li><strong>初始状态分布</strong>：辅助探索（避免一直从不可行姿态开始）</li>
 <li><strong>状态信息</strong>：适度使用特权信息（教师）再蒸馏到视觉学生</li>
@@ -158,7 +149,7 @@ Real2Real  真机到真机（硬件更换、环境变化）
 <li><strong>动态技能</strong>（转笔）：遥操作 / 模仿学习几乎不可行，<strong>Sim RL 探索轨迹</strong>至关重要</li>
 <li><strong>好消息</strong>：仅需<strong>少量</strong>真机成功轨迹即可微调适应真实物理</li>
 </ul>
-<h4 id="serlsample-efficient-rl" class="note-heading">SERL（Sample-Efficient RL）</h4>
+<h4 id="serlsample-efficient-rl" class="note-heading note-heading--h4">SERL（Sample-Efficient RL）</h4>
 <p class="note-paragraph">开箱即用机器人 RL 套件：</p>
 <ul class="note-list">
 <li>离策略、样本高效算法</li>
@@ -169,8 +160,8 @@ Real2Real  真机到真机（硬件更换、环境变化）
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="足式与人型机器人" class="note-heading">足式与人型机器人</h2>
-<h4 id="教师学生--地形估计四足" class="note-heading">教师–学生 + 地形估计（四足）</h4>
+<h2 id="足式与人型机器人" class="note-heading note-heading--h2">足式与人型机器人</h2>
+<h4 id="教师学生--地形估计四足" class="note-heading note-heading--h4">教师–学生 + 地形估计（四足）</h4>
 <ol class="note-list">
 <li>RL 训练可访问<strong>仿真特权信息</strong>的<strong>教师策略</strong></li>
 <li><strong>蒸馏</strong>为学生：模仿教师动作 + 从含噪观测重建状态</li>
@@ -183,13 +174,13 @@ Real2Real  真机到真机（硬件更换、环境变化）
 <li><strong>强噪声</strong>：遮挡 / 传感器故障导致地形缺失</li>
 </ul>
 <p class="note-paragraph">学生信念编码器：<strong>循环核心 + 注意力门</strong>，融合本体与外感知。</p>
-<h4 id="himloco内模--对比学习" class="note-heading">HIMLoco（内模 + 对比学习）</h4>
+<h4 id="himloco内模--对比学习" class="note-heading note-heading--h4">HIMLoco（内模 + 对比学习）</h4>
 <ul class="note-list">
 <li><strong>内模控制</strong>：不显式建模干扰，用内部模型估计系统响应与干扰 → 增强闭环稳定性</li>
 <li>输入：本体感知历史 + 状态估计</li>
 <li><strong>显式</strong>线速度估计 + <strong>隐式</strong>未来响应（对比学习损失）</li>
 </ul>
-<h4 id="hinf对抗式域随机化--h-控制" class="note-heading">HINF（对抗式域随机化 + H∞ 控制）</h4>
+<h4 id="hinf对抗式域随机化--h-控制" class="note-heading note-heading--h4">HINF（对抗式域随机化 + H∞ 控制）</h4>
 <p class="note-paragraph"><strong>问题</strong>：训练全程从<strong>固定均匀分布</strong>采样外力，无法针对策略薄弱环节。</p>
 <p class="note-paragraph"><strong>思路</strong>：同时训练<strong>运动策略</strong>与<strong>外力干扰器</strong>；运动策略用 <strong>PPO</strong>；引入 <strong>H∞ 约束</strong>稳定训练。</p>
 <p class="note-paragraph"><strong>经典 H∞ 框架</strong>：</p>
@@ -200,11 +191,11 @@ Real2Real  真机到真机（硬件更换、环境变化）
 </ul>
 <p class="note-paragraph"><strong>与 RL 结合</strong>：将 H∞ 型损失并入策略优化；<span class="note-math-inline" data-math-inline="C"></span> 为预期与实际性能差距；简化为求 <strong>η-optimal</strong> 策略——干扰器在强度上限内最大化对策略性能的削弱。</p>
 <p class="note-paragraph"><strong>结果</strong>：连续干扰下 HINF 仍鲁棒；无 H∞ 损失时简单对抗训练易失败。</p>
-<h4 id="h-与-rl-目标简化理解" class="note-heading">H∞ 与 RL 目标（简化理解）</h4>
+<h4 id="h-与-rl-目标简化理解" class="note-heading note-heading--h4">H∞ 与 RL 目标（简化理解）</h4>
 <p class="note-paragraph">将「性能下降」视为扰动 <span class="note-math-inline" data-math-inline="w"></span> 经闭环传递函数 <span class="note-math-inline" data-math-inline="T_{wz}"></span> 产生的误差 <span class="note-math-inline" data-math-inline="z"></span>：</p>
 <div class="note-math-block" data-math-display="\min_\pi \max_{\|w\|\le\eta} J(\pi, w) \quad \Leftrightarrow \quad \text{求 }\eta\text{-optimal 策略}"></div>
 <p class="note-paragraph"><strong>干扰器</strong>与<strong>策略</strong>对抗训练：干扰器专找策略弱点施力，策略在 H∞ 正则下保持闭环稳定——比「从固定均匀分布采样外力」更有针对性。</p>
-<h4 id="pim人型复杂地形运动" class="note-heading">PIM（人型复杂地形运动）</h4>
+<h4 id="pim人型复杂地形运动" class="note-heading note-heading--h4">PIM（人型复杂地形运动）</h4>
 <ul class="note-list">
 <li>带<strong>外感知</strong>的人型运动策略框架</li>
 <li><strong>数小时</strong>一阶段训练 → <strong>零样本</strong>硬件部署</li>
@@ -212,21 +203,21 @@ Real2Real  真机到真机（硬件更换、环境变化）
 <li>实机：全尺寸 <strong>H1</strong> 攀 15 cm 台阶、跨间隙；<strong>GR1T2</strong> 部署</li>
 <li>感知整合进<strong>状态预测器</strong>；单线雷达地图坐标系与躯干初始对齐、固定世界系</li>
 </ul>
-<h4 id="beamdojo稀疏落足点" class="note-heading">BeamDojo（稀疏落足点）</h4>
+<h4 id="beamdojo稀疏落足点" class="note-heading note-heading--h4">BeamDojo（稀疏落足点）</h4>
 <ul class="note-list">
 <li>即插即用：在平地步态基础上跨越<strong>稀疏立足点</strong>地形</li>
 <li><strong>稠密落足点奖励</strong>（统计采样）约束足端位置</li>
 <li><strong>双 Critic</strong>：步态奖励 vs 落足点奖励解耦</li>
 <li><strong>孪生地形二阶段</strong>：安全平地练规划 → 稀疏地形微调</li>
 </ul>
-<h4 id="homie半自主遥操作" class="note-heading">HOMIE（半自主遥操作）</h4>
+<h4 id="homie半自主遥操作" class="note-heading note-heading--h4">HOMIE（半自主遥操作）</h4>
 <ul class="note-list">
 <li>协调<strong>全身控制</strong> + 高接触频次操作</li>
 <li>外骨骼 + 动作手套 → 同构映射到人型机器人；Wi-Fi 通信</li>
 <li>三踏板：前后 / 躯干高度 / 转向；模式切换按钮</li>
 <li>RL 训练：在变上半身姿态下完成下蹲与行走</li>
 </ul>
-<h4 id="host跌倒恢复" class="note-heading">HoST（跌倒恢复）</h4>
+<h4 id="host跌倒恢复" class="note-heading note-heading--h4">HoST（跌倒恢复）</h4>
 <ul class="note-list">
 <li>任务分<strong>三阶段</strong>，每阶段激活对应奖励；<strong>多 Critic + 奖励分组</strong></li>
 <li>盆骨上施加<strong>课程学习</strong>垂直拉力促进探索</li>
@@ -236,22 +227,19 @@ Real2Real  真机到真机（硬件更换、环境变化）
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="人型机器人场景交互" class="note-heading">人型机器人场景交互</h2>
-<h4 id="unihsillm-驱动的统一交互框架" class="note-heading">UniHSI（LLM 驱动的统一交互框架）</h4>
+<h2 id="人型机器人场景交互" class="note-heading note-heading--h2">人型机器人场景交互</h2>
+<h4 id="unihsillm-驱动的统一交互框架" class="note-heading note-heading--h4">UniHSI（LLM 驱动的统一交互框架）</h4>
 <p class="note-paragraph"><strong>首个</strong>大语言模型驱动的人型场景交互框架。</p>
 <p class="note-paragraph"><strong>核心建模</strong>：将交互表示为<strong>接触链（Contact Chain）</strong>——用人体与物体各部分的接触关系描述行为。</p>
 <p class="note-paragraph"><strong>架构</strong>：</p>
-<pre class="note-code-block"><code>语言指令 → [上游 LLM 规划器] → 接触链任务计划
-                                    ↓
-                          [下游 RL 运动控制策略] → 人型机器人执行
-</code></pre>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">语言指令 → [上游 LLM 规划器] → 接触链任务计划</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">↓</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">下游 RL 运动控制策略] → 人型机器人执行</div></div></figure>
 <p class="note-paragraph"><strong>能力</strong>：</p>
 <ul class="note-list">
 <li>长程交互、多物品交互</li>
 <li>同一物品多样化交互方式</li>
 <li>基于 LLM 的<strong>多智能体</strong>交互</li>
 </ul>
-<h4 id="接触链示例" class="note-heading">接触链示例</h4>
+<h4 id="接触链示例" class="note-heading note-heading--h4">接触链示例</h4>
 <p class="note-paragraph">「把桌上的杯子拿到柜子里」可分解为接触序列：</p>
 <pre class="note-code-block"><code>(右手, 杯子) → (右手+杯子, 移动) → (杯子, 柜子内) → (释放)
 </code></pre>
@@ -260,18 +248,18 @@ Real2Real  真机到真机（硬件更换、环境变化）
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="方法对比速查" class="note-heading">方法对比速查</h2>
+<h2 id="方法对比速查" class="note-heading note-heading--h2">方法对比速查</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>工作</th><th>机器人类型</th><th>核心算法</th><th>Sim2Real 手段</th></tr></thead><tbody><tr><td>Dactyl</td><td>灵巧手</td><td>PPO + 域随机化</td><td>大规模随机化 + 视觉位姿模块</td></tr><tr><td>RoboPianist</td><td>双手灵巧</td><td>RL</td><td>精细接触仿真</td></tr><tr><td>SERL</td><td>机械臂</td><td>离策略 RL</td><td>短时长真机训练</td></tr><tr><td>四足教师–学生</td><td>四足</td><td>PPO + 蒸馏</td><td>特权信息 → 噪声观测</td></tr><tr><td>HIMLoco</td><td>四足</td><td>内模 + 对比学习</td><td>干扰估计</td></tr><tr><td>HINF</td><td>四足</td><td>PPO + H∞ + 对抗干扰</td><td>自适应干扰器</td></tr><tr><td>PIM</td><td>人型</td><td>RL + 激光高程图</td><td>零样本部署</td></tr><tr><td>BeamDojo</td><td>人型</td><td>双 Critic PPO</td><td>孪生地形课程</td></tr><tr><td>HOMIE</td><td>人型</td><td>RL + 遥操作</td><td>外骨骼同构映射</td></tr><tr><td>HoST</td><td>人型</td><td>多 Critic 分阶段</td><td>跌倒恢复课程</td></tr><tr><td>UniHSI</td><td>人型</td><td>LLM + RL</td><td>接触链规划</td></tr></tbody></table></div>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="下午实验" class="note-heading">下午实验</h2>
+<h2 id="下午实验" class="note-heading note-heading--h2">下午实验</h2>
 <p class="note-paragraph"><strong>任务</strong>：基于 <strong>MuJoCo Warp</strong> 完成<strong>人型机器人平地行走</strong>。</p>
 <p class="note-paragraph">详细步骤、代码与记录清单见 <strong>[LecExp04](短学期_LecExp04.html)</strong>；CartPole 并行入门见 <a href="短学期_LecExp01.html">LecExp01</a>，课件 notebook：<code>materials/exp1_mujoco_warp_intro.ipynb</code>。</p>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="小结与衔接" class="note-heading">小结与衔接</h2>
+<h2 id="小结与衔接" class="note-heading note-heading--h2">小结与衔接</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>要点</th></tr></thead><tbody><tr><td>具身智能</td><td>物理实体 + 感知行动闭环；第一人称经验</td></tr><tr><td>仿真平台</td><td>MuJoCo / Isaac / SAPIEN / Habitat 分工不同</td></tr><tr><td>机械臂/灵巧手</td><td>PPO + 域随机化；教师–学生 + 少量真机微调</td></tr><tr><td>足式/人型</td><td>特权蒸馏、H∞ 鲁棒、高程感知、双 Critic、分阶段奖励</td></tr><tr><td>场景交互</td><td>UniHSI：LLM 规划接触链 + RL 低层控制</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>向下衔接</strong>：</p>
 <ul class="note-list">
@@ -280,7 +268,7 @@ Real2Real  真机到真机（硬件更换、环境变化）
 <li>实验课 Warp 并行 → 与 Isaac Gym「大批量采样」同一思路</li>
 </ul>
 <p class="note-paragraph"><strong>一句话</strong>：具身智能 = <strong>在仿真里大胆试错，在真机上谨慎微调</strong>；RL 提供探索，仿真提供规模，域随机化与蒸馏提供桥梁。</p>
-</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#回顾与定位">回顾与定位</a></li><li class="note-toc-item note-toc-item--h2"><a href="#具身智能概念简介">具身智能概念简介</a></li><li class="note-toc-item note-toc-item--h4"><a href="#什么是具身智能">什么是具身智能？</a></li><li class="note-toc-item note-toc-item--h4"><a href="#为什么需要具身">为什么需要“具身”？</a></li><li class="note-toc-item note-toc-item--h4"><a href="#核心挑战">核心挑战</a></li><li class="note-toc-item note-toc-item--h4"><a href="#四条迁移路径">四条迁移路径</a></li><li class="note-toc-item note-toc-item--h2"><a href="#具身智能仿真平台">具身智能仿真平台</a></li><li class="note-toc-item note-toc-item--h4"><a href="#选型速查">选型速查</a></li><li class="note-toc-item note-toc-item--h2"><a href="#域随机化与-ppo具身-rl-基础">域随机化与 PPO（具身 RL 基础）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#域随机化domain-randomization">域随机化（Domain Randomization）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#ppo-在具身场景中的角色">PPO 在具身场景中的角色</a></li><li class="note-toc-item note-toc-item--h4"><a href="#教师学生蒸馏通用模板">教师–学生蒸馏（通用模板）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#机械臂与灵巧手">机械臂与灵巧手</a></li><li class="note-toc-item note-toc-item--h4"><a href="#openai-dactyl魔方灵巧操作">OpenAI Dactyl（魔方灵巧操作）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#robopianist弹钢琴">RoboPianist（弹钢琴）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#sim2real-难点课堂总结">Sim2Real 难点（课堂总结）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#教师学生--真机微调">教师–学生 + 真机微调</a></li><li class="note-toc-item note-toc-item--h4"><a href="#仿真训练的设计要点">仿真训练的设计要点</a></li><li class="note-toc-item note-toc-item--h4"><a href="#serlsample-efficient-rl">SERL（Sample-Efficient RL）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#足式与人型机器人">足式与人型机器人</a></li><li class="note-toc-item note-toc-item--h4"><a href="#教师学生--地形估计四足">教师–学生 + 地形估计（四足）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#himloco内模--对比学习">HIMLoco（内模 + 对比学习）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#hinf对抗式域随机化--h-控制">HINF（对抗式域随机化 + H∞ 控制）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#h-与-rl-目标简化理解">H∞ 与 RL 目标（简化理解）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#pim人型复杂地形运动">PIM（人型复杂地形运动）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#beamdojo稀疏落足点">BeamDojo（稀疏落足点）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#homie半自主遥操作">HOMIE（半自主遥操作）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#host跌倒恢复">HoST（跌倒恢复）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#人型机器人场景交互">人型机器人场景交互</a></li><li class="note-toc-item note-toc-item--h4"><a href="#unihsillm-驱动的统一交互框架">UniHSI（LLM 驱动的统一交互框架）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#接触链示例">接触链示例</a></li><li class="note-toc-item note-toc-item--h2"><a href="#方法对比速查">方法对比速查</a></li><li class="note-toc-item note-toc-item--h2"><a href="#下午实验">下午实验</a></li><li class="note-toc-item note-toc-item--h2"><a href="#小结与衔接">小结与衔接</a></li></ol></aside></div>
+</section>
       </div>
     </article>
 

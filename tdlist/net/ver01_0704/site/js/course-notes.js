@@ -1,6 +1,5 @@
 import { escapeHtml } from "./layout.js";
 import { canEditNotes, fetchJson, siteBrandLabel } from "./runtime.js";
-import { bindNoteDownloadButtons } from "./note-download.js";
 import { initCourseMaterials } from "./course-materials.js";
 import { fetchDevManifestJson } from "./notes-api.js";
 
@@ -169,7 +168,10 @@ function renderNoteIndex(container, manifest, basePath = "", courseSlug = null) 
     .join("");
 
   container.innerHTML = `<div class="note-index-grid notes-entry-list">${cards}</div>`;
-  bindNoteDownloadButtons(container, basePath);
+  // 动态导入，打破与 note-download.js 的循环依赖（否则整页 ES module 加载失败，一直「加载中」）
+  void import("./note-download.js").then(({ bindNoteDownloadButtons }) => {
+    bindNoteDownloadButtons(container, basePath);
+  });
 }
 
 export async function loadCourseNoteIndex(basePath = "", containerId = "course-note-index", manifestOverride = null) {
@@ -237,8 +239,8 @@ export async function loadCoursePreviewFromManifest(basePath = "", containerId =
     const manifest = await fetchNoteManifest(basePath);
     const notes = Array.isArray(manifest?.notes) ? manifest.notes : [];
     const courses = Array.isArray(manifest?.courses) && manifest.courses.length
-      ? manifest.courses.slice(0, 2)
-      : deriveCoursesFromNotes(notes).slice(0, 2);
+      ? manifest.courses.slice(0, 6)
+      : deriveCoursesFromNotes(notes).slice(0, 6);
 
     if (!courses.length) {
       container.innerHTML = `<li class="zone-placeholder">暂无课程</li>`;

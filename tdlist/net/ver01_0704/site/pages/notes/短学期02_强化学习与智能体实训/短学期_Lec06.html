@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="策略梯度、REINFORCE、Advantage Actor-Critic 与 A2C/A3C 要点">
   <title>短学期 Lec06 · 课程笔记 · 鼠窝</title>
-    <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
   <link rel="stylesheet" href="../../../css/style.css">
@@ -55,22 +55,22 @@
         <p class="note-description">策略梯度、REINFORCE、Advantage Actor-Critic 与 A2C/A3C 要点</p>
       </header>
       <div class="note-body note-body--optimized content-body">
-        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+        <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="回顾与定位" class="note-heading">回顾与定位</h2>
+<h2 id="回顾与定位" class="note-heading note-heading--h2">回顾与定位</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>讲次</th><th>核心</th><th>本讲衔接</th></tr></thead><tbody><tr><td>Lec02</td><td>表格 TD / Q-Learning</td><td>值函数估计</td></tr><tr><td>Lec05</td><td>DQN（值函数逼近）</td><td>由价值导出策略</td></tr><tr><td><strong>Lec06</strong></td><td><strong>策略梯度 / Actor-Critic</strong></td><td>直接参数化 <span class="note-math-inline" data-math-inline="\pi_\theta"></span></td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>本讲主线</strong>：参数化策略 → 策略梯度定理与 REINFORCE → 基线与 Advantage → Actor-Critic → A2C / A3C。</p>
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="为什么要策略梯度" class="note-heading">为什么要策略梯度</h2>
+<h2 id="为什么要策略梯度" class="note-heading note-heading--h2">为什么要策略梯度</h2>
 <p class="note-paragraph">基于价值的方法（Q-Learning / DQN）先学 <span class="note-math-inline" data-math-inline="Q"></span>，再贪心取动作。局限：</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>问题</th><th>表现</th></tr></thead><tbody><tr><td>连续动作</td><td><span class="note-math-inline" data-math-inline="\arg\max_a Q(s,a)"></span> 困难</td></tr><tr><td>随机最优策略</td><td>贪心难以自然表达</td></tr><tr><td>非平稳</td><td>策略随 <span class="note-math-inline" data-math-inline="Q"></span> 间接改变</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>策略方法</strong>：直接优化 <span class="note-math-inline" data-math-inline="\pi_\theta(a\mid s)"></span>，优点：收敛性质较好、擅长连续/随机策略；缺点：易局部最优、评估方差大。</p>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="目标函数" class="note-heading">目标函数</h2>
+<h2 id="目标函数" class="note-heading note-heading--h2">目标函数</h2>
 <p class="note-paragraph">参数化策略后，用标量目标衡量 <span class="note-math-inline" data-math-inline="\pi_\theta"></span> 的好坏，常见三种等价形式：</p>
 <ol class="note-list">
 <li><strong>平均价值</strong>：<span class="note-math-inline" data-math-inline="J(\theta)=\mathbb{E}_{s\sim d}[v_{\pi_\theta}(s)]"></span></li>
@@ -82,7 +82,7 @@
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="策略梯度定理与-reinforce" class="note-heading">策略梯度定理与 REINFORCE</h2>
+<h2 id="策略梯度定理与-reinforce" class="note-heading note-heading--h2">策略梯度定理与 REINFORCE</h2>
 <p class="note-paragraph">轨迹似然：</p>
 <div class="note-math-block" data-math-display="p_\theta(\tau)=p(s_1)\prod_t \pi_\theta(a_t\mid s_t)\,p(s_{t+1}\mid s_t,a_t)"></div>
 <p class="note-paragraph"><strong>似然比技巧</strong>给出经典形式：</p>
@@ -111,7 +111,7 @@ G_t=\sum_{k=0}^{T-t-1}\gamma^k r_{t+k+1}."></div>
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="actor-critic" class="note-heading">Actor-Critic</h2>
+<h2 id="actor-critic" class="note-heading note-heading--h2">Actor-Critic</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>角色</th><th>网络</th><th>作用</th></tr></thead><tbody><tr><td><strong>Actor</strong></td><td><span class="note-math-inline" data-math-inline="\pi_\theta"></span></td><td>按优势改进策略</td></tr><tr><td><strong>Critic</strong></td><td><span class="note-math-inline" data-math-inline="V_\phi"></span> 或 <span class="note-math-inline" data-math-inline="Q_\phi"></span></td><td>估计回报 / 优势</td></tr></tbody></table></div>
 <p class="note-paragraph">两种结构：</p>
 <ol class="note-list">
@@ -130,21 +130,21 @@ G_t=\sum_{k=0}^{T-t-1}\gamma^k r_{t+k+1}."></div>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="a2c--a3c-与同离策略要点" class="note-heading">A2C / A3C 与同离策略要点</h2>
+<h2 id="a2c--a3c-与同离策略要点" class="note-heading note-heading--h2">A2C / A3C 与同离策略要点</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>算法</th><th>要点</th></tr></thead><tbody><tr><td><strong>A2C</strong></td><td>同步多环境采集，用 <span class="note-math-inline" data-math-inline="A=r+\gamma V(s&#x27;)-V(s)"></span> 更新</td></tr><tr><td><strong>A3C</strong></td><td>异步多 worker，提高吞吐</td></tr><tr><td>改进批量</td><td>Critic 用当前策略重采样动作，缓解离策略偏差</td></tr><tr><td>自然策略梯度</td><td>用 KL / Fisher 约束策略更新步长（TRPO 前身思想）</td></tr></tbody></table></div>
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="与-dqnlec05对照" class="note-heading">与 DQN（Lec05）对照</h2>
+<h2 id="与-dqnlec05对照" class="note-heading note-heading--h2">与 DQN（Lec05）对照</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>维度</th><th>DQN</th><th>Actor-Critic</th></tr></thead><tbody><tr><td>优化对象</td><td><span class="note-math-inline" data-math-inline="Q_\omega(s,a)"></span></td><td><span class="note-math-inline" data-math-inline="\pi_\theta,\ V_\phi"></span></td></tr><tr><td>探索</td><td><span class="note-math-inline" data-math-inline="\varepsilon"></span>-greedy</td><td>策略分布 + 熵正则</td></tr><tr><td>动作</td><td>离散贪心</td><td>采样 / 连续高斯均可</td></tr><tr><td>更新数据</td><td>离策略 replay</td><td>同策略轨迹（经典 AC）</td></tr><tr><td>方差</td><td>目标网络+replay 稳住</td><td>Advantage / GAE 降低</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>一句话</strong>：值方法学「状态-动作有多好」；策略梯度直接学「该怎么做」；Actor-Critic 用 Critic 给 Actor 当低方差的打分器。</p>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="衔接实验与下一讲" class="note-heading">衔接实验与下一讲</h2>
+<h2 id="衔接实验与下一讲" class="note-heading note-heading--h2">衔接实验与下一讲</h2>
 <p class="note-paragraph">实践见 <a href="短学期_LecExp06.html">LecExp06</a>：Monte Carlo AC（<span class="note-math-inline" data-math-inline="A_t=G_t-V(s_t)"></span>）于 CartPole + Atari Freeway / Pong。</p>
 <p class="note-paragraph">下一讲 <a href="短学期_Lec07.html">Lec07</a>：在策略梯度基础上约束更新幅度（TRPO / PPO），并介绍 DDPG 与 SAC。</p>
-</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#回顾与定位">回顾与定位</a></li><li class="note-toc-item note-toc-item--h2"><a href="#为什么要策略梯度">为什么要策略梯度</a></li><li class="note-toc-item note-toc-item--h2"><a href="#目标函数">目标函数</a></li><li class="note-toc-item note-toc-item--h2"><a href="#策略梯度定理与-reinforce">策略梯度定理与 REINFORCE</a></li><li class="note-toc-item note-toc-item--h2"><a href="#actor-critic">Actor-Critic</a></li><li class="note-toc-item note-toc-item--h2"><a href="#a2c--a3c-与同离策略要点">A2C / A3C 与同离策略要点</a></li><li class="note-toc-item note-toc-item--h2"><a href="#与-dqnlec05对照">与 DQN（Lec05）对照</a></li><li class="note-toc-item note-toc-item--h2"><a href="#衔接实验与下一讲">衔接实验与下一讲</a></li></ol></aside></div>
+</section>
       </div>
     </article>
 

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="MuJoCo Warp 人型机器人平地行走——观测/动作空间、并行仿真与 Gymnasium 接口速查">
   <title>短学期 LecExp04 · 课程笔记 · 鼠窝</title>
-    <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
   <link rel="stylesheet" href="../../../css/style.css">
@@ -55,9 +55,9 @@
         <p class="note-description">MuJoCo Warp 人型机器人平地行走——观测/动作空间、并行仿真与 Gymnasium 接口速查</p>
       </header>
       <div class="note-body note-body--optimized content-body">
-        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+        <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="实验目标" class="note-heading">实验目标</h2>
+<h2 id="实验目标" class="note-heading note-heading--h2">实验目标</h2>
 <p class="note-paragraph">完成 <strong>MuJoCo Warp</strong> 环境下<strong>人型机器人平地行走</strong>实验，理解：</p>
 <ol class="note-list">
 <li>人型模型相对 CartPole 的<strong>高维观测与连续动作</strong></li>
@@ -69,7 +69,7 @@
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="环境准备" class="note-heading">环境准备</h2>
+<h2 id="环境准备" class="note-heading note-heading--h2">环境准备</h2>
 <p class="note-paragraph">与 LecExp01 相同依赖：</p>
 <pre class="note-code-block"><code class="language-bash">conda activate rl-course
 pip install mujoco mujoco-warp warp-lang gymnasium Pillow matplotlib numpy notebook
@@ -78,9 +78,9 @@ pip install mujoco mujoco-warp warp-lang gymnasium Pillow matplotlib numpy noteb
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="方案-agymnasium-humanoid快速理解任务" class="note-heading">方案 A：Gymnasium Humanoid（快速理解任务）</h2>
+<h2 id="方案-agymnasium-humanoid快速理解任务" class="note-heading note-heading--h2">方案 A：Gymnasium Humanoid（快速理解任务）</h2>
 <p class="note-paragraph">Gymnasium 内置 <code>Humanoid-v4</code> / <code>Humanoid-v5</code>（MuJoCo 后端），适合先理解<strong>观测维数、动作范围、奖励逻辑</strong>。</p>
-<h3 id="创建与单步" class="note-heading">创建与单步</h3>
+<h3 id="创建与单步" class="note-heading note-heading--h3">创建与单步</h3>
 <pre class="note-code-block"><code class="language-python">import gymnasium as gym
 
 ENV_ID = &quot;Humanoid-v4&quot;   # 或 Humanoid-v5
@@ -95,9 +95,9 @@ obs, reward, terminated, truncated, info = env.step(action)
 done = terminated or truncated
 env.close()
 </code></pre>
-<h3 id="观测与动作典型" class="note-heading">观测与动作（典型）</h3>
+<h3 id="观测与动作典型" class="note-heading note-heading--h3">观测与动作（典型）</h3>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>项目</th><th>Humanoid-v4 典型值</th><th>含义</th></tr></thead><tbody><tr><td>观测维数</td><td>376</td><td>关节角/速、质心、接触等拼接</td></tr><tr><td>动作维数</td><td>17</td><td>各关节力矩（连续）</td></tr><tr><td>奖励</td><td>向前速度 + 存活 − 控制代价</td><td>鼓励平地向前走</td></tr><tr><td>终止</td><td>躯干过低 / 非法状态</td><td>跌倒</td></tr></tbody></table></div>
-<h3 id="随机策略基线" class="note-heading">随机策略基线</h3>
+<h3 id="随机策略基线" class="note-heading note-heading--h3">随机策略基线</h3>
 <pre class="note-code-block"><code class="language-python">def run_humanoid_episode(seed=0, max_steps=1000):
     env = gym.make(ENV_ID)
     obs, info = env.reset(seed=seed)
@@ -118,9 +118,9 @@ print(&quot;mean return:&quot;, sum(returns) / len(returns))
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="方案-bmujoco-warp-并行实验课核心" class="note-heading">方案 B：MuJoCo Warp 并行（实验课核心）</h2>
+<h2 id="方案-bmujoco-warp-并行实验课核心" class="note-heading note-heading--h2">方案 B：MuJoCo Warp 并行（实验课核心）</h2>
 <p class="note-paragraph">将 LecExp01 的 CartPole 流程推广到人型：<strong>同一模型，GPU 上跑 `nworld` 个并行环境</strong>。</p>
-<h3 id="加载人型模型" class="note-heading">加载人型模型</h3>
+<h3 id="加载人型模型" class="note-heading note-heading--h3">加载人型模型</h3>
 <pre class="note-code-block"><code class="language-python">import mujoco
 import numpy as np
 import warp as wp
@@ -142,12 +142,12 @@ mjm = env_tmp.unwrapped.model
 mjd = env_tmp.unwrapped.data
 env_tmp.close()
 </code></pre>
-<h3 id="创建并行数据" class="note-heading">创建并行数据</h3>
+<h3 id="创建并行数据" class="note-heading note-heading--h3">创建并行数据</h3>
 <pre class="note-code-block"><code class="language-python">NWORLD = 256   # 人型自由度多，nworld 可比 CartPole 小
 m = mjwarp.put_model(mjm)
 d = mjwarp.put_data(mjm, mjd, nworld=NWORLD)
 </code></pre>
-<h3 id="随机初始姿态--控制" class="note-heading">随机初始姿态 + 控制</h3>
+<h3 id="随机初始姿态--控制" class="note-heading note-heading--h3">随机初始姿态 + 控制</h3>
 <pre class="note-code-block"><code class="language-python"># qpos: (nworld, nq)，人型 nq 远大于 CartPole
 qpos_np = d.qpos.numpy().copy()
 # 在默认站立姿态附近加小扰动（具体索引依模型而定，实验课 notebook 会标注）
@@ -158,7 +158,7 @@ d.qpos = wp.array(qpos_np, dtype=wp.float32)
 ctrl_np = np.random.uniform(-0.5, 0.5, size=(NWORLD, mjm.nu)).astype(np.float32)
 d.ctrl = wp.array(ctrl_np, dtype=wp.float32)
 </code></pre>
-<h3 id="推进仿真" class="note-heading">推进仿真</h3>
+<h3 id="推进仿真" class="note-heading note-heading--h3">推进仿真</h3>
 <pre class="note-code-block"><code class="language-python">N_STEP = 500
 root_z = []   # 记录躯干高度，观察是否跌倒
 
@@ -177,31 +177,31 @@ print(&quot;final root z mean:&quot;, d.qpos.numpy()[:, 2].mean())
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="行走任务与-rl-要点对照-lec04" class="note-heading">行走任务与 RL 要点（对照 Lec04）</h2>
-<h3 id="奖励设计概念" class="note-heading">奖励设计（概念）</h3>
+<h2 id="行走任务与-rl-要点对照-lec04" class="note-heading note-heading--h2">行走任务与 RL 要点（对照 Lec04）</h2>
+<h3 id="奖励设计概念" class="note-heading note-heading--h3">奖励设计（概念）</h3>
 <p class="note-paragraph">平地行走常用<strong>加性奖励</strong>：</p>
 <div class="note-math-block" data-math-display="r_t = w_v \cdot v_x + w_h \cdot \mathbb{1}[\text{upright}] - w_c \|\mathbf{a}_t\|^2 - w_{\text{fall}}"></div>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>项</th><th>作用</th></tr></thead><tbody><tr><td><span class="note-math-inline" data-math-inline="v_x"></span></td><td>鼓励向前</td></tr><tr><td>直立项</td><td>惩罚躯干过度倾斜</td></tr><tr><td>控制代价</td><td>力矩平滑、节能</td></tr><tr><td>跌倒惩罚</td><td>终止或大负奖励</td></tr></tbody></table></div>
-<h3 id="与课堂方法对应" class="note-heading">与课堂方法对应</h3>
+<h3 id="与课堂方法对应" class="note-heading note-heading--h3">与课堂方法对应</h3>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>Lec04 方法</th><th>本实验可观察的现象</th></tr></thead><tbody><tr><td>PPO + 并行采样</td><td><code>nworld</code> 越大，单位时间样本越多</td></tr><tr><td>域随机化</td><td>随机初始 <code>qpos</code>、摩擦即简化版 DR</td></tr><tr><td>教师–学生</td><td>实验若提供预训练策略，对比随机 / 学生策略回报</td></tr><tr><td>Sim2Real</td><td>本实验仅在 Sim；真机需另做部署</td></tr></tbody></table></div>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="实验记录清单" class="note-heading">实验记录清单</h2>
+<h2 id="实验记录清单" class="note-heading note-heading--h2">实验记录清单</h2>
 <p class="note-paragraph">完成实验后建议记录：</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>项目</th><th>你的结果</th></tr></thead><tbody><tr><td>GPU 型号</td><td></td></tr><tr><td><code>nworld</code></td><td></td></tr><tr><td>steps/sec</td><td></td></tr><tr><td>随机策略平均回报 / 存活步数</td><td></td></tr><tr><td>预训练策略（若有）平均回报</td><td></td></tr><tr><td>跌倒时根节点高度阈值</td><td></td></tr></tbody></table></div>
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="常见问题" class="note-heading">常见问题</h2>
+<h2 id="常见问题" class="note-heading note-heading--h2">常见问题</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>现象</th><th>可能原因</th><th>处理</th></tr></thead><tbody><tr><td><code>wp.init()</code> 失败</td><td>无 CUDA</td><td>确认 NVIDIA 驱动与 CUDA</td></tr><tr><td>吞吐量很低</td><td><code>nworld</code> 过大 / 未 warmup</td><td>先 warmup 5 轮再计时</td></tr><tr><td>人型瞬间倒地</td><td>随机力矩过大</td><td>缩小 <code>ctrl</code> 范围</td></tr><tr><td><code>qpos</code> 索引不对</td><td>模型与 CartPole 不同</td><td>对照实验 notebook 或 <code>mjm.jnt_names</code></td></tr></tbody></table></div>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="与-lecexp01-api-对照复习" class="note-heading">与 LecExp01 API 对照（复习）</h2>
+<h2 id="与-lecexp01-api-对照复习" class="note-heading note-heading--h2">与 LecExp01 API 对照（复习）</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>操作</th><th>CartPole</th><th>人型</th></tr></thead><tbody><tr><td>创建并行</td><td><code>put_data(..., nworld=1024)</code></td><td>同左，<code>nworld</code> 适当减小</td></tr><tr><td>重置</td><td>改 <code>d.qpos</code>, <code>d.qvel</code></td><td>站立姿态 + 小噪声</td></tr><tr><td>控制</td><td><code>d.ctrl</code> 1 维力</td><td><code>d.ctrl</code> 17 维力矩</td></tr><tr><td>同步</td><td><code>wp.synchronize()</code></td><td>同左</td></tr><tr><td>评估</td><td>杆角是否发散</td><td>根高度、前向位移</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>下一步</strong>：在仿真中用 PPO 训练行走策略（Isaac Gym / 课程后续脚本），或加载教师策略观察稳定步态，再对照 Lec04 的 Sim2Real 管线。</p>
-</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#实验目标">实验目标</a></li><li class="note-toc-item note-toc-item--h2"><a href="#环境准备">环境准备</a></li><li class="note-toc-item note-toc-item--h2"><a href="#方案-agymnasium-humanoid快速理解任务">方案 A：Gymnasium Humanoid（快速理解任务）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#创建与单步">创建与单步</a></li><li class="note-toc-item note-toc-item--h3"><a href="#观测与动作典型">观测与动作（典型）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#随机策略基线">随机策略基线</a></li><li class="note-toc-item note-toc-item--h2"><a href="#方案-bmujoco-warp-并行实验课核心">方案 B：MuJoCo Warp 并行（实验课核心）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#加载人型模型">加载人型模型</a></li><li class="note-toc-item note-toc-item--h3"><a href="#创建并行数据">创建并行数据</a></li><li class="note-toc-item note-toc-item--h3"><a href="#随机初始姿态--控制">随机初始姿态 + 控制</a></li><li class="note-toc-item note-toc-item--h3"><a href="#推进仿真">推进仿真</a></li><li class="note-toc-item note-toc-item--h2"><a href="#行走任务与-rl-要点对照-lec04">行走任务与 RL 要点（对照 Lec04）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#奖励设计概念">奖励设计（概念）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#与课堂方法对应">与课堂方法对应</a></li><li class="note-toc-item note-toc-item--h2"><a href="#实验记录清单">实验记录清单</a></li><li class="note-toc-item note-toc-item--h2"><a href="#常见问题">常见问题</a></li><li class="note-toc-item note-toc-item--h2"><a href="#与-lecexp01-api-对照复习">与 LecExp01 API 对照（复习）</a></li></ol></aside></div>
+</section>
       </div>
     </article>
 

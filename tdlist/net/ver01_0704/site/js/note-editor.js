@@ -601,6 +601,10 @@ function renderPreview() {
     typesetMathIn(previewEl);
     if (previewWrap) previewWrap.scrollTop = savedScrollTop;
   });
+  void import("./note-network-map.js").then(({ initNoteNetworkMaps }) => {
+    initNoteNetworkMaps(previewEl);
+    if (previewWrap) previewWrap.scrollTop = savedScrollTop;
+  });
 }
 
 function updateDocPath() {

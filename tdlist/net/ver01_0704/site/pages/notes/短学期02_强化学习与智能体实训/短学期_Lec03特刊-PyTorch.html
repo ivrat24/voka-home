@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="深度学习 PyTorch 全栈实操手册——张量、Autograd、数据、模型、训练、评估、正则化、CNN/LSTM 与 RL 模板">
   <title>短学期 Lec03 特刊-PyTorch · 课程笔记 · 鼠窝</title>
-    <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
   <link rel="stylesheet" href="../../../css/style.css">
@@ -55,13 +55,13 @@
         <p class="note-description">深度学习 PyTorch 全栈实操手册——张量、Autograd、数据、模型、训练、评估、正则化、CNN/LSTM 与 RL 模板</p>
       </header>
       <div class="note-body note-body--optimized content-body">
-        <div class="note-layout-with-toc"><div class="note-layout-main"><section class="note-module">
+        <section class="note-module">
 <p class="note-paragraph">理论背景见 <a href="pages/notes/短学期02_强化学习与智能体实训/短学期_Lec03.html">短学期 Lec03</a>。本文档按<strong>实际写代码的顺序</strong>组织，覆盖深度学习课程中几乎会用到的全部 PyTorch 操作。</p>
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="1-张量基础" class="note-heading">1. 张量基础</h2>
-<h3 id="创建dtype-与形状" class="note-heading">创建、dtype 与形状</h3>
+<h2 id="1-张量基础" class="note-heading note-heading--h2">1. 张量基础</h2>
+<h3 id="创建dtype-与形状" class="note-heading note-heading--h3">创建、dtype 与形状</h3>
 <pre class="note-code-block"><code class="language-python">import torch
 
 x = torch.tensor([1.0, 2.0, 3.0, 4.0], dtype=torch.float32)
@@ -77,14 +77,14 @@ X.device         # cpu 或 cuda:0
 X.numel()        # 元素总数 128
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>操作</th><th>代码</th><th>说明</th></tr></thead><tbody><tr><td>reshape</td><td><code>X.view(8, 16)</code> 或 <code>X.reshape(8, 16)</code></td><td>改变形状，元素总数不变</td></tr><tr><td>升/降维</td><td><code>x.unsqueeze(0)</code> / <code>x.squeeze(0)</code></td><td><code>(4,)</code> ↔ <code>(1,4)</code></td></tr><tr><td>转置</td><td><code>X.T</code> 或 <code>X.transpose(0, 1)</code></td><td>矩阵转置</td></tr><tr><td>拼接</td><td><code>torch.cat([a,b], dim=0)</code></td><td>沿 dim 拼接</td></tr><tr><td>堆叠</td><td><code>torch.stack([a,b], dim=0)</code></td><td>新建维度</td></tr><tr><td>逐元素</td><td><code>a * b</code>, <code>a + b</code>, <code>torch.exp(a)</code></td><td>广播机制</td></tr><tr><td>矩阵乘</td><td><code>A @ B</code>, <code>torch.matmul(A,B)</code></td><td>Linear 层核心</td></tr><tr><td>索引</td><td><code>X[0]</code>, <code>X[:, 1]</code>, <code>X[mask]</code></td><td>与 numpy 类似</td></tr></tbody></table></div>
-<h3 id="numpy-互转" class="note-heading">numpy 互转</h3>
+<h3 id="numpy-互转" class="note-heading note-heading--h3">numpy 互转</h3>
 <pre class="note-code-block"><code class="language-python">import numpy as np
 
 arr = np.array([1., 2., 3., 4.], dtype=np.float32)
 t = torch.from_numpy(arr)           # 共享内存，改一个另一个也变
 arr2 = t.detach().cpu().numpy()     # 推理/保存时用 detach
 </code></pre>
-<h3 id="设备cpu--gpu" class="note-heading">设备（CPU / GPU）</h3>
+<h3 id="设备cpu--gpu" class="note-heading note-heading--h3">设备（CPU / GPU）</h3>
 <pre class="note-code-block"><code class="language-python">device = torch.device(&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;)
 x = x.to(device)
 model = model.to(device)
@@ -92,7 +92,7 @@ model = model.to(device)
 # 多 GPU（了解即可）
 # model = nn.DataParallel(model)
 </code></pre>
-<h3 id="随机种子可复现" class="note-heading">随机种子（可复现）</h3>
+<h3 id="随机种子可复现" class="note-heading note-heading--h3">随机种子（可复现）</h3>
 <pre class="note-code-block"><code class="language-python">import random
 random.seed(42)
 np.random.seed(42)
@@ -100,7 +100,7 @@ torch.manual_seed(42)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(42)
 </code></pre>
-<h2 id="2-自动微分autograd" class="note-heading">2. 自动微分（Autograd）</h2>
+<h2 id="2-自动微分autograd" class="note-heading note-heading--h2">2. 自动微分（Autograd）</h2>
 <p class="note-paragraph">PyTorch 用<strong>计算图</strong>自动求梯度，对应 Lec03 反向传播。</p>
 <pre class="note-code-block"><code class="language-python">x = torch.tensor(2.0, requires_grad=True)
 w = torch.tensor(0.5, requires_grad=True)
@@ -114,8 +114,8 @@ print(w.grad, b.grad)   # ∂loss/∂w, ∂loss/∂b
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>PyTorch</th><th>说明</th></tr></thead><tbody><tr><td>叶子张量</td><td><code>requires_grad=True</code></td><td>通常是参数或输入</td></tr><tr><td>梯度</td><td><code>.grad</code></td><td><code>backward()</code> 后可用</td></tr><tr><td>清梯度</td><td><code>optimizer.zero_grad()</code> 或 <code>p.grad.zero_()</code></td><td>每步训练前必须</td></tr><tr><td>禁止梯度</td><td><code>with torch.no_grad():</code></td><td>验证 / 推理</td></tr><tr><td>分离</td><td><code>x.detach()</code></td><td>截断计算图，不参与反传</td></tr><tr><td>关闭梯度</td><td><code>@torch.inference_mode()</code></td><td>比 no_grad 更快</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>注意</strong>：对非标量 <code>loss</code> 调用 <code>backward()</code> 需传 <code>gradient</code> 参数；训练时 loss 通常是标量（<code>.mean()</code> / <code>.sum()</code>）。</p>
-<h2 id="3-数据管道" class="note-heading">3. 数据管道</h2>
-<h3 id="tensordataset--dataloader" class="note-heading">TensorDataset + DataLoader</h3>
+<h2 id="3-数据管道" class="note-heading note-heading--h2">3. 数据管道</h2>
+<h3 id="tensordataset--dataloader" class="note-heading note-heading--h3">TensorDataset + DataLoader</h3>
 <pre class="note-code-block"><code class="language-python">from torch.utils.data import TensorDataset, DataLoader, random_split
 
 X = torch.randn(1000, 4)
@@ -132,7 +132,7 @@ for x_batch, y_batch in train_loader:
     pass
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>DataLoader 参数</th><th>含义</th></tr></thead><tbody><tr><td><code>batch_size</code></td><td>每批样本数</td></tr><tr><td><code>shuffle=True</code></td><td>训练集每 epoch 打乱</td></tr><tr><td><code>drop_last=True</code></td><td>丢弃最后不足一批的数据</td></tr><tr><td><code>num_workers=4</code></td><td>多进程加载（Windows 有时设 0）</td></tr><tr><td><code>pin_memory=True</code></td><td>GPU 训练时加速 host→device 拷贝</td></tr></tbody></table></div>
-<h3 id="自定义-dataset" class="note-heading">自定义 Dataset</h3>
+<h3 id="自定义-dataset" class="note-heading note-heading--h3">自定义 Dataset</h3>
 <pre class="note-code-block"><code class="language-python">from torch.utils.data import Dataset
 
 class ReplayBufferDataset(Dataset):
@@ -150,7 +150,7 @@ class ReplayBufferDataset(Dataset):
         return (self.states[idx], self.actions[idx],
                 self.rewards[idx], self.next_states[idx], self.dones[idx])
 </code></pre>
-<h3 id="图像-transformstorchvision" class="note-heading">图像 transforms（torchvision）</h3>
+<h3 id="图像-transformstorchvision" class="note-heading note-heading--h3">图像 transforms（torchvision）</h3>
 <pre class="note-code-block"><code class="language-python">from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
@@ -166,8 +166,8 @@ train_loader = DataLoader(train_ds, batch_size=128, shuffle=True, num_workers=2)
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="4-模型构建nnmodule" class="note-heading">4. 模型构建（nn.Module）</h2>
-<h3 id="常用层一览" class="note-heading">常用层一览</h3>
+<h2 id="4-模型构建nnmodule" class="note-heading note-heading--h2">4. 模型构建（nn.Module）</h2>
+<h3 id="常用层一览" class="note-heading note-heading--h3">常用层一览</h3>
 <pre class="note-code-block"><code class="language-python">import torch.nn as nn
 import torch.nn.functional as F
 
@@ -189,7 +189,7 @@ nn.GRU(4, 64, batch_first=True)
 nn.MultiheadAttention(64, 8)  # embed_dim, num_heads
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>层</th><th>输入形状示例</th><th>输出形状示例</th></tr></thead><tbody><tr><td><code>Linear(4,64)</code></td><td><code>(B, 4)</code></td><td><code>(B, 64)</code></td></tr><tr><td><code>Conv2d(3,32,3,p=1)</code></td><td><code>(B, 3, H, W)</code></td><td><code>(B, 32, H, W)</code></td></tr><tr><td><code>MaxPool2d(2)</code></td><td><code>(B, 32, H, W)</code></td><td><code>(B, 32, H/2, W/2)</code></td></tr><tr><td><code>LSTM(4,64,batch_first)</code></td><td><code>(B, T, 4)</code></td><td><code>(B, T, 64)</code></td></tr><tr><td><code>BatchNorm1d(64)</code></td><td><code>(B, 64)</code> 或 <code>(B,*,64)</code></td><td>同输入</td></tr></tbody></table></div>
-<h3 id="sequential-与自定义-module" class="note-heading">Sequential 与自定义 Module</h3>
+<h3 id="sequential-与自定义-module" class="note-heading note-heading--h3">Sequential 与自定义 Module</h3>
 <pre class="note-code-block"><code class="language-python">class MLPClassifier(nn.Module):
     def __init__(self, in_dim=4, hidden=128, n_classes=2):
         super().__init__()
@@ -209,7 +209,7 @@ model = MLPClassifier()
 logits = model(torch.randn(16, 4))   # (16, 2)
 </code></pre>
 <p class="note-paragraph"><strong>`forward` vs `F`</strong>：<code>nn.ReLU()</code> 是层模块；<code>F.relu(x)</code> 是函数式调用，无参数，常用于残差连接 <code>x + F.relu(x)</code>。</p>
-<h3 id="参数初始化" class="note-heading">参数初始化</h3>
+<h3 id="参数初始化" class="note-heading note-heading--h3">参数初始化</h3>
 <pre class="note-code-block"><code class="language-python">def init_weights(m):
     if isinstance(m, nn.Linear):
         nn.init.xavier_uniform_(m.weight)
@@ -218,13 +218,13 @@ logits = model(torch.randn(16, 4))   # (16, 2)
 model.apply(init_weights)
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>初始化</th><th>API</th><th>适用</th></tr></thead><tbody><tr><td>Xavier</td><td><code>nn.init.xavier_uniform_</code></td><td>Sigmoid/Tanh</td></tr><tr><td>Kaiming</td><td><code>nn.init.kaiming_uniform_</code></td><td>ReLU</td></tr><tr><td>零偏置</td><td><code>nn.init.zeros_(bias)</code></td><td>常用默认</td></tr></tbody></table></div>
-<h3 id="查看模型" class="note-heading">查看模型</h3>
+<h3 id="查看模型" class="note-heading note-heading--h3">查看模型</h3>
 <pre class="note-code-block"><code class="language-python">print(model)
 sum(p.numel() for p in model.parameters())           # 总参数量
 sum(p.numel() for p in model.parameters() if p.requires_grad)  # 可训练
 list(model.named_parameters())[:2]
 </code></pre>
-<h2 id="5-损失函数" class="note-heading">5. 损失函数</h2>
+<h2 id="5-损失函数" class="note-heading note-heading--h2">5. 损失函数</h2>
 <pre class="note-code-block"><code class="language-python">criterion_mse = nn.MSELoss()                    # 回归 / Q 值
 criterion_l1 = nn.L1Loss()                      # MAE
 criterion_huber = nn.SmoothL1Loss()             # Huber，DQN 常用
@@ -245,7 +245,7 @@ criterion_ce = nn.CrossEntropyLoss(weight=weights.to(device))
 # label smoothing（了解）
 criterion_ce = nn.CrossEntropyLoss(label_smoothing=0.1)
 </code></pre>
-<h2 id="6-优化器" class="note-heading">6. 优化器</h2>
+<h2 id="6-优化器" class="note-heading note-heading--h2">6. 优化器</h2>
 <pre class="note-code-block"><code class="language-python">import torch.optim as optim
 
 optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
@@ -254,7 +254,7 @@ optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
 # optimizer = optim.RMSprop(model.parameters(), lr=1e-3)
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>优化器</th><th>创建</th><th>特点</th></tr></thead><tbody><tr><td>SGD</td><td><code>SGD(..., momentum=0.9)</code></td><td>大 batch / 微调</td></tr><tr><td>SGD+Nesterov</td><td><code>SGD(..., momentum=0.9, nesterov=True)</code></td><td>加速收敛</td></tr><tr><td>Adam</td><td><code>Adam(..., lr=1e-3)</code></td><td><strong>默认首选</strong></td></tr><tr><td>AdamW</td><td><code>AdamW(..., weight_decay=1e-2)</code></td><td>解耦 weight decay</td></tr><tr><td>RMSprop</td><td><code>RMSprop(...)</code></td><td>RNN / DQN 有时用</td></tr></tbody></table></div>
-<h3 id="学习率调度器" class="note-heading">学习率调度器</h3>
+<h3 id="学习率调度器" class="note-heading note-heading--h3">学习率调度器</h3>
 <pre class="note-code-block"><code class="language-python">scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
 # 每个 epoch 末尾:
 scheduler.step()
@@ -266,12 +266,12 @@ scheduler.step(val_loss)
 # 余弦退火
 scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
 </code></pre>
-<h3 id="梯度裁剪rnn--rl-常用" class="note-heading">梯度裁剪（RNN / RL 常用）</h3>
+<h3 id="梯度裁剪rnn--rl-常用" class="note-heading note-heading--h3">梯度裁剪（RNN / RL 常用）</h3>
 <pre class="note-code-block"><code class="language-python">loss.backward()
 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 optimizer.step()
 </code></pre>
-<h3 id="只优化部分参数" class="note-heading">只优化部分参数</h3>
+<h3 id="只优化部分参数" class="note-heading note-heading--h3">只优化部分参数</h3>
 <pre class="note-code-block"><code class="language-python">optimizer = optim.Adam([
     {&quot;params&quot;: model.backbone.parameters(), &quot;lr&quot;: 1e-4},
     {&quot;params&quot;: model.head.parameters(), &quot;lr&quot;: 1e-3},
@@ -280,7 +280,7 @@ optimizer.step()
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="7-完整训练循环监督学习模板" class="note-heading">7. 完整训练循环（监督学习模板）</h2>
+<h2 id="7-完整训练循环监督学习模板" class="note-heading note-heading--h2">7. 完整训练循环（监督学习模板）</h2>
 <pre class="note-code-block"><code class="language-python">device = torch.device(&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;)
 model = MLPClassifier().to(device)
 criterion = nn.CrossEntropyLoss()
@@ -342,11 +342,11 @@ for epoch in range(1, num_epochs + 1):
 
 model.load_state_dict(torch.load(&quot;best_model.pt&quot;, map_location=device))
 </code></pre>
-<h3 id="train--eval-模式差异" class="note-heading">train / eval 模式差异</h3>
+<h3 id="train--eval-模式差异" class="note-heading note-heading--h3">train / eval 模式差异</h3>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>调用</th><th>Dropout</th><th>BatchNorm</th></tr></thead><tbody><tr><td><code>model.train()</code></td><td>生效</td><td>用当前 batch 统计</td></tr><tr><td><code>model.eval()</code></td><td>关闭</td><td>用 running mean/var</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>RL 注意</strong>：DQN 训练时 target network 应 <code>target_net.eval()</code> 且 <code>torch.no_grad()</code> 算 TD target。</p>
-<h2 id="8-评估与指标" class="note-heading">8. 评估与指标</h2>
-<h3 id="分类" class="note-heading">分类</h3>
+<h2 id="8-评估与指标" class="note-heading note-heading--h2">8. 评估与指标</h2>
+<h3 id="分类" class="note-heading note-heading--h3">分类</h3>
 <pre class="note-code-block"><code class="language-python">model.eval()
 all_preds, all_labels = [], []
 with torch.no_grad():
@@ -361,18 +361,18 @@ labels = torch.cat(all_labels)
 accuracy = (preds == labels).float().mean().item()
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>指标</th><th>PyTorch / sklearn</th><th>说明</th></tr></thead><tbody><tr><td>Accuracy</td><td><code>(pred==y).mean()</code></td><td>整体正确率</td></tr><tr><td>Precision/Recall/F1</td><td><code>sklearn.metrics</code></td><td>分类详细指标</td></tr><tr><td>Top-k</td><td><code>logits.topk(k, dim=1)</code></td><td>多分类</td></tr></tbody></table></div>
-<h3 id="回归" class="note-heading">回归</h3>
+<h3 id="回归" class="note-heading note-heading--h3">回归</h3>
 <pre class="note-code-block"><code class="language-python">mse = nn.MSELoss()(pred, target).item()
 mae = nn.L1Loss()(pred, target).item()
 rmse = mse ** 0.5
 # R² 可用 sklearn.metrics.r2_score
 </code></pre>
-<h3 id="混淆矩阵sklearn" class="note-heading">混淆矩阵（sklearn）</h3>
+<h3 id="混淆矩阵sklearn" class="note-heading note-heading--h3">混淆矩阵（sklearn）</h3>
 <pre class="note-code-block"><code class="language-python">from sklearn.metrics import confusion_matrix, classification_report
 print(confusion_matrix(labels, preds))
 print(classification_report(labels, preds))
 </code></pre>
-<h2 id="9-正则化与防过拟合" class="note-heading">9. 正则化与防过拟合</h2>
+<h2 id="9-正则化与防过拟合" class="note-heading note-heading--h2">9. 正则化与防过拟合</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>方法</th><th>PyTorch 实现</th><th>说明</th></tr></thead><tbody><tr><td>L2 正则</td><td><code>optim.Adam(..., weight_decay=1e-4)</code></td><td>权重衰减</td></tr><tr><td>Dropout</td><td><code>nn.Dropout(0.5)</code> + <code>model.eval()</code></td><td>测试时关闭</td></tr><tr><td>BatchNorm</td><td><code>nn.BatchNorm1d/2d</code></td><td>稳定训练</td></tr><tr><td>早停</td><td>监控 <code>val_loss</code></td><td>见 §7 模板</td></tr><tr><td>数据增强</td><td><code>transforms.Random*</code></td><td>图像任务</td></tr><tr><td>更小模型</td><td>减少 <code>hidden</code> / 层数</td><td>结构正则</td></tr></tbody></table></div>
 <pre class="note-code-block"><code class="language-python"># Dropout 正确用法
 model.train()   # 训练：Dropout 生效
@@ -380,7 +380,7 @@ model.eval()    # 测试：Dropout 关闭
 
 # 手动 L2：loss = ce_loss + 1e-4 * sum(p.pow(2).sum() for p in model.parameters())
 </code></pre>
-<h2 id="10-保存与加载" class="note-heading">10. 保存与加载</h2>
+<h2 id="10-保存与加载" class="note-heading note-heading--h2">10. 保存与加载</h2>
 <pre class="note-code-block"><code class="language-python"># 只存权重（推荐）
 torch.save(model.state_dict(), &quot;model.pt&quot;)
 model.load_state_dict(torch.load(&quot;model.pt&quot;, map_location=device))
@@ -403,7 +403,7 @@ optimizer.load_state_dict(ckpt[&quot;optimizer_state_dict&quot;])
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="11-cnn-模板" class="note-heading">11. CNN 模板</h2>
+<h2 id="11-cnn-模板" class="note-heading note-heading--h2">11. CNN 模板</h2>
 <pre class="note-code-block"><code class="language-python">class SimpleCNN(nn.Module):
     def __init__(self, n_classes=10):
         super().__init__()
@@ -425,7 +425,7 @@ optimizer.load_state_dict(ckpt[&quot;optimizer_state_dict&quot;])
 
 # 输入 x: (B, 3, 32, 32) → logits (B, n_classes)
 </code></pre>
-<h3 id="atari-dqn-风格" class="note-heading">Atari DQN 风格</h3>
+<h3 id="atari-dqn-风格" class="note-heading note-heading--h3">Atari DQN 风格</h3>
 <pre class="note-code-block"><code class="language-python">class AtariQNet(nn.Module):
     def __init__(self, n_actions=4):
         super().__init__()
@@ -443,7 +443,7 @@ optimizer.load_state_dict(ckpt[&quot;optimizer_state_dict&quot;])
     def forward(self, x):
         return self.head(self.conv(x))   # x: (B, 4, 84, 84)
 </code></pre>
-<h2 id="12-rnn--lstm--gru" class="note-heading">12. RNN / LSTM / GRU</h2>
+<h2 id="12-rnn--lstm--gru" class="note-heading note-heading--h2">12. RNN / LSTM / GRU</h2>
 <pre class="note-code-block"><code class="language-python">lstm = nn.LSTM(input_size=4, hidden_size=64, num_layers=2,
                batch_first=True, dropout=0.2)   # num_layers&gt;1 时 dropout 生效
 gru = nn.GRU(4, 64, batch_first=True)
@@ -462,7 +462,7 @@ q_values = nn.Linear(64, 2)(h_n[-1]) # 用最后时刻 → Q(s,·)
 packed = pack_padded_sequence(x, lengths, batch_first=True, enforce_sorted=False)
 out_packed, (h, c) = lstm(packed)
 </code></pre>
-<h2 id="13-混合精度与性能了解" class="note-heading">13. 混合精度与性能（了解）</h2>
+<h2 id="13-混合精度与性能了解" class="note-heading note-heading--h2">13. 混合精度与性能（了解）</h2>
 <pre class="note-code-block"><code class="language-python"># AMP：GPU 上加速训练
 scaler = torch.cuda.amp.GradScaler()
 with torch.cuda.amp.autocast():
@@ -474,8 +474,8 @@ scaler.update()
 optimizer.zero_grad()
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>技巧</th><th>代码</th></tr></thead><tbody><tr><td>固定内存</td><td><code>DataLoader(..., pin_memory=True)</code></td></tr><tr><td>非阻塞拷贝</td><td><code>x.to(device, non_blocking=True)</code></td></tr><tr><td>推理加速</td><td><code>@torch.inference_mode()</code></td></tr><tr><td>算子 benchmark</td><td><code>torch.backends.cudnn.benchmark = True</code></td></tr></tbody></table></div>
-<h2 id="14-rl-专用模板" class="note-heading">14. RL 专用模板</h2>
-<h3 id="q-网络" class="note-heading">Q 网络</h3>
+<h2 id="14-rl-专用模板" class="note-heading note-heading--h2">14. RL 专用模板</h2>
+<h3 id="q-网络" class="note-heading note-heading--h3">Q 网络</h3>
 <pre class="note-code-block"><code class="language-python">class QNet(nn.Module):
     def __init__(self, state_dim=4, n_actions=2, hidden=128):
         super().__init__()
@@ -487,7 +487,7 @@ optimizer.zero_grad()
     def forward(self, x):
         return self.net(x)
 </code></pre>
-<h3 id="dqn-单步更新" class="note-heading">DQN 单步更新</h3>
+<h3 id="dqn-单步更新" class="note-heading note-heading--h3">DQN 单步更新</h3>
 <pre class="note-code-block"><code class="language-python">def dqn_update(online_net, target_net, optimizer, batch, gamma=0.99, device=&quot;cpu&quot;):
     s, a, r, s2, done = batch
     s, a, r, s2, done = [t.to(device) for t in (s, a, r, s2, done)]
@@ -503,7 +503,7 @@ optimizer.zero_grad()
     optimizer.step()
     return loss.item()
 </code></pre>
-<h3 id="贪心评估" class="note-heading">贪心评估</h3>
+<h3 id="贪心评估" class="note-heading note-heading--h3">贪心评估</h3>
 <pre class="note-code-block"><code class="language-python">def evaluate_q(q_net, env, n_episodes=50, seed=0, device=&quot;cpu&quot;):
     q_net.eval()
     returns = []
@@ -521,7 +521,7 @@ optimizer.zero_grad()
         returns.append(total_r)
     return float(np.mean(returns)), float(np.std(returns))
 </code></pre>
-<h3 id="策略网络softmax-输出" class="note-heading">策略网络（Softmax 输出）</h3>
+<h3 id="策略网络softmax-输出" class="note-heading note-heading--h3">策略网络（Softmax 输出）</h3>
 <pre class="note-code-block"><code class="language-python">class PolicyNet(nn.Module):
     def __init__(self, state_dim=4, n_actions=2, hidden=64):
         super().__init__()
@@ -537,9 +537,9 @@ dist = torch.distributions.Categorical(probs)
 action = dist.sample()
 log_prob = dist.log_prob(action)   # 策略梯度用
 </code></pre>
-<h2 id="15-常见问题速查" class="note-heading">15. 常见问题速查</h2>
+<h2 id="15-常见问题速查" class="note-heading note-heading--h2">15. 常见问题速查</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>现象</th><th>原因</th><th>解决</th></tr></thead><tbody><tr><td>loss 不变</td><td>忘 <code>zero_grad</code> / lr 太小</td><td>检查优化器步骤</td></tr><tr><td>loss NaN</td><td>lr 太大 / 梯度爆炸</td><td>降 lr、<code>clip_grad_norm_</code></td></tr><tr><td>验证比训练好</td><td>Dropout/BN 模式错</td><td>验证前 <code>model.eval()</code></td></tr><tr><td>CE 报错</td><td>标签 float / 形状错</td><td><code>y.long()</code>，形状 <code>(B,)</code></td></tr><tr><td>CUDA OOM</td><td>batch 太大</td><td>减小 batch / 梯度累积</td></tr><tr><td>加载权重报错</td><td>结构不一致</td><td>确保同一 <code>nn.Module</code> 定义</td></tr></tbody></table></div>
-<h3 id="梯度累积大-batch-模拟" class="note-heading">梯度累积（大 batch 模拟）</h3>
+<h3 id="梯度累积大-batch-模拟" class="note-heading note-heading--h3">梯度累积（大 batch 模拟）</h3>
 <pre class="note-code-block"><code class="language-python">accum_steps = 4
 for i, (x, y) in enumerate(train_loader):
     loss = criterion(model(x.to(device)), y.to(device)) / accum_steps
@@ -548,15 +548,15 @@ for i, (x, y) in enumerate(train_loader):
         optimizer.step()
         optimizer.zero_grad()
 </code></pre>
-<h3 id="冻结--解冻层" class="note-heading">冻结 / 解冻层</h3>
+<h3 id="冻结--解冻层" class="note-heading note-heading--h3">冻结 / 解冻层</h3>
 <pre class="note-code-block"><code class="language-python">for p in model.backbone.parameters():
     p.requires_grad = False    # 冻结特征提取器
 # 只训练 head
 optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-3)
 </code></pre>
-<h2 id="16-与-lec03-概念对照" class="note-heading">16. 与 Lec03 概念对照</h2>
+<h2 id="16-与-lec03-概念对照" class="note-heading note-heading--h2">16. 与 Lec03 概念对照</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>Lec03 概念</th><th>PyTorch 对应</th></tr></thead><tbody><tr><td>线性层</td><td><code>nn.Linear</code></td></tr><tr><td>激活函数</td><td><code>nn.ReLU</code>, <code>F.softmax</code></td></tr><tr><td>前向传播</td><td><code>logits = model(x)</code></td></tr><tr><td>反向传播</td><td><code>loss.backward()</code></td></tr><tr><td>SGD / Momentum / Adam</td><td><code>optim.SGD</code>, <code>optim.Adam</code></td></tr><tr><td>MSE / CE</td><td><code>MSELoss</code>, <code>CrossEntropyLoss</code></td></tr><tr><td>L2 正则</td><td><code>weight_decay</code></td></tr><tr><td>Dropout</td><td><code>nn.Dropout</code> + <code>model.eval()</code></td></tr><tr><td>早停</td><td>监控 val_loss</td></tr><tr><td>BatchNorm</td><td><code>nn.BatchNorm1d/2d</code></td></tr><tr><td>学习曲线</td><td>记录 train/val loss</td></tr><tr><td>过拟合</td><td>val_loss 上升 → 早停/正则</td></tr><tr><td>CNN / LSTM</td><td><code>nn.Conv2d</code>, <code>nn.LSTM</code></td></tr><tr><td>DQN Q 网络</td><td><code>QNet</code> + TD target + target net</td></tr><tr><td>RL 评估</td><td>纯贪心 <code>argmax</code>，不用 ε-greedy</td></tr></tbody></table></div>
-</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#1-张量基础">1. 张量基础</a></li><li class="note-toc-item note-toc-item--h3"><a href="#创建dtype-与形状">创建、dtype 与形状</a></li><li class="note-toc-item note-toc-item--h3"><a href="#numpy-互转">numpy 互转</a></li><li class="note-toc-item note-toc-item--h3"><a href="#设备cpu--gpu">设备（CPU / GPU）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#随机种子可复现">随机种子（可复现）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#2-自动微分autograd">2. 自动微分（Autograd）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#3-数据管道">3. 数据管道</a></li><li class="note-toc-item note-toc-item--h3"><a href="#tensordataset--dataloader">TensorDataset + DataLoader</a></li><li class="note-toc-item note-toc-item--h3"><a href="#自定义-dataset">自定义 Dataset</a></li><li class="note-toc-item note-toc-item--h3"><a href="#图像-transformstorchvision">图像 transforms（torchvision）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#4-模型构建nnmodule">4. 模型构建（nn.Module）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#常用层一览">常用层一览</a></li><li class="note-toc-item note-toc-item--h3"><a href="#sequential-与自定义-module">Sequential 与自定义 Module</a></li><li class="note-toc-item note-toc-item--h3"><a href="#参数初始化">参数初始化</a></li><li class="note-toc-item note-toc-item--h3"><a href="#查看模型">查看模型</a></li><li class="note-toc-item note-toc-item--h2"><a href="#5-损失函数">5. 损失函数</a></li><li class="note-toc-item note-toc-item--h2"><a href="#6-优化器">6. 优化器</a></li><li class="note-toc-item note-toc-item--h3"><a href="#学习率调度器">学习率调度器</a></li><li class="note-toc-item note-toc-item--h3"><a href="#梯度裁剪rnn--rl-常用">梯度裁剪（RNN / RL 常用）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#只优化部分参数">只优化部分参数</a></li><li class="note-toc-item note-toc-item--h2"><a href="#7-完整训练循环监督学习模板">7. 完整训练循环（监督学习模板）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#train--eval-模式差异">train / eval 模式差异</a></li><li class="note-toc-item note-toc-item--h2"><a href="#8-评估与指标">8. 评估与指标</a></li><li class="note-toc-item note-toc-item--h3"><a href="#分类">分类</a></li><li class="note-toc-item note-toc-item--h3"><a href="#回归">回归</a></li><li class="note-toc-item note-toc-item--h3"><a href="#混淆矩阵sklearn">混淆矩阵（sklearn）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#9-正则化与防过拟合">9. 正则化与防过拟合</a></li><li class="note-toc-item note-toc-item--h2"><a href="#10-保存与加载">10. 保存与加载</a></li><li class="note-toc-item note-toc-item--h2"><a href="#11-cnn-模板">11. CNN 模板</a></li><li class="note-toc-item note-toc-item--h3"><a href="#atari-dqn-风格">Atari DQN 风格</a></li><li class="note-toc-item note-toc-item--h2"><a href="#12-rnn--lstm--gru">12. RNN / LSTM / GRU</a></li><li class="note-toc-item note-toc-item--h2"><a href="#13-混合精度与性能了解">13. 混合精度与性能（了解）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#14-rl-专用模板">14. RL 专用模板</a></li><li class="note-toc-item note-toc-item--h3"><a href="#q-网络">Q 网络</a></li><li class="note-toc-item note-toc-item--h3"><a href="#dqn-单步更新">DQN 单步更新</a></li><li class="note-toc-item note-toc-item--h3"><a href="#贪心评估">贪心评估</a></li><li class="note-toc-item note-toc-item--h3"><a href="#策略网络softmax-输出">策略网络（Softmax 输出）</a></li><li class="note-toc-item note-toc-item--h2"><a href="#15-常见问题速查">15. 常见问题速查</a></li><li class="note-toc-item note-toc-item--h3"><a href="#梯度累积大-batch-模拟">梯度累积（大 batch 模拟）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#冻结--解冻层">冻结 / 解冻层</a></li><li class="note-toc-item note-toc-item--h2"><a href="#16-与-lec03-概念对照">16. 与 Lec03 概念对照</a></li></ol></aside></div>
+</section>
       </div>
     </article>
 

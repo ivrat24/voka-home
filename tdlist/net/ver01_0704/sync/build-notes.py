@@ -179,9 +179,9 @@ def annotate_note_body_html(body_html: str) -> str:
         count = slug_counts.get(base, 0)
         slug_counts[base] = count + 1
         hid = base if count == 0 else f"{base}-{count + 1}"
-        return f'<h{level} id="{html.escape(hid)}" class="note-heading">{text}</h{level}>'
+        return f'<h{level} id="{html.escape(hid)}" class="note-heading note-heading--h{level}">{text}</h{level}>'
 
-    body_html = re.sub(r"<h([2-6])>([^<]+)</h\1>", heading_repl, body_html)
+    body_html = re.sub(r"<h([1-6])>([^<]+)</h\1>", heading_repl, body_html)
     body_html = body_html.replace("<p>", '<p class="note-paragraph">')
     body_html = body_html.replace("<ul>", '<ul class="note-list">')
     body_html = body_html.replace("<ol>", '<ol class="note-list">')
@@ -208,6 +208,396 @@ def wrap_note_page_layout(body_html: str, min_headings: int = 2) -> str:
 def render_optimized_note_html(md: str) -> str:
     body = annotate_note_body_html(markdown_to_html(optimize_note_markdown(md)))
     return wrap_note_page_layout(body)
+
+
+def parse_network_map_source(body: str) -> dict:
+    """Parse ```network fence into {title, id, defaultView, views:{local,global}}."""
+    meta: dict[str, str] = {"title": "网络图", "id": "", "default": "local"}
+    views: dict[str, dict] = {}
+    current: str | None = None
+    nodes: list[dict] = []
+    edges: list[dict] = []
+    focus: list[str] = []
+
+    def flush() -> None:
+        nonlocal nodes, edges, focus
+        if not current:
+            return
+        views[current] = {
+            "nodes": nodes,
+            "edges": edges,
+            "focus": focus,
+        }
+        nodes, edges, focus = [], [], []
+
+    for raw in body.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        section = re.match(r"^\[(local|global)\]$", line, re.I)
+        if section:
+            flush()
+            current = section.group(1).lower()
+            continue
+        if current is None and "=" in line and not re.search(r"[>→]", line):
+            key, _, val = line.partition("=")
+            key = key.strip().lower()
+            val = val.strip()
+            if key in {"title", "id", "default", "defaultview"}:
+                meta["default" if key == "defaultview" else key] = val
+            continue
+        if current is None:
+            # allow omitting [local] when only one view
+            current = "local"
+        edge = re.match(r"^([\w\-.]+)\s*(?:->|>|→)\s*([\w\-.]+)(?:\|(.*))?$", line)
+        if edge:
+            edges.append(
+                {
+                    "from": edge.group(1),
+                    "to": edge.group(2),
+                    "label": (edge.group(3) or "").strip(),
+                }
+            )
+            continue
+        if line.lower().startswith("focus:"):
+            focus = [p.strip() for p in line.split(":", 1)[1].split(",") if p.strip()]
+            continue
+        node = re.match(r"^([\w\-.]+)(?:\|([^|]*))?(?:\|([\w\-]*))?$", line)
+        if node:
+            nodes.append(
+                {
+                    "id": node.group(1),
+                    "label": (node.group(2) or node.group(1)).strip(),
+                    "role": (node.group(3) or "default").strip() or "default",
+                }
+            )
+    flush()
+    if not views:
+        return {}
+    return {
+        "title": meta.get("title") or "网络图",
+        "id": meta.get("id") or "",
+        "defaultView": (meta.get("default") or "local").lower(),
+        "views": views,
+    }
+
+
+def _layout_network_nodes(nodes: list[dict], edges: list[dict], width: float, height: float) -> dict[str, dict[str, float]]:
+    ids = [n["id"] for n in nodes]
+    indeg = {i: 0 for i in ids}
+    outs: dict[str, list[str]] = {i: [] for i in ids}
+    for e in edges:
+        if e["to"] in indeg:
+            indeg[e["to"]] += 1
+        if e["from"] in outs:
+            outs[e["from"]].append(e["to"])
+
+    layers: list[list[str]] = []
+    placed: set[str] = set()
+    frontier = [i for i in ids if indeg[i] == 0] or list(ids)
+    while len(placed) < len(ids):
+        layer = [i for i in frontier if i not in placed]
+        if not layer:
+            rest = [i for i in ids if i not in placed]
+            if not rest:
+                break
+            layers.append(rest)
+            placed.update(rest)
+            break
+        layers.append(layer)
+        placed.update(layer)
+        nxt: list[str] = []
+        for i in layer:
+            for to in outs.get(i, []):
+                if to not in placed and to not in nxt:
+                    nxt.append(to)
+        frontier = nxt or [i for i in ids if i not in placed]
+
+    pad_x, pad_y = 56.0, 48.0
+    positions: dict[str, dict[str, float]] = {}
+    col_w = width / 2 if len(layers) <= 1 else (width - pad_x * 2) / max(len(layers) - 1, 1)
+    for li, layer in enumerate(layers):
+        x = width / 2 if len(layers) == 1 else pad_x + li * col_w
+        row_h = height / 2 if len(layer) <= 1 else (height - pad_y * 2) / max(len(layer) - 1, 1)
+        for ni, nid in enumerate(layer):
+            y = height / 2 if len(layer) == 1 else pad_y + ni * row_h
+            positions[nid] = {"x": x, "y": y}
+    return positions
+
+
+_ROLE_STROKE = {
+    "host": "#60a5fa",
+    "cpe": "#38bdf8",
+    "access": "#34d399",
+    "edge": "#fbbf24",
+    "core": "#a78bfa",
+    "peer": "#f472b6",
+    "default": "#94a3b8",
+}
+
+
+def _render_network_view_svg(view: dict, *, mode: str, title: str) -> str:
+    nodes = view.get("nodes") or []
+    edges = view.get("edges") or []
+    focus = set(view.get("focus") or [])
+    width = 920 if mode == "global" else 640
+    height = max(220, 72 + max(len(nodes), 3) * 42)
+    positions = _layout_network_nodes(nodes, edges, width, height)
+
+    edge_svg = []
+    for e in edges:
+        a = positions.get(e["from"])
+        b = positions.get(e["to"])
+        if not a or not b:
+            continue
+        muted = focus and e["from"] not in focus and e["to"] not in focus
+        cls = "nmap-edge is-muted" if muted else "nmap-edge"
+        edge_svg.append(
+            f'<line class="{cls}" x1="{a["x"]:.1f}" y1="{a["y"]:.1f}" x2="{b["x"]:.1f}" y2="{b["y"]:.1f}" />'
+        )
+
+    node_svg = []
+    for n in nodes:
+        p = positions.get(n["id"], {"x": width / 2, "y": height / 2})
+        role = n.get("role") or "default"
+        color = _ROLE_STROKE.get(role, _ROLE_STROKE["default"])
+        focused = (not focus) or n["id"] in focus
+        label = n.get("label") or n["id"]
+        tw = min(160, max(72, len(label) * 12 + 24))
+        cls = "nmap-node is-focus" if focused else "nmap-node is-muted"
+        node_svg.append(
+            f'<g class="{cls}" data-node-id="{html.escape(n["id"], quote=True)}" '
+            f'transform="translate({p["x"]:.1f}, {p["y"]:.1f})">'
+            f'<rect x="{-tw/2:.1f}" y="-18" width="{tw:.1f}" height="36" rx="12" '
+            f'fill="{color}" fill-opacity="0.18" stroke="{color}" stroke-width="1.6" />'
+            f'<text text-anchor="middle" dominant-baseline="middle" class="nmap-label">'
+            f'{html.escape(label)}</text></g>'
+        )
+
+    return (
+        f'<svg class="note-network-map__canvas" viewBox="0 0 {width} {height}" width="100%" height="100%" '
+        f'role="img" aria-label="{html.escape(title, quote=True)}">'
+        f'{"".join(edge_svg)}{"".join(node_svg)}</svg>'
+    )
+
+
+def render_network_map_html(body: str) -> str:
+    data = parse_network_map_source(body)
+    if not data or not data.get("views"):
+        return (
+            f'<figure class="note-diagram note-diagram--fallback">'
+            f'<div class="note-diagram-title">网络图（解析失败）</div>'
+            f'<pre class="note-code-block"><code>{html.escape(body.strip())}</code></pre></figure>'
+        )
+
+    default_view = data.get("defaultView") or "local"
+    if default_view not in data["views"]:
+        default_view = "local" if "local" in data["views"] else next(iter(data["views"]))
+    view = data["views"][default_view]
+    svg = _render_network_view_svg(view, mode=default_view, title=data["title"])
+    # Keep JSON safe inside <script> (avoid breaking on </script>)
+    payload = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
+    map_id = html.escape(data.get("id") or "", quote=True)
+    return (
+        f'<figure class="note-network-map" data-network-map data-default-view="{html.escape(default_view, quote=True)}" '
+        f'data-map-id="{map_id}">'
+        f'<div class="note-network-map__toolbar" aria-hidden="true">'
+        f'<div class="note-network-map__heading"><span class="note-network-map__kicker">Network Map</span>'
+        f'<strong class="note-network-map__title">{html.escape(data["title"])}</strong></div>'
+        f'<div class="note-network-map__actions"><span class="muted">加载交互控件…</span></div></div>'
+        f'<div class="note-network-map__viewport" data-view="{html.escape(default_view, quote=True)}">'
+        f'<div class="note-network-map__stage">{svg}</div></div>'
+        f'<script type="application/json" class="note-network-map__data">{payload}</script>'
+        f"</figure>"
+    )
+
+
+def looks_like_diagram(code_lang: str, body: str) -> bool:
+    lang = (code_lang or "").strip().lower()
+    if lang in {"diagram", "flow", "ascii"}:
+        return True
+    if lang not in {"", "text", "txt", "plain"}:
+        return False
+    sample = body.strip()
+    if not sample:
+        return False
+    markers = ("→", "▼", "│", "──", "├", "└", "↔", "=>", "->")
+    hits = sum(1 for m in markers if m in sample)
+    lines = [ln for ln in sample.splitlines() if ln.strip()]
+    return hits >= 1 and len(lines) >= 2
+
+
+def _diagram_step_class(label: str, index: int, total: int) -> str:
+    text = label.lower()
+    classes = ["note-flow-step"]
+    if any(k in text for k in ("核心", "core", "ip 云", "ip云", "骨干")):
+        classes.append("note-flow-step--core")
+    elif any(k in text for k in ("接入", "ran", "bras", "边缘", "access", "olt", "onu")):
+        classes.append("note-flow-step--accent")
+    elif index == 0 or index == total - 1:
+        classes.append("note-flow-step--accent")
+    return " ".join(classes)
+
+
+def _render_flow_steps(steps: list[str], labels: list[str] | None = None) -> str:
+    if not steps:
+        return ""
+    labels = labels or [""] * len(steps)
+    parts: list[str] = ['<div class="note-flow" role="list">']
+    for i, step in enumerate(steps):
+        cls = _diagram_step_class(step, i, len(steps))
+        parts.append(f'<div class="{cls}" role="listitem">{html.escape(step)}</div>')
+        if i < len(steps) - 1:
+            label = (labels[i] if i < len(labels) else "") or ""
+            label_html = (
+                f'<span class="note-flow-arrow-label">{html.escape(label)}</span>' if label else ""
+            )
+            parts.append(
+                '<div class="note-flow-arrow" aria-hidden="true">'
+                '<span class="note-flow-arrow-line"></span>'
+                '<span class="note-flow-arrow-head">▼</span>'
+                f"{label_html}"
+                "</div>"
+            )
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def _parse_diagram_lines(body: str) -> tuple[str, list[str]]:
+    lines = [ln.rstrip() for ln in body.replace("\r\n", "\n").replace("\r", "\n").split("\n")]
+    mode = "auto"
+    content: list[str] = []
+    for ln in lines:
+        stripped = ln.strip()
+        if not content and stripped.lower() in {"flow", "tree", "split", "auto"}:
+            mode = stripped.lower()
+            continue
+        content.append(ln)
+    while content and not content[0].strip():
+        content.pop(0)
+    while content and not content[-1].strip():
+        content.pop()
+    return mode, content
+
+
+def render_note_diagram_html(code_lang: str, body: str) -> str:
+    mode, raw_lines = _parse_diagram_lines(body)
+    lang = (code_lang or "").strip().lower()
+    if lang == "flow":
+        mode = "flow"
+    elif lang == "tree":
+        mode = "tree"
+
+    # Explicit flow: one node per non-empty line; "label|node" optional
+    if mode == "flow" or (
+        mode == "auto"
+        and all(
+            ("→" in ln or "->" in ln or not any(ch in ln for ch in "│├└╲"))
+            for ln in raw_lines
+            if ln.strip()
+        )
+        and sum(1 for ln in raw_lines if ln.strip()) >= 2
+    ):
+        steps: list[str] = []
+        edge_labels: list[str] = []
+        for ln in raw_lines:
+            s = ln.strip()
+            if not s:
+                continue
+            s = re.sub(r"^[→\-\s▼│]+", "", s).strip()
+            s = s.strip("[]")
+            if "|" in s and not s.startswith("http"):
+                left, right = s.split("|", 1)
+                if steps:
+                    edge_labels[-1] = left.strip()
+                    steps.append(right.strip())
+                    edge_labels.append("")
+                else:
+                    steps.append(right.strip() or left.strip())
+                    edge_labels.append("")
+            else:
+                steps.append(s)
+                edge_labels.append("")
+        # Collapse accidental empties
+        steps = [st for st in steps if st]
+        if len(steps) >= 2:
+            inner = _render_flow_steps(steps, edge_labels)
+            return f'<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div>{inner}</figure>'
+
+    # Tree: first non-empty = root; remaining lines (or ├── style) = children
+    if mode == "tree" or any(x in body for x in ("├", "└", "┬")):
+        root = ""
+        children: list[str] = []
+        for ln in raw_lines:
+            s = ln.strip()
+            if not s:
+                continue
+            if any(m in ln for m in ("├", "└", "┬")):
+                child = re.sub(r"^[─\s│├└┬───]+", "", s)
+                child = re.sub(r"^──\s*", "", child).strip(" ·.…")
+                if child:
+                    children.append(child)
+            elif "──" in s and ("分光" in s or "OLT" in s or s.count("──") >= 2):
+                parts = [p.strip() for p in re.split(r"─{2,}", s) if p.strip()]
+                cleaned = []
+                for p in parts:
+                    p = re.sub(r"^[┬├└│\s]+", "", p).strip()
+                    if p and p not in {"…", "..."}:
+                        cleaned.append(p)
+                if cleaned:
+                    root = cleaned[0]
+                    children.extend(cleaned[1:])
+            elif not root:
+                root = re.sub(r"^[\[\]\s]+|[\[\]\s]+$", "", s)
+            else:
+                children.append(re.sub(r"^[\[\]\s]+|[\[\]\s]+$", "", s))
+        if root and children:
+            kids = "".join(
+                f'<div class="{_diagram_step_class(c, i, len(children))}">{html.escape(c)}</div>'
+                for i, c in enumerate(children)
+            )
+            return (
+                f'<figure class="note-diagram note-diagram--tree">'
+                f'<div class="note-diagram-title">结构示意</div>'
+                f'<div class="note-tree">'
+                f'<div class="{_diagram_step_class(root, 0, 1)} note-tree-root">{html.escape(root)}</div>'
+                f'<div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span>'
+                f'<span class="note-flow-arrow-head">▼</span></div>'
+                f'<div class="note-tree-branch">{kids}</div>'
+                f"</div></figure>"
+            )
+
+    # Generic vertical extraction: keep lines that look like nodes
+    steps = []
+    for ln in raw_lines:
+        s = ln.strip()
+        if not s:
+            continue
+        if set(s) <= set("│┼┤├└┌┐┘┴┬─═\\|/- "):
+            continue
+        if s.startswith("╲") or s.startswith("╱"):
+            continue
+        s = re.sub(r"^[│\s▼→\-─=]+", "", s)
+        s = re.sub(r"[│╲]+.*$", "", s).strip()
+        s = s.strip("[]= ")
+        if len(s) >= 2:
+            steps.append(s)
+    # de-dup consecutive
+    deduped: list[str] = []
+    for st in steps:
+        if not deduped or deduped[-1] != st:
+            deduped.append(st)
+    if len(deduped) >= 2:
+        inner = _render_flow_steps(deduped)
+        return f'<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">结构示意</div>{inner}</figure>'
+
+    # Fallback: readable pre
+    return (
+        f'<figure class="note-diagram note-diagram--fallback">'
+        f'<div class="note-diagram-title">示意</div>'
+        f'<pre class="note-code-block note-diagram-pre"><code>{html.escape(body.strip())}</code></pre>'
+        f"</figure>"
+    )
 
 
 def math_block_placeholder(latex: str) -> str:
@@ -368,12 +758,16 @@ def markdown_to_html(md: str) -> str:
         if not in_code:
             return
         open_module()
+        body = "\n".join(code_lines)
         if code_lang in ("math", "latex"):
-            out.append(math_block_placeholder("\n".join(code_lines)))
+            out.append(math_block_placeholder(body))
+        elif code_lang.strip().lower() in {"network", "netmap", "nmap"}:
+            out.append(render_network_map_html(body))
+        elif looks_like_diagram(code_lang, body):
+            out.append(render_note_diagram_html(code_lang, body))
         else:
             lang_class = f' class="language-{html.escape(code_lang)}"' if code_lang else ""
-            body = html.escape("\n".join(code_lines))
-            out.append(f"<pre><code{lang_class}>{body}</code></pre>")
+            out.append(f"<pre><code{lang_class}>{html.escape(body)}</code></pre>")
         in_code = False
         code_lines = []
         code_lang = ""
@@ -595,6 +989,8 @@ def collect_materials() -> list[dict]:
             continue
         for path in sorted(mat_dir.iterdir()):
             if not path.is_file():
+                continue
+            if path.name.startswith(".") or path.name == ".gitkeep":
                 continue
             rel = f"note_content/{course_dir.name}/{MATERIALS_DIR_NAME}/{path.name}"
             materials.append(

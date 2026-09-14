@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="加州房价 MLP 回归——数据探索、标准化、MSE 训练与 RMSE/MAE/R² 评估速查">
   <title>短学期 LecExp03 · 课程笔记 · 鼠窝</title>
-    <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
   <link rel="stylesheet" href="../../../css/style.css">
@@ -55,12 +55,12 @@
         <p class="note-description">加州房价 MLP 回归——数据探索、标准化、MSE 训练与 RMSE/MAE/R² 评估速查</p>
       </header>
       <div class="note-body note-body--optimized content-body">
-        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+        <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="california-housing数据加载" class="note-heading">California Housing：数据加载</h2>
+<h2 id="california-housing数据加载" class="note-heading note-heading--h2">California Housing：数据加载</h2>
 <p class="note-paragraph"><strong>加州房价数据集</strong>（1990 年美国人口普查）：<strong>20640 个街区</strong>，<strong>8 个特征</strong>，预测街区房价中位数（单位：<strong>10 万美元</strong>）。</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>特征</th><th>含义</th></tr></thead><tbody><tr><td>MedInc</td><td>街区收入中位数</td></tr><tr><td>HouseAge</td><td>房屋年龄中位数</td></tr><tr><td>AveRooms</td><td>平均房间数</td></tr><tr><td>AveBedrms</td><td>平均卧室数</td></tr><tr><td>Population</td><td>街区人口</td></tr><tr><td>AveOccup</td><td>平均入住率</td></tr><tr><td>Latitude</td><td>纬度</td></tr><tr><td>Longitude</td><td>经度</td></tr></tbody></table></div>
-<h3 id="加载与预处理" class="note-heading">加载与预处理</h3>
+<h3 id="加载与预处理" class="note-heading note-heading--h3">加载与预处理</h3>
 <pre class="note-code-block"><code class="language-python">from sklearn.datasets import fetch_california_housing
 from sklearn.model_selection import train_test_split
 
@@ -73,8 +73,8 @@ X, y = X[mask], y[mask]                # 剔除 992 个 → 19648 样本
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>统计量</th><th>值（预处理后）</th></tr></thead><tbody><tr><td>样本数</td><td>19648</td></tr><tr><td>特征数</td><td>8</td></tr><tr><td>房价范围</td><td>0.15 ~ 4.99（10 万美元）</td></tr><tr><td>均值 / 中位数</td><td>1.92 / 1.74</td></tr><tr><td>最正相关特征</td><td><strong>MedInc</strong>（<span class="note-math-inline" data-math-inline="r \approx 0.647"></span>）</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>回归 vs 分类</strong>：目标 <span class="note-math-inline" data-math-inline="y"></span> 是<strong>连续值</strong>，不是离散类别。</p>
-<h2 id="划分数据集与特征标准化" class="note-heading">划分数据集与特征标准化</h2>
-<h3 id="82-训练--测试划分" class="note-heading">8:2 训练 / 测试划分</h3>
+<h2 id="划分数据集与特征标准化" class="note-heading note-heading--h2">划分数据集与特征标准化</h2>
+<h3 id="82-训练--测试划分" class="note-heading note-heading--h3">8:2 训练 / 测试划分</h3>
 <pre class="note-code-block"><code class="language-python">SEED = 2026
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=SEED
@@ -82,7 +82,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # 训练集 15718，测试集 3930
 </code></pre>
 <p class="note-paragraph">测试集<strong>全程只在最后评估</strong>时使用。</p>
-<h3 id="标准化防数据泄漏" class="note-heading">标准化（防数据泄漏）</h3>
+<h3 id="标准化防数据泄漏" class="note-heading note-heading--h3">标准化（防数据泄漏）</h3>
 <div class="note-math-block" data-math-display="x&#x27; = \frac{x - \mu}{\sigma}"></div>
 <p class="note-paragraph"><strong></strong><span class="note-math-inline" data-math-inline="\mu, \sigma"></span> 只能用训练集统计**，再用同一组变换测试集。</p>
 <pre class="note-code-block"><code class="language-python">mu = X_train.mean(axis=0)
@@ -93,7 +93,7 @@ X_test = (X_test - mu) / sigma
 # 标准化后训练集各特征均值≈0，标准差≈1
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>要点</th><th>说明</th></tr></thead><tbody><tr><td>为何标准化</td><td><code>Population</code> 上千、<code>AveBedrms</code> 约 1，量纲差异大 → 大特征主导梯度</td></tr><tr><td>数据泄漏</td><td>若用<strong>全体数据</strong>算 <span class="note-math-inline" data-math-inline="\mu,\sigma"></span>，测试集信息泄露 → R² 虚高</td></tr><tr><td>不做标准化</td><td>MSE 往往更大、收敛更慢</td></tr></tbody></table></div>
-<h3 id="转张量与-dataloader" class="note-heading">转张量与 DataLoader</h3>
+<h3 id="转张量与-dataloader" class="note-heading note-heading--h3">转张量与 DataLoader</h3>
 <pre class="note-code-block"><code class="language-python">import torch
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -109,7 +109,7 @@ test_loader = DataLoader(TensorDataset(X_test_t, y_test_t), batch_size=64, shuff
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="mlp-回归网络" class="note-heading">MLP 回归网络</h2>
+<h2 id="mlp-回归网络" class="note-heading note-heading--h2">MLP 回归网络</h2>
 <p class="note-paragraph">若干层 <code>Linear + ReLU</code>，输出层<strong>单个连续值、无激活</strong>。</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>层</th><th>操作</th><th>输入 → 输出</th></tr></thead><tbody><tr><td>fc1</td><td>Linear(8→64) + ReLU</td><td>8 → 64</td></tr><tr><td>fc2</td><td>Linear(64→32) + ReLU</td><td>64 → 32</td></tr><tr><td>fc3</td><td>Linear(32→1)</td><td>32 → <strong>1</strong>（房价预测）</td></tr></tbody></table></div>
 <pre class="note-code-block"><code class="language-python">import torch.nn as nn
@@ -130,13 +130,13 @@ model = MLPRegressor(in_features=8)
 # 总参数量: 2,689
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>对比</th><th>分类</th><th>回归</th></tr></thead><tbody><tr><td>输出层</td><td>K 个 logits</td><td><strong>1 个值</strong></td></tr><tr><td>输出激活</td><td>无（CE 内含 Softmax）</td><td><strong>无</strong></td></tr><tr><td>损失</td><td>CrossEntropyLoss</td><td><strong>MSELoss</strong></td></tr></tbody></table></div>
-<h2 id="损失优化与训练循环" class="note-heading">损失、优化与训练循环</h2>
-<h3 id="mse-损失" class="note-heading">MSE 损失</h3>
+<h2 id="损失优化与训练循环" class="note-heading note-heading--h2">损失、优化与训练循环</h2>
+<h3 id="mse-损失" class="note-heading note-heading--h3">MSE 损失</h3>
 <div class="note-math-block" data-math-display="\mathcal{L}_{\text{MSE}} = \frac{1}{N}\sum_{i=1}^{N}(\hat{y}_i - y_i)^2"></div>
 <pre class="note-code-block"><code class="language-python">criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 </code></pre>
-<h3 id="训练五步" class="note-heading">训练五步</h3>
+<h3 id="训练五步" class="note-heading note-heading--h3">训练五步</h3>
 <pre class="note-code-block"><code class="language-text">1. 前向传播：  preds = model(features)
 2. 计算损失：  loss  = criterion(preds, targets)
 3. 梯度清零：  optimizer.zero_grad()
@@ -173,10 +173,10 @@ for epoch in range(1, EPOCHS + 1):
     train_mse = train_one_epoch(model, train_loader, criterion, optimizer, device)
     test_mse = evaluate(model, test_loader, criterion, device)
 </code></pre>
-<h2 id="评估与可视化" class="note-heading">评估与可视化</h2>
-<h3 id="训练曲线" class="note-heading">训练曲线</h3>
+<h2 id="评估与可视化" class="note-heading note-heading--h2">评估与可视化</h2>
+<h3 id="训练曲线" class="note-heading note-heading--h3">训练曲线</h3>
 <p class="note-paragraph">记录 <code>train_mse</code> / <code>test_mse</code> 随 epoch 变化；二者均应下降。</p>
-<h3 id="回归指标测试集30-epoch-后" class="note-heading">回归指标（测试集，30 epoch 后）</h3>
+<h3 id="回归指标测试集30-epoch-后" class="note-heading note-heading--h3">回归指标（测试集，30 epoch 后）</h3>
 <pre class="note-code-block"><code class="language-python">model.eval()
 preds_all, targets_all = [], []
 with torch.no_grad():
@@ -193,12 +193,12 @@ r2 = 1 - np.sum((targets_all - preds_all)**2) / np.sum((targets_all - targets_al
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>指标</th><th>公式</th><th>实验结果</th></tr></thead><tbody><tr><td><strong>RMSE</strong></td><td><span class="note-math-inline" data-math-inline="\sqrt{\text{MSE}}"></span></td><td><strong>0.4908</strong></td></tr><tr><td><strong>MAE</strong></td><td><span class="note-math-inline" data-math-inline="\frac{1}{N}\sum\|\hat{y}-y\|"></span></td><td><strong>0.3343</strong></td></tr><tr><td><strong>R²</strong></td><td><span class="note-math-inline" data-math-inline="1 - \frac{SS_{\text{res}}}{SS_{\text{tot}}}"></span></td><td><strong>0.7393</strong></td></tr></tbody></table></div>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>Epoch</th><th>train MSE (RMSE)</th><th>test MSE (RMSE)</th></tr></thead><tbody><tr><td>1</td><td>0.9416 (0.9703)</td><td>0.4041 (0.6357)</td></tr><tr><td>30</td><td>0.2286 (0.4781)</td><td><strong>0.2409 (0.4908)</strong></td></tr></tbody></table></div>
-<h3 id="预测散点图" class="note-heading">预测散点图</h3>
+<h3 id="预测散点图" class="note-heading note-heading--h3">预测散点图</h3>
 <p class="note-paragraph"><code>plt.scatter(真实, 预测)</code> + 对角线 <span class="note-math-inline" data-math-inline="y=x"></span>（完美预测）。R²≈0.74 表示模型解释了约 74% 的房价方差。</p>
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="实验要点" class="note-heading">实验要点</h2>
+<h2 id="实验要点" class="note-heading note-heading--h2">实验要点</h2>
 <p class="note-paragraph"><strong>训练过程观察：</strong></p>
 <ul class="note-list">
 <li>MSE 从 epoch 1 的 ~0.94 降至 epoch 30 的 ~0.23（train）/ ~0.24（test）</li>
@@ -210,9 +210,9 @@ r2 = 1 - np.sum((targets_all - preds_all)**2) / np.sum((targets_all - targets_al
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="回归-vs-分类对照" class="note-heading">回归 vs 分类对照</h2>
+<h2 id="回归-vs-分类对照" class="note-heading note-heading--h2">回归 vs 分类对照</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th></th><th>分类（如 MNIST）</th><th>回归（本实验）</th></tr></thead><tbody><tr><td>目标</td><td>离散类别 0~9</td><td>连续房价</td></tr><tr><td>模型</td><td>CNN</td><td><strong>MLP</strong></td></tr><tr><td>输出层</td><td>K 个 logits</td><td><strong>1 个值，无激活</strong></td></tr><tr><td>损失</td><td>交叉熵</td><td><strong>MSE</strong></td></tr><tr><td>评估</td><td>Accuracy、混淆矩阵</td><td><strong>RMSE、MAE、R²、散点图</strong></td></tr><tr><td>训练五步</td><td>相同</td><td>相同</td></tr></tbody></table></div>
-<h2 id="操作对照本实验流程" class="note-heading">操作对照（本实验流程）</h2>
+<h2 id="操作对照本实验流程" class="note-heading note-heading--h2">操作对照（本实验流程）</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>步骤</th><th>操作</th><th>代码要点</th></tr></thead><tbody><tr><td>加载</td><td><code>fetch_california_housing()</code></td><td>剔除 <code>y &gt;= 5.0</code></td></tr><tr><td>划分</td><td><code>train_test_split(..., 0.2)</code></td><td>先划分再标准化</td></tr><tr><td>标准化</td><td><code>(X - mu) / sigma</code></td><td>mu/sigma <strong>仅来自 train</strong></td></tr><tr><td>张量</td><td><code>FloatTensor</code>, <code>y.reshape(-1,1)</code></td><td>目标列向量</td></tr><tr><td>模型</td><td><code>MLPRegressor</code></td><td>最后 Linear(32→1) 无激活</td></tr><tr><td>训练</td><td>Adam + MSE，30 epoch</td><td><code>model.train()</code></td></tr><tr><td>评估</td><td>RMSE / MAE / R²</td><td><code>model.eval()</code> + <code>no_grad</code></td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>操作注意：</strong></p>
 <ul class="note-list">
@@ -229,7 +229,7 @@ r2 = 1 - np.sum((targets_all - preds_all)**2) / np.sum((targets_all - targets_al
 <li>输出层错误接 ReLU → 无法预测低值区域</li>
 <li>高价区间预测偏差大 → 与原始数据 5.0 截断有关</li>
 </ol>
-</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#california-housing数据加载">California Housing：数据加载</a></li><li class="note-toc-item note-toc-item--h3"><a href="#加载与预处理">加载与预处理</a></li><li class="note-toc-item note-toc-item--h2"><a href="#划分数据集与特征标准化">划分数据集与特征标准化</a></li><li class="note-toc-item note-toc-item--h3"><a href="#82-训练--测试划分">8:2 训练 / 测试划分</a></li><li class="note-toc-item note-toc-item--h3"><a href="#标准化防数据泄漏">标准化（防数据泄漏）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#转张量与-dataloader">转张量与 DataLoader</a></li><li class="note-toc-item note-toc-item--h2"><a href="#mlp-回归网络">MLP 回归网络</a></li><li class="note-toc-item note-toc-item--h2"><a href="#损失优化与训练循环">损失、优化与训练循环</a></li><li class="note-toc-item note-toc-item--h3"><a href="#mse-损失">MSE 损失</a></li><li class="note-toc-item note-toc-item--h3"><a href="#训练五步">训练五步</a></li><li class="note-toc-item note-toc-item--h2"><a href="#评估与可视化">评估与可视化</a></li><li class="note-toc-item note-toc-item--h3"><a href="#训练曲线">训练曲线</a></li><li class="note-toc-item note-toc-item--h3"><a href="#回归指标测试集30-epoch-后">回归指标（测试集，30 epoch 后）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#预测散点图">预测散点图</a></li><li class="note-toc-item note-toc-item--h2"><a href="#实验要点">实验要点</a></li><li class="note-toc-item note-toc-item--h2"><a href="#回归-vs-分类对照">回归 vs 分类对照</a></li><li class="note-toc-item note-toc-item--h2"><a href="#操作对照本实验流程">操作对照（本实验流程）</a></li></ol></aside></div>
+</section>
       </div>
     </article>
 

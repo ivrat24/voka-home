@@ -10,6 +10,230 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
+function looksLikeDiagram(codeLang, body) {
+  const lang = String(codeLang || "").trim().toLowerCase();
+  if (["diagram", "flow", "ascii"].includes(lang)) return true;
+  if (!["", "text", "txt", "plain"].includes(lang)) return false;
+  const sample = String(body || "").trim();
+  if (!sample) return false;
+  const markers = ["→", "▼", "│", "──", "├", "└", "↔", "=>", "->"];
+  const hits = markers.filter((m) => sample.includes(m)).length;
+  const lines = sample.split(/\n/).filter((ln) => ln.trim());
+  return hits >= 1 && lines.length >= 2;
+}
+
+function diagramStepClass(label, index, total) {
+  const text = String(label || "").toLowerCase();
+  const classes = ["note-flow-step"];
+  if (/(核心|core|ip 云|ip云|骨干)/.test(text)) classes.push("note-flow-step--core");
+  else if (/(接入|ran|bras|边缘|access|olt|onu)/.test(text)) classes.push("note-flow-step--accent");
+  else if (index === 0 || index === total - 1) classes.push("note-flow-step--accent");
+  return classes.join(" ");
+}
+
+function renderFlowSteps(steps, labels = []) {
+  if (!steps.length) return "";
+  const parts = ['<div class="note-flow" role="list">'];
+  steps.forEach((step, i) => {
+    parts.push(`<div class="${diagramStepClass(step, i, steps.length)}" role="listitem">${escapeHtml(step)}</div>`);
+    if (i < steps.length - 1) {
+      const label = labels[i] || "";
+      const labelHtml = label
+        ? `<span class="note-flow-arrow-label">${escapeHtml(label)}</span>`
+        : "";
+      parts.push(
+        `<div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span>${labelHtml}</div>`,
+      );
+    }
+  });
+  parts.push("</div>");
+  return parts.join("");
+}
+
+function renderNoteDiagramHtml(codeLang, body) {
+  const lines = String(body || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+  let mode = "auto";
+  const raw = [];
+  for (const ln of lines) {
+    const stripped = ln.trim();
+    if (!raw.length && ["flow", "tree", "split", "auto"].includes(stripped.toLowerCase())) {
+      mode = stripped.toLowerCase();
+      continue;
+    }
+    raw.push(ln);
+  }
+  while (raw.length && !raw[0].trim()) raw.shift();
+  while (raw.length && !raw[raw.length - 1].trim()) raw.pop();
+
+  const lang = String(codeLang || "").trim().toLowerCase();
+  if (lang === "flow") mode = "flow";
+  if (lang === "tree") mode = "tree";
+
+  const nonEmpty = raw.filter((ln) => ln.trim());
+  const mostlyFlow = nonEmpty.every(
+    (ln) => ln.includes("→") || ln.includes("->") || !/[│├└╲]/.test(ln),
+  );
+
+  if (mode === "flow" || (mode === "auto" && mostlyFlow && nonEmpty.length >= 2)) {
+    const steps = [];
+    const edgeLabels = [];
+    for (const ln of raw) {
+      let s = ln.trim();
+      if (!s) continue;
+      s = s.replace(/^[→\-\s▼│]+/, "").trim().replace(/^\[|\]$/g, "");
+      if (s.includes("|") && !s.startsWith("http")) {
+        const [left, right] = s.split("|", 2);
+        if (steps.length) {
+          edgeLabels[edgeLabels.length - 1] = left.trim();
+          steps.push(right.trim());
+          edgeLabels.push("");
+        } else {
+          steps.push((right || left).trim());
+          edgeLabels.push("");
+        }
+      } else {
+        steps.push(s);
+        edgeLabels.push("");
+      }
+    }
+    const cleaned = steps.filter(Boolean);
+    if (cleaned.length >= 2) {
+      return `<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div>${renderFlowSteps(cleaned, edgeLabels)}</figure>`;
+    }
+  }
+
+  if (mode === "tree" || /[├└┬]/.test(body)) {
+    let root = "";
+    const children = [];
+    for (const ln of raw) {
+      const s = ln.trim();
+      if (!s) continue;
+      if (/[├└┬]/.test(ln)) {
+        const child = s.replace(/^[─\s│├└┬─]+/, "").replace(/^──\s*/, "").replace(/[ ·.…]+$/g, "").trim();
+        if (child) children.push(child);
+      } else if (s.includes("──") && (s.includes("分光") || s.includes("OLT") || (s.match(/──/g) || []).length >= 2)) {
+        const parts = s.split(/─{2,}/).map((p) => p.replace(/^[┬├└│\s]+/, "").trim()).filter((p) => p && p !== "…" && p !== "...");
+        if (parts.length) {
+          root = parts[0];
+          children.push(...parts.slice(1));
+        }
+      } else if (!root) {
+        root = s.replace(/^\[|\]$/g, "").trim();
+      } else {
+        children.push(s.replace(/^\[|\]$/g, "").trim());
+      }
+    }
+    if (root && children.length) {
+      const kids = children
+        .map((c, i) => `<div class="${diagramStepClass(c, i, children.length)}">${escapeHtml(c)}</div>`)
+        .join("");
+      return `<figure class="note-diagram note-diagram--tree"><div class="note-diagram-title">结构示意</div><div class="note-tree"><div class="${diagramStepClass(root, 0, 1)} note-tree-root">${escapeHtml(root)}</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-tree-branch">${kids}</div></div></figure>`;
+    }
+  }
+
+  const steps = [];
+  for (const ln of raw) {
+    let s = ln.trim();
+    if (!s) continue;
+    if (/^[│┼┤├└┌┐┘┴┬─═\\|/\-\s]+$/.test(s)) continue;
+    if (s.startsWith("╲") || s.startsWith("╱")) continue;
+    s = s.replace(/^[│\s▼→\-─=]+/, "").replace(/[│╲].*$/, "").trim().replace(/^\[|\]$/g, "").replace(/^=+|=+$/g, "").trim();
+    if (s.length >= 2) steps.push(s);
+  }
+  const deduped = [];
+  for (const st of steps) {
+    if (!deduped.length || deduped[deduped.length - 1] !== st) deduped.push(st);
+  }
+  if (deduped.length >= 2) {
+    return `<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">结构示意</div>${renderFlowSteps(deduped)}</figure>`;
+  }
+
+  return `<figure class="note-diagram note-diagram--fallback"><div class="note-diagram-title">示意</div><pre class="note-code-block note-diagram-pre"><code>${escapeHtml(String(body || "").trim())}</code></pre></figure>`;
+}
+
+function parseNetworkMapSource(body) {
+  const meta = { title: "网络图", id: "", default: "local" };
+  const views = {};
+  let current = null;
+  let nodes = [];
+  let edges = [];
+  let focus = [];
+
+  const flush = () => {
+    if (!current) return;
+    views[current] = { nodes, edges, focus };
+    nodes = [];
+    edges = [];
+    focus = [];
+  };
+
+  for (const raw of String(body || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n")) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    const section = line.match(/^\[(local|global)\]$/i);
+    if (section) {
+      flush();
+      current = section[1].toLowerCase();
+      continue;
+    }
+    if (current == null && line.includes("=") && !/[>→]/.test(line)) {
+      const idx = line.indexOf("=");
+      const key = line.slice(0, idx).trim().toLowerCase();
+      const val = line.slice(idx + 1).trim();
+      if (key === "defaultview") meta.default = val;
+      else if (["title", "id", "default"].includes(key)) meta[key] = val;
+      continue;
+    }
+    if (current == null) current = "local";
+    const edge = line.match(/^([\w\-.]+)\s*(?:->|>|→)\s*([\w\-.]+)(?:\|(.*))?$/);
+    if (edge) {
+      edges.push({ from: edge[1], to: edge[2], label: (edge[3] || "").trim() });
+      continue;
+    }
+    if (line.toLowerCase().startsWith("focus:")) {
+      focus = line.split(":")[1].split(",").map((p) => p.trim()).filter(Boolean);
+      continue;
+    }
+    const node = line.match(/^([\w\-.]+)(?:\|([^|]*))?(?:\|([\w\-]*))?$/);
+    if (node) {
+      nodes.push({
+        id: node[1],
+        label: (node[2] || node[1]).trim(),
+        role: (node[3] || "default").trim() || "default",
+      });
+    }
+  }
+  flush();
+  if (!Object.keys(views).length) return null;
+  return {
+    title: meta.title || "网络图",
+    id: meta.id || "",
+    defaultView: (meta.default || "local").toLowerCase(),
+    views,
+  };
+}
+
+function renderNetworkMapHtml(body) {
+  const data = parseNetworkMapSource(body);
+  if (!data?.views) {
+    return `<figure class="note-diagram note-diagram--fallback"><div class="note-diagram-title">网络图（解析失败）</div><pre class="note-code-block"><code>${escapeHtml(String(body || "").trim())}</code></pre></figure>`;
+  }
+  let defaultView = data.defaultView || "local";
+  if (!data.views[defaultView]) {
+    defaultView = data.views.local ? "local" : Object.keys(data.views)[0];
+  }
+  const payload = JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e");
+  return (
+    `<figure class="note-network-map" data-network-map data-default-view="${escapeHtml(defaultView)}" data-map-id="${escapeHtml(data.id || "")}">` +
+    `<div class="note-network-map__toolbar" aria-hidden="true"><div class="note-network-map__heading">` +
+    `<span class="note-network-map__kicker">Network Map</span><strong class="note-network-map__title">${escapeHtml(data.title)}</strong></div>` +
+    `<div class="note-network-map__actions"><span class="muted">加载交互控件…</span></div></div>` +
+    `<div class="note-network-map__viewport" data-view="${escapeHtml(defaultView)}"><div class="note-network-map__stage"></div></div>` +
+    `<script type="application/json" class="note-network-map__data">${payload}</script>` +
+    `</figure>`
+  );
+}
+
 const INLINE_PATTERN = /(\$[^$\n]+\$|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
 
 function renderInlineNonMath(text) {
@@ -265,14 +489,21 @@ export function markdownToHtml(md) {
     openModule();
     const isMath = codeLang === "math" || codeLang === "latex";
     const lineAttr = codeStartLine >= 0 ? ` data-source-line="${codeStartLine}"` : "";
+    const body = codeLines.join("\n");
     if (isMath) {
-      out.push(renderMathBlockHtml(codeLines.join("\n")).replace(
+      out.push(renderMathBlockHtml(body).replace(
         /^<div class="note-math-block"/,
         `<div class="note-math-block"${lineAttr}`,
       ));
+    } else if (["network", "netmap", "nmap"].includes(String(codeLang || "").trim().toLowerCase())) {
+      const html = renderNetworkMapHtml(body);
+      out.push(lineAttr ? html.replace("<figure ", `<figure${lineAttr} `) : html);
+    } else if (looksLikeDiagram(codeLang, body)) {
+      const html = renderNoteDiagramHtml(codeLang, body);
+      out.push(lineAttr ? html.replace("<figure ", `<figure${lineAttr} `) : html);
     } else {
       const langClass = codeLang ? ` class="language-${escapeHtml(codeLang)}"` : "";
-      out.push(`<pre${lineAttr}><code${langClass}>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+      out.push(`<pre${lineAttr}><code${langClass}>${escapeHtml(body)}</code></pre>`);
     }
     inCode = false;
     codeLines = [];

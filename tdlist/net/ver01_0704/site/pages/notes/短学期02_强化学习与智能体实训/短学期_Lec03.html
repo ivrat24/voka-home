@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="深度学习及训练、模型评价与深度学习神经网络——为 DQN 等值函数逼近做铺垫">
   <title>短学期 Lec03 · 课程笔记 · 鼠窝</title>
-    <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
   <link rel="stylesheet" href="../../../css/style.css">
@@ -55,21 +55,19 @@
         <p class="note-description">深度学习及训练、模型评价与深度学习神经网络——为 DQN 等值函数逼近做铺垫</p>
       </header>
       <div class="note-body note-body--optimized content-body">
-        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
+        <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="深度学习及训练" class="note-heading">深度学习及训练</h2>
+<h2 id="深度学习及训练" class="note-heading note-heading--h2">深度学习及训练</h2>
 <p class="note-paragraph">用多层可微变换 <span class="note-math-inline" data-math-inline="f(\mathbf{x};\mathbf{w})"></span> 从数据中学习表示与映射。在 RL 中，网络输入常为状态 <span class="note-math-inline" data-math-inline="s"></span>（或状态片段），输出为价值或策略 logits。</p>
-<h4 id="回顾" class="note-heading">回顾</h4>
+<h4 id="回顾" class="note-heading note-heading--h4">回顾</h4>
 <p class="note-paragraph">Lec02 的 <strong>表格型 TD / Q-Learning</strong> 直接存储 <span class="note-math-inline" data-math-inline="Q(s,a)"></span>，在状态空间有限时有效。当状态空间巨大或连续（如 Atari 像素、机器人关节角）时，表格无法存储 → 需要 <strong>函数逼近（Function Approximation）</strong>：</p>
 <div class="note-math-block" data-math-display="Q(s,a) \approx Q(s,a;\mathbf{w}),\quad V(s) \approx V(s;\mathbf{w})"></div>
 <p class="note-paragraph"><strong>函数逼近的核心</strong>：参数 <span class="note-math-inline" data-math-inline="\mathbf{w}"></span> 在<strong>所有</strong> <span class="note-math-inline" data-math-inline="(s,a)"></span> 之间共享，相似状态得到相似 Q 值 → <strong>泛化</strong>到训练时未见过的状态。</p>
 <p class="note-paragraph">深度学习提供了最常用的逼近器——<strong>多层神经网络</strong> <span class="note-math-inline" data-math-inline="f(\mathbf{x};\mathbf{w})"></span>，通过反向传播自动学习特征表示与参数。</p>
-<h4 id="补档" class="note-heading">补档</h4>
+<h4 id="补档" class="note-heading note-heading--h4">补档</h4>
 <p class="note-paragraph">神经网络由<strong>层（Layer）</strong>堆叠而成，每层对输入做线性变换后再经非线性激活。一个典型的 <strong>MLP（多层感知机）</strong> 结构：</p>
-<pre class="note-code-block"><code>输入 x → [Linear → ReLU] → [Linear → ReLU] → Linear → 输出 ŷ
-         隐层 1              隐层 2           输出层
-</code></pre>
-<h4 id="线性层" class="note-heading">线性层</h4>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">输入 x → [Linear → ReLU] → [Linear → ReLU] → Linear → 输出 ŷ</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">隐层 1              隐层 2           输出层</div></div></figure>
+<h4 id="线性层" class="note-heading note-heading--h4">线性层</h4>
 <p class="note-paragraph"><strong>全连接层（Linear / Dense）</strong>：</p>
 <div class="note-math-block" data-math-display="\mathbf{z} = \mathbf{W}\mathbf{x} + \mathbf{b}"></div>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>符号</th><th>形状</th><th>含义</th></tr></thead><tbody><tr><td><span class="note-math-inline" data-math-inline="\mathbf{x}"></span></td><td><span class="note-math-inline" data-math-inline="(d_{\text{in}},)"></span> 或 <span class="note-math-inline" data-math-inline="(B, d_{\text{in}})"></span></td><td>单样本或 batch 输入</td></tr><tr><td><span class="note-math-inline" data-math-inline="\mathbf{W}"></span></td><td><span class="note-math-inline" data-math-inline="(d_{\text{out}}, d_{\text{in}})"></span></td><td>权重矩阵</td></tr><tr><td><span class="note-math-inline" data-math-inline="\mathbf{b}"></span></td><td><span class="note-math-inline" data-math-inline="(d_{\text{out}},)"></span></td><td>偏置向量</td></tr><tr><td><span class="note-math-inline" data-math-inline="\mathbf{z}"></span></td><td><span class="note-math-inline" data-math-inline="(d_{\text{out}},)"></span></td><td>预激活输出</td></tr></tbody></table></div>
@@ -88,7 +86,7 @@ out = layer(obs_tensor)  # obs_tensor: (batch, 4) → (batch, 64)
 <li>多层线性层<strong>无激活时等价于单层</strong>（线性变换的复合仍是线性）</li>
 <li>RL 常见：<code>Linear(state_dim, 128) → ReLU → Linear(128, n_actions)</code> 输出各动作 Q 值</li>
 </ul>
-<h4 id="激活层" class="note-heading">激活层</h4>
+<h4 id="激活层" class="note-heading note-heading--h4">激活层</h4>
 <div class="note-math-block" data-math-display="\mathbf{h} = \sigma(\mathbf{z})"></div>
 <p class="note-paragraph"><strong>为什么需要非线性</strong>：仅用线性层，无论堆多深都只能表示线性映射；非线性 + 多层 → <strong>通用函数逼近器</strong>。</p>
 <p class="note-paragraph"><strong>反向传播需要的导数</strong>（<span class="note-math-inline" data-math-inline="\sigma&#x27;"></span>）：</p>
@@ -98,18 +96,18 @@ out = layer(obs_tensor)  # obs_tensor: (batch, 4) → (batch, 64)
 <li>隐层：ReLU / GELU</li>
 <li>输出层：回归无激活；分类 Softmax/Sigmoid；<strong>Q 网络输出层无激活</strong>（Q 可为任意实数）</li>
 </ul>
-<h4 id="深度学习-vs-传统学习" class="note-heading">深度学习 vs 传统学习</h4>
+<h4 id="深度学习-vs-传统学习" class="note-heading note-heading--h4">深度学习 vs 传统学习</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>维度</th><th>传统机器学习</th><th>深度学习</th></tr></thead><tbody><tr><td>特征</td><td>人工设计（SIFT、统计量）</td><td><strong>表示学习</strong>，网络自动提取</td></tr><tr><td>模型</td><td>线性、SVM、浅层树</td><td>CNN、RNN、Transformer</td></tr><tr><td>数据</td><td>中小规模常够用</td><td>通常需<strong>更多数据</strong></td></tr><tr><td>计算</td><td>CPU</td><td><strong>GPU</strong> 加速矩阵运算</td></tr><tr><td>泛化</td><td>依赖特征质量</td><td>依赖数据量 + 正则化</td></tr><tr><td>RL</td><td>表格 Q 无参数</td><td>DQN / PPO / SAC 用网络逼近</td></tr></tbody></table></div>
-<h4 id="激活函数" class="note-heading">激活函数</h4>
+<h4 id="激活函数" class="note-heading note-heading--h4">激活函数</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>函数</th><th>公式</th><th>值域</th><th>导数</th><th>特点</th></tr></thead><tbody><tr><td>Sigmoid</td><td><span class="note-math-inline" data-math-inline="\frac{1}{1+e^{-x}}"></span></td><td>(0,1)</td><td><span class="note-math-inline" data-math-inline="\sigma(1-\sigma)"></span></td><td>易饱和、梯度消失</td></tr><tr><td>Tanh</td><td><span class="note-math-inline" data-math-inline="\tanh(x)"></span></td><td>(-1,1)</td><td><span class="note-math-inline" data-math-inline="1-\tanh^2"></span></td><td>零中心</td></tr><tr><td>ReLU</td><td><span class="note-math-inline" data-math-inline="\max(0,x)"></span></td><td>[0,∞)</td><td>0 或 1</td><td><strong>隐层首选</strong></td></tr><tr><td>Leaky ReLU</td><td><span class="note-math-inline" data-math-inline="\max(\alpha x,x)"></span></td><td>(-∞,∞)</td><td><span class="note-math-inline" data-math-inline="\alpha"></span> 或 1</td><td>避免死神经元</td></tr><tr><td>Softmax</td><td><span class="note-math-inline" data-math-inline="e^{z_i}/\sum_j e^{z_j}"></span></td><td>概率</td><td>复杂</td><td><strong>多分类输出</strong></td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>注意</strong>：Q 网络输出层不用 Softmax；策略网络 <span class="note-math-inline" data-math-inline="\pi(a|s)"></span> 才用 Softmax。</p>
-<h4 id="回归任务对于连续数据" class="note-heading">回归任务（对于连续数据）</h4>
+<h4 id="回归任务对于连续数据" class="note-heading note-heading--h4">回归任务（对于连续数据）</h4>
 <p class="note-paragraph"><strong>目标</strong>：预测 <span class="note-math-inline" data-math-inline="\hat{y} \in \mathbb{R}"></span> 或 <span class="note-math-inline" data-math-inline="\mathbb{R}^d"></span>。</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>场景</th><th>输出层</th><th>损失</th></tr></thead><tbody><tr><td>标量回归</td><td>Linear，无激活</td><td>MSE</td></tr><tr><td>向量回归</td><td>Linear，<span class="note-math-inline" data-math-inline="d"></span> 维</td><td>MSE 平均</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>数值示例</strong>（单样本 MSE）：</p>
 <div class="note-math-block" data-math-display="y=3.0,\ \hat{y}=2.2 \Rightarrow \mathcal{L}=\frac{1}{2}(2.2-3.0)^2 = 0.32"></div>
 <p class="note-paragraph"><strong>与 RL</strong>：<span class="note-math-inline" data-math-inline="Q(s,a;\mathbf{w})"></span> 视为回归，TD target 为标签 <span class="note-math-inline" data-math-inline="y"></span>。</p>
-<h4 id="分类任务对于离散数据" class="note-heading">分类任务（对于离散数据）</h4>
+<h4 id="分类任务对于离散数据" class="note-heading note-heading--h4">分类任务（对于离散数据）</h4>
 <p class="note-paragraph"><strong>目标</strong>：<span class="note-math-inline" data-math-inline="x \mapsto"></span> 类别 <span class="note-math-inline" data-math-inline="k \in \{1,\ldots,K\}"></span>。</p>
 <p class="note-paragraph"><strong>Softmax + 决策</strong>：</p>
 <div class="note-math-block" data-math-display="P(y=k|x)=\text{Softmax}(z)_k,\quad \hat{y}=\arg\max_k P(y=k|x)"></div>
@@ -117,24 +115,24 @@ out = layer(obs_tensor)  # obs_tensor: (batch, 4) → (batch, 64)
 <div class="note-math-block" data-math-display="e^{\mathbf{z}}=[7.39, 2.72, 1.00],\ \sum=11.11"></div>
 <div class="note-math-block" data-math-display="P = [0.665,\ 0.244,\ 0.090] \Rightarrow \text{预测类别 1}"></div>
 <p class="note-paragraph"><strong>与 RL</strong>：<span class="note-math-inline" data-math-inline="\pi(a|s)=\text{Softmax}(f_\mathbf{w}(s))_a"></span>，动作选择 <span class="note-math-inline" data-math-inline="\arg\max"></span> 或采样。</p>
-<h4 id="损失函数" class="note-heading">损失函数</h4>
-<h6 id="均方误差mse" class="note-heading">均方误差（MSE）</h6>
+<h4 id="损失函数" class="note-heading note-heading--h4">损失函数</h4>
+<h6 id="均方误差mse" class="note-heading note-heading--h6">均方误差（MSE）</h6>
 <div class="note-math-block" data-math-display="\mathcal{L}_{\text{MSE}} = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2"></div>
 <p class="note-paragraph"><strong>梯度</strong>（单样本）：<span class="note-math-inline" data-math-inline="\partial \mathcal{L}/\partial \hat{y} = \hat{y} - y"></span></p>
 <p class="note-paragraph"><strong>RL</strong>：DQN 的 <span class="note-math-inline" data-math-inline="\mathcal{L} = (r + \gamma \max_{a&#x27;} Q(s&#x27;,a&#x27;;\mathbf{w}^-) - Q(s,a;\mathbf{w}))^2"></span></p>
-<h6 id="交叉熵cross-entropy" class="note-heading">交叉熵（Cross-Entropy）</h6>
+<h6 id="交叉熵cross-entropy" class="note-heading note-heading--h6">交叉熵（Cross-Entropy）</h6>
 <p class="note-paragraph">单样本 one-hot 标签，真实类 <span class="note-math-inline" data-math-inline="c"></span>：</p>
 <div class="note-math-block" data-math-display="\mathcal{L}_{\text{CE}} = -\log \hat{p}_c"></div>
 <p class="note-paragraph"><strong>数值示例</strong>：真实类 2，<span class="note-math-inline" data-math-inline="\hat{p}=[0.1, 0.2, 0.7]"></span>：</p>
 <div class="note-math-block" data-math-display="\mathcal{L}_{\text{CE}} = -\log 0.7 \approx 0.357"></div>
 <p class="note-paragraph"><strong>二分类 BCE</strong>：<span class="note-math-inline" data-math-inline="\mathcal{L} = -y\log\hat{p} - (1-y)\log(1-\hat{p})"></span></p>
 <p class="note-paragraph"><strong>PyTorch</strong>：<code>nn.CrossEntropyLoss()</code>（输入 logits，内部 Softmax+CE）</p>
-<h6 id="softmax" class="note-heading">Softmax</h6>
+<h6 id="softmax" class="note-heading note-heading--h6">Softmax</h6>
 <div class="note-math-block" data-math-display="\text{Softmax}(z_i) = \frac{e^{z_i - \max_j z_j}}{\sum_k e^{z_k - \max_j z_j}}"></div>
 <p class="note-paragraph">减最大值保证数值稳定，不改变输出。</p>
-<h4 id="神经网络训练" class="note-heading">神经网络训练</h4>
+<h4 id="神经网络训练" class="note-heading note-heading--h4">神经网络训练</h4>
 <p class="note-paragraph">训练目标：<span class="note-math-inline" data-math-inline="\min_{\mathbf{w}} \mathcal{L}(\mathbf{w})"></span>。循环：<strong>前向 → 损失 → 反向 → 优化器更新</strong>。</p>
-<h4 id="前向传播与反向传播" class="note-heading">前向传播与反向传播</h4>
+<h4 id="前向传播与反向传播" class="note-heading note-heading--h4">前向传播与反向传播</h4>
 <p class="note-paragraph"><strong>单隐层标量网络</strong>（MSE 损失）：</p>
 <div class="note-math-block" data-math-display="z_1 = w_1 x + b_1,\ h = \text{ReLU}(z_1),\ \hat{y} = w_2 h + b_2,\ \mathcal{L}=\frac{1}{2}(\hat{y}-y)^2"></div>
 <p class="note-paragraph"><strong>给定</strong>：<span class="note-math-inline" data-math-inline="x=2.0,\ y=1.0,\ w_1=0.5,\ b_1=-0.2,\ w_2=-1.0,\ b_2=0.3"></span></p>
@@ -160,9 +158,9 @@ out = layer(obs_tensor)  # obs_tensor: (batch, 4) → (batch, 64)
     loss.backward()      # 自动求所有 ∂L/∂w
     optimizer.step()
 </code></pre>
-<h4 id="优化器" class="note-heading">优化器</h4>
+<h4 id="优化器" class="note-heading note-heading--h4">优化器</h4>
 <p class="note-paragraph">记 <span class="note-math-inline" data-math-inline="\mathbf{g}_t = \nabla_{\mathbf{w}}\mathcal{L}(\mathbf{w}_t)"></span>。</p>
-<h6 id="随机梯度下降sgd" class="note-heading">随机梯度下降（SGD）</h6>
+<h6 id="随机梯度下降sgd" class="note-heading note-heading--h6">随机梯度下降（SGD）</h6>
 <p class="note-paragraph"><strong>BGD</strong>（全数据）：<span class="note-math-inline" data-math-inline="\mathbf{w}_{t+1} = \mathbf{w}_t - \eta \nabla \mathcal{L}_{\text{full}}"></span></p>
 <p class="note-paragraph"><strong>SGD / Mini-batch</strong>（小批量）：</p>
 <div class="note-math-block" data-math-display="\mathbf{w}_{t+1} = \mathbf{w}_t - \eta \mathbf{g}_t"></div>
@@ -170,11 +168,11 @@ out = layer(obs_tensor)  # obs_tensor: (batch, 4) → (batch, 64)
 <div class="note-math-block" data-math-display="w_2: -1.0 - 0.1\times(-1.2) = -0.88,\quad
 w_1: 0.5 - 0.1\times 3.0 = 0.2"></div>
 <p class="note-paragraph">再前向：<span class="note-math-inline" data-math-inline="\hat{y}=0.406,\ \mathcal{L}=0.176 &lt; 1.125"></span> ✓</p>
-<h6 id="动量法momentum" class="note-heading">动量法（Momentum）</h6>
+<h6 id="动量法momentum" class="note-heading note-heading--h6">动量法（Momentum）</h6>
 <div class="note-math-block" data-math-display="\mathbf{v}_{t+1} = \beta \mathbf{v}_t + \mathbf{g}_t,\quad
 \mathbf{w}_{t+1} = \mathbf{w}_t - \eta \mathbf{v}_{t+1}"></div>
 <p class="note-paragraph"><span class="note-math-inline" data-math-inline="\beta=0.9"></span> 常见。连续两步 <span class="note-math-inline" data-math-inline="g=-1.2,-1.0"></span>：<span class="note-math-inline" data-math-inline="v_2=-2.08"></span>，更新步更大 → 减震荡、加速。</p>
-<h6 id="adam" class="note-heading">Adam</h6>
+<h6 id="adam" class="note-heading note-heading--h6">Adam</h6>
 <div class="note-math-block" data-math-display="\mathbf{m}_t = \beta_1 \mathbf{m}_{t-1} + (1-\beta_1)\mathbf{g}_t,\quad
 \mathbf{v}_t = \beta_2 \mathbf{v}_{t-1} + (1-\beta_2)\mathbf{g}_t^2"></div>
 <div class="note-math-block" data-math-display="\hat{\mathbf{m}}_t = \frac{\mathbf{m}_t}{1-\beta_1^t},\quad
@@ -182,9 +180,9 @@ w_1: 0.5 - 0.1\times 3.0 = 0.2"></div>
 \mathbf{w}_{t+1} = \mathbf{w}_t - \eta \frac{\hat{\mathbf{m}}_t}{\sqrt{\hat{\mathbf{v}}_t}+\epsilon}"></div>
 <p class="note-paragraph"><strong>标量示例</strong>（<span class="note-math-inline" data-math-inline="g=-1.2, t=1, \eta=0.1"></span>）：<span class="note-math-inline" data-math-inline="m_1=-0.12, v_1=0.00144, \hat{m}_1=-1.2, \hat{v}_1=1.44"></span>，更新量 <span class="note-math-inline" data-math-inline="-0.1"></span>，<span class="note-math-inline" data-math-inline="w_2: -1.0\to -0.9"></span></p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>优化器</th><th>核心</th><th>RL 场景</th></tr></thead><tbody><tr><td>SGD</td><td><span class="note-math-inline" data-math-inline="\mathbf{w}-\eta\mathbf{g}"></span></td><td>微调</td></tr><tr><td>Momentum</td><td>累积速度</td><td>传统 CNN</td></tr><tr><td>Adam</td><td>自适应学习率</td><td><strong>DQN、PPO 常用</strong></td></tr></tbody></table></div>
-<h4 id="模型评价" class="note-heading">模型评价</h4>
+<h4 id="模型评价" class="note-heading note-heading--h4">模型评价</h4>
 <p class="note-paragraph">训练模型不仅要<strong>拟合数据</strong>，还要在<strong>未见数据</strong>上表现良好。模型评价研究：如何判断学得好不好、何时停止、如何防止过拟合。</p>
-<h4 id="数据集划分" class="note-heading">数据集划分</h4>
+<h4 id="数据集划分" class="note-heading note-heading--h4">数据集划分</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>集合</th><th>用途</th><th>比例（参考）</th></tr></thead><tbody><tr><td><strong>训练集 Train</strong></td><td>更新参数 <span class="note-math-inline" data-math-inline="\mathbf{w}"></span></td><td>60%–80%</td></tr><tr><td><strong>验证集 Validation</strong></td><td>调超参、早停、选模型</td><td>10%–20%</td></tr><tr><td><strong>测试集 Test</strong></td><td>最终评估，<strong>只用一次</strong></td><td>10%–20%</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>原则</strong>：测试集不参与任何训练或调参决策，否则评估会<strong>乐观偏高</strong>。</p>
 <p class="note-paragraph"><strong>RL 对应</strong>：</p>
@@ -192,11 +190,11 @@ w_1: 0.5 - 0.1\times 3.0 = 0.2"></div>
 <li>训练：与环境交互收集经验、更新 Q 网络</li>
 <li>验证/测试：固定随机种子、<strong>贪心策略</strong>跑 N 个 episode 看平均回报</li>
 </ul>
-<h4 id="偏差-方差权衡bias-variance-tradeoff" class="note-heading">偏差-方差权衡（Bias-Variance Tradeoff）</h4>
+<h4 id="偏差-方差权衡bias-variance-tradeoff" class="note-heading note-heading--h4">偏差-方差权衡（Bias-Variance Tradeoff）</h4>
 <p class="note-paragraph">模型误差可分解为：</p>
 <div class="note-math-block" data-math-display="\mathbb{E}[(y - \hat{f})^2] = \underbrace{(\mathbb{E}[\hat{f}] - f)^2}_{\text{偏差 Bias}^2} + \underbrace{\mathbb{E}[(\hat{f}-\mathbb{E}[\hat{f}])^2]}_{\text{方差 Variance}} + \underbrace{\sigma^2}_{\text{不可约噪声}}"></div>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>含义</th><th>模型表现</th></tr></thead><tbody><tr><td><strong>高偏差</strong></td><td>模型太简单，系统性预测偏差</td><td><strong>欠拟合</strong></td></tr><tr><td><strong>高方差</strong></td><td>模型对训练数据过于敏感</td><td><strong>过拟合</strong></td></tr><tr><td><strong>理想</strong></td><td>偏差与方差均低</td><td>泛化好</td></tr></tbody></table></div>
-<h4 id="欠拟合underfitting" class="note-heading">欠拟合（Underfitting）</h4>
+<h4 id="欠拟合underfitting" class="note-heading note-heading--h4">欠拟合（Underfitting）</h4>
 <p class="note-paragraph"><strong>定义</strong>：模型<strong>过于简单</strong>，无法捕捉数据中的规律；在训练集和验证集上<strong>损失都高</strong>。</p>
 <p class="note-paragraph"><strong>典型表现</strong>：</p>
 <ul class="note-list">
@@ -220,7 +218,7 @@ w_1: 0.5 - 0.1\times 3.0 = 0.2"></div>
 <p class="note-paragraph"><strong>数值示例</strong>：</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>Epoch</th><th>Train MSE</th><th>Val MSE</th></tr></thead><tbody><tr><td>10</td><td>2.50</td><td>2.48</td></tr><tr><td>50</td><td>2.35</td><td>2.40</td></tr><tr><td>100</td><td>2.30</td><td>2.38</td></tr></tbody></table></div>
 <p class="note-paragraph">两者都高 → <strong>欠拟合</strong>，需增大模型或继续训练。</p>
-<h4 id="过拟合overfitting" class="note-heading">过拟合（Overfitting）</h4>
+<h4 id="过拟合overfitting" class="note-heading note-heading--h4">过拟合（Overfitting）</h4>
 <p class="note-paragraph"><strong>定义</strong>：模型<strong>过于复杂</strong>，记住了训练数据的噪声和细节，在验证/测试集上表现变差。</p>
 <p class="note-paragraph"><strong>典型表现</strong>：</p>
 <ul class="note-list">
@@ -246,37 +244,23 @@ w_1: 0.5 - 0.1\times 3.0 = 0.2"></div>
 <li><strong>简化模型</strong>（减少参数）</li>
 <li><strong>Dropout</strong></li>
 </ul>
-<h4 id="学习曲线learning-curve" class="note-heading">学习曲线（Learning Curve）</h4>
+<h4 id="学习曲线learning-curve" class="note-heading note-heading--h4">学习曲线（Learning Curve）</h4>
 <p class="note-paragraph">以<strong>训练样本数</strong>或 <strong>epoch</strong> 为横轴，<strong>损失/准确率</strong>为纵轴，分别绘制训练集与验证集曲线。</p>
-<pre class="note-code-block"><code>损失
- ↑
- |    欠拟合：两线都高
- |    ═══════════  Train
- |    ═══════════  Val
- |
- |    理想：两线都低且接近
- |    ───────────  Train
- |    ───────────  Val
- |
- |    过拟合：Train↓ Val 先↓后↑
- |    \           Val ↗
- |     \________ Train
- +──────────────────→ Epoch
-</code></pre>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">损失</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">↑</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">欠拟合：两线都高</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">═══════════  Train</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">═══════════  Val</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">理想：两线都低且接近</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">───────────  Train</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">───────────  Val</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">过拟合：Train↓ Val 先↓后↑</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">\           Val ↗</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">\________ Train</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">+──────────────────→ Epoch</div></div></figure>
 <p class="note-paragraph"><strong>诊断流程</strong>：</p>
 <ol class="note-list">
 <li>Train 高 + Val 高 → 欠拟合</li>
 <li>Train 低 + Val 高 → 过拟合</li>
 <li>Train ≈ Val 且都低 → 合适</li>
 </ol>
-<h4 id="评价指标" class="note-heading">评价指标</h4>
-<h6 id="回归指标" class="note-heading">回归指标</h6>
+<h4 id="评价指标" class="note-heading note-heading--h4">评价指标</h4>
+<h6 id="回归指标" class="note-heading note-heading--h6">回归指标</h6>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>指标</th><th>公式</th><th>含义</th></tr></thead><tbody><tr><td><strong>MSE</strong></td><td><span class="note-math-inline" data-math-inline="\frac{1}{n}\sum(y_i-\hat{y}_i)^2"></span></td><td>均方误差，对大误差敏感</td></tr><tr><td><strong>MAE</strong></td><td><span class="note-math-inline" data-math-inline="\frac{1}{n}\sum|y_i-\hat{y}_i|"></span></td><td>平均绝对误差，更鲁棒</td></tr><tr><td><strong>RMSE</strong></td><td><span class="note-math-inline" data-math-inline="\sqrt{\text{MSE}}"></span></td><td>与 <span class="note-math-inline" data-math-inline="y"></span> 同量纲</td></tr><tr><td><strong>R²</strong></td><td><span class="note-math-inline" data-math-inline="1 - \frac{\sum(y_i-\hat{y}_i)^2}{\sum(y_i-\bar{y})^2}"></span></td><td>解释方差比例，1 为完美</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>R² 数值示例</strong>：<span class="note-math-inline" data-math-inline="y=[3,5,7],\ \bar{y}=5,\ \hat{y}=[2.8,5.1,6.9]"></span></p>
 <div class="note-math-block" data-math-display="\text{SS}_{\text{res}} = 0.04+0.01+0.01=0.06,\
 \text{SS}_{\text{tot}} = 4+0+4=8"></div>
 <div class="note-math-block" data-math-display="R^2 = 1 - 0.06/8 = 0.9925"></div>
-<h6 id="分类指标" class="note-heading">分类指标</h6>
+<h6 id="分类指标" class="note-heading note-heading--h6">分类指标</h6>
 <p class="note-paragraph">对二分类，定义：<strong>Positive</strong>（正类）、<strong>Negative</strong>（负类）。</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th></th><th>预测正</th><th>预测负</th></tr></thead><tbody><tr><td><strong>实际正</strong></td><td>TP</td><td>FN</td></tr><tr><td><strong>实际负</strong></td><td>FP</td><td>TN</td></tr></tbody></table></div>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>指标</th><th>公式</th><th>含义</th></tr></thead><tbody><tr><td><strong>Accuracy</strong></td><td><span class="note-math-inline" data-math-inline="(TP+TN)/(TP+TN+FP+FN)"></span></td><td>整体正确率</td></tr><tr><td><strong>Precision</strong></td><td><span class="note-math-inline" data-math-inline="TP/(TP+FP)"></span></td><td>预测为正中真正比例</td></tr><tr><td><strong>Recall</strong></td><td><span class="note-math-inline" data-math-inline="TP/(TP+FN)"></span></td><td>实际正中被找出比例</td></tr><tr><td><strong>F1</strong></td><td><span class="note-math-inline" data-math-inline="2PR/(P+R)"></span></td><td>精确率与召回率调和平均</td></tr></tbody></table></div>
@@ -286,19 +270,19 @@ P=\frac{80}{100}=0.80,\
 R=\frac{80}{90}\approx 0.889,\
 F1=\frac{2\times 0.8\times 0.889}{0.8+0.889}\approx 0.842"></div>
 <p class="note-paragraph"><strong>类别不平衡时</strong>：Accuracy 可能误导（99% 负样本时全猜负也有 99% 准确率），应看 Precision / Recall / F1。</p>
-<h4 id="正则化与防过拟合" class="note-heading">正则化与防过拟合</h4>
-<h6 id="l2-正则weight-decay" class="note-heading">L2 正则（Weight Decay）</h6>
+<h4 id="正则化与防过拟合" class="note-heading note-heading--h4">正则化与防过拟合</h4>
+<h6 id="l2-正则weight-decay" class="note-heading note-heading--h6">L2 正则（Weight Decay）</h6>
 <p class="note-paragraph">在损失中加入权重惩罚：</p>
 <div class="note-math-block" data-math-display="\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{data}} + \frac{\lambda}{2}\|\mathbf{w}\|_2^2"></div>
 <p class="note-paragraph"><span class="note-math-inline" data-math-inline="\lambda"></span> 越大，权重越小 → 模型更平滑、不易过拟合。PyTorch：<code>optim.Adam(..., weight_decay=1e-4)</code></p>
-<h6 id="l1-正则" class="note-heading">L1 正则</h6>
+<h6 id="l1-正则" class="note-heading note-heading--h6">L1 正则</h6>
 <div class="note-math-block" data-math-display="\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{data}} + \lambda\|\mathbf{w}\|_1"></div>
 <p class="note-paragraph">倾向于产生<strong>稀疏</strong>权重（部分 <span class="note-math-inline" data-math-inline="w_i=0"></span>），可用于特征选择。</p>
-<h6 id="dropout" class="note-heading">Dropout</h6>
+<h6 id="dropout" class="note-heading note-heading--h6">Dropout</h6>
 <p class="note-paragraph">训练时以概率 <span class="note-math-inline" data-math-inline="p"></span>（如 0.5）<strong>随机置零</strong>隐层神经元，迫使网络不依赖单个神经元：</p>
 <div class="note-math-block" data-math-display="h_i&#x27; = \begin{cases} 0 &amp; \text{以概率 } p \\ \frac{h_i}{1-p} &amp; \text{否则} \end{cases}"></div>
 <p class="note-paragraph">测试时关闭 Dropout，使用全部神经元。PyTorch：<code>nn.Dropout(0.5)</code></p>
-<h6 id="早停early-stopping" class="note-heading">早停（Early Stopping）</h6>
+<h6 id="早停early-stopping" class="note-heading note-heading--h6">早停（Early Stopping）</h6>
 <p class="note-paragraph">监控<strong>验证集 loss</strong>，若连续 <span class="note-math-inline" data-math-inline="k"></span> 个 epoch 无改善则停止，并<strong>回滚</strong>到验证 loss 最低时的参数。</p>
 <pre class="note-code-block"><code>best_val = ∞, patience = 10, counter = 0
 for epoch in range(max_epochs):
@@ -314,9 +298,9 @@ for epoch in range(max_epochs):
             break  # 早停
 load_best_checkpoint()
 </code></pre>
-<h6 id="数据增强data-augmentation" class="note-heading">数据增强（Data Augmentation）</h6>
+<h6 id="数据增强data-augmentation" class="note-heading note-heading--h6">数据增强（Data Augmentation）</h6>
 <p class="note-paragraph">对图像：随机裁剪、翻转、旋转、颜色抖动 → 等价于<strong>扩大训练集</strong>，减轻过拟合。</p>
-<h4 id="交叉验证cross-validation" class="note-heading">交叉验证（Cross-Validation）</h4>
+<h4 id="交叉验证cross-validation" class="note-heading note-heading--h4">交叉验证（Cross-Validation）</h4>
 <p class="note-paragraph">数据较少时，单次划分可能不稳定。<strong>K 折交叉验证</strong>：</p>
 <ol class="note-list">
 <li>将数据分为 K 份（如 K=5）</li>
@@ -325,7 +309,7 @@ load_best_checkpoint()
 </ol>
 <div class="note-math-block" data-math-display="\text{Score} = \frac{1}{K}\sum_{k=1}^{K} \text{Metric}_k"></div>
 <p class="note-paragraph">更可靠地估计泛化性能，但计算量为 K 倍。</p>
-<h4 id="rl-中的模型评价" class="note-heading">RL 中的模型评价</h4>
+<h4 id="rl-中的模型评价" class="note-heading note-heading--h4">RL 中的模型评价</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>监督学习</th><th>强化学习</th></tr></thead><tbody><tr><td>验证集 loss</td><td>固定种子评估 episode 平均回报</td></tr><tr><td>过拟合训练集</td><td>Q 网络<strong>过拟合 replay buffer</strong> 中旧经验</td></tr><tr><td>早停</td><td>验证回报不再提升时停止训练</td></tr><tr><td>测试集</td><td><strong>从未见过的环境配置/种子</strong> 上评估</td></tr><tr><td>正则化</td><td>Target Network、小学习率、经验回放多样性</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>DQN 评估示例</strong>：</p>
 <pre class="note-code-block"><code class="language-python">def evaluate(q_net, env, n_episodes=50, seed=0):
@@ -342,30 +326,30 @@ load_best_checkpoint()
     return np.mean(returns), np.std(returns)
 </code></pre>
 <p class="note-paragraph"><strong>注意</strong>：不要用训练时的 ε-greedy 探索评估，应使用<strong>纯贪心</strong>策略看真实性能。</p>
-<h4 id="小结与衔接" class="note-heading">小结与衔接</h4>
+<h4 id="小结与衔接" class="note-heading note-heading--h4">小结与衔接</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>监督学习</th><th>强化学习（后续）</th></tr></thead><tbody><tr><td>输入</td><td>特征 <span class="note-math-inline" data-math-inline="x"></span></td><td>状态 <span class="note-math-inline" data-math-inline="s"></span></td></tr><tr><td>输出</td><td><span class="note-math-inline" data-math-inline="\hat{y}"></span> 或概率</td><td><span class="note-math-inline" data-math-inline="Q(s,a)"></span>、<span class="note-math-inline" data-math-inline="\pi(a \mid s)"></span></td></tr><tr><td>训练</td><td>前向→反向→Adam</td><td>TD 误差反向 + 目标网络</td></tr><tr><td>评价</td><td>Train/Val/Test、F1/R²</td><td>贪心 episode 回报</td></tr><tr><td>过拟合</td><td>Val loss 上升</td><td>Q 过拟合 replay buffer</td></tr><tr><td>正则</td><td>L2、Dropout、早停</td><td>Target Net、经验回放</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>下一讲预告</strong>：将 <span class="note-math-inline" data-math-inline="Q(s,a)"></span> 替换为 <span class="note-math-inline" data-math-inline="Q(s,a;\mathbf{w})"></span>，用经验回放 + 目标网络稳定训练 → <strong>Deep Q-Network (DQN)</strong>。</p>
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="深度学习神经网络" class="note-heading">深度学习神经网络</h2>
+<h2 id="深度学习神经网络" class="note-heading note-heading--h2">深度学习神经网络</h2>
 <p class="note-paragraph">不同任务需要不同的网络结构。<strong>架构</strong>决定如何组织层与连接方式，从而提取输入中的有效信息。本节为框架性概览，后续课程将逐类展开。</p>
-<h4 id="mlp多层感知机" class="note-heading">MLP（多层感知机）</h4>
+<h4 id="mlp多层感知机" class="note-heading note-heading--h4">MLP（多层感知机）</h4>
 <p class="note-paragraph"><strong>结构</strong>：全连接层堆叠，隐层 + 非线性激活。</p>
 <pre class="note-code-block"><code>输入向量 x → [Linear → ReLU]×L → Linear → 输出
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>特点</th><th>说明</th></tr></thead><tbody><tr><td>输入</td><td>固定长度向量（如 CartPole 4 维状态）</td></tr><tr><td>优点</td><td>实现简单、通用函数逼近</td></tr><tr><td>局限</td><td>无法利用空间/时间局部结构</td></tr><tr><td>RL 应用</td><td>低维状态 Q 网络、策略网络</td></tr></tbody></table></div>
-<h4 id="cnn卷积神经网络" class="note-heading">CNN（卷积神经网络）</h4>
+<h4 id="cnn卷积神经网络" class="note-heading note-heading--h4">CNN（卷积神经网络）</h4>
 <p class="note-paragraph"><strong>结构</strong>：卷积层 + 池化层 + 全连接头，利用<strong>局部感受野</strong>与<strong>参数共享</strong>。</p>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>特点</th><th>说明</th></tr></thead><tbody><tr><td>输入</td><td>图像、网格（如 Atari 84×84 帧）</td></tr><tr><td>核心操作</td><td>卷积 <span class="note-math-inline" data-math-inline="\mathbf{W} * \mathbf{x}"></span>、池化降采样</td></tr><tr><td>优点</td><td>平移不变性、参数量少于全连接</td></tr><tr><td>RL 应用</td><td><strong>DQN（Atari）</strong>、视觉导航</td></tr></tbody></table></div>
-<h4 id="长短期记忆网络rnn--lstm--gru" class="note-heading">长短期记忆网络（RNN / LSTM / GRU）</h4>
+<h4 id="长短期记忆网络rnn--lstm--gru" class="note-heading note-heading--h4">长短期记忆网络（RNN / LSTM / GRU）</h4>
 <p class="note-paragraph"><strong>适用场景</strong>：输入是<strong>时间序列</strong>——文本 token、传感器读数、RL 中的<strong>观测轨迹</strong> <span class="note-math-inline" data-math-inline="o_1,o_2,\ldots,o_t"></span>。当环境<strong>部分可观测（POMDP）</strong>时，单帧状态不足以决策，需要网络<strong>记住历史</strong>。</p>
-<h5 id="普通-rnn仅短期隐状态" class="note-heading">普通 RNN（仅短期隐状态）</h5>
+<h5 id="普通-rnn仅短期隐状态" class="note-heading note-heading--h5">普通 RNN（仅短期隐状态）</h5>
 <p class="note-paragraph">每步用当前输入 <span class="note-math-inline" data-math-inline="\mathbf{x}_t"></span> 与上一步隐状态 <span class="note-math-inline" data-math-inline="\mathbf{h}_{t-1}"></span> 更新：</p>
 <div class="note-math-block" data-math-display="\mathbf{h}_t = \tanh(\mathbf{W}_{xh}\mathbf{x}_t + \mathbf{W}_{hh}\mathbf{h}_{t-1} + \mathbf{b}_h)"></div>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>符号</th><th>形状</th><th>含义</th></tr></thead><tbody><tr><td><span class="note-math-inline" data-math-inline="\mathbf{x}_t"></span></td><td><span class="note-math-inline" data-math-inline="(d_{\text{in}},)"></span></td><td>第 <span class="note-math-inline" data-math-inline="t"></span> 步输入</td></tr><tr><td><span class="note-math-inline" data-math-inline="\mathbf{h}_t"></span></td><td><span class="note-math-inline" data-math-inline="(d_h,)"></span></td><td>第 <span class="note-math-inline" data-math-inline="t"></span> 步隐状态（<strong>短期</strong>）</td></tr><tr><td><span class="note-math-inline" data-math-inline="\mathbf{W}_{xh}"></span></td><td><span class="note-math-inline" data-math-inline="(d_h, d_{\text{in}})"></span></td><td>输入→隐状态</td></tr><tr><td><span class="note-math-inline" data-math-inline="\mathbf{W}_{hh}"></span></td><td><span class="note-math-inline" data-math-inline="(d_h, d_h)"></span></td><td>隐状态→隐状态（<strong>循环连接</strong>）</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>局限</strong>：反向传播时 <span class="note-math-inline" data-math-inline="\frac{\partial \mathcal{L}}{\partial \mathbf{h}_{t-k}}"></span> 需连乘 <span class="note-math-inline" data-math-inline="\mathbf{W}_{hh}"></span> 与 <span class="note-math-inline" data-math-inline="\tanh&#x27;"></span> → <strong>梯度消失 / 爆炸</strong>，难以保留<strong>长期</strong>依赖（如 100 步前的关键事件）。</p>
-<h5 id="lstm细胞状态--三门读写" class="note-heading">LSTM：细胞状态 + 三门读写</h5>
+<h5 id="lstm细胞状态--三门读写" class="note-heading note-heading--h5">LSTM：细胞状态 + 三门读写</h5>
 <p class="note-paragraph">LSTM 增加<strong>细胞状态</strong> <span class="note-math-inline" data-math-inline="\mathbf{c}_t"></span>（<strong>长期记忆通道</strong>），并用三个 sigmoid 门（输出 0–1）控制「忘什么、记什么、输出什么」。记 <span class="note-math-inline" data-math-inline="[\mathbf{h}_{t-1}, \mathbf{x}_t]"></span> 为二者拼接向量。</p>
 <p class="note-paragraph"><strong>1. 遗忘门</strong> — 决定从 <span class="note-math-inline" data-math-inline="\mathbf{c}_{t-1}"></span> 中<strong>丢弃</strong>多少旧信息：</p>
 <div class="note-math-block" data-math-display="\mathbf{f}_t = \sigma(\mathbf{W}_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f)"></div>
@@ -381,14 +365,14 @@ load_best_checkpoint()
 <p class="note-paragraph"><strong>数值示例</strong>（<span class="note-math-inline" data-math-inline="d_h=2"></span>，单步标量简化）：设 <span class="note-math-inline" data-math-inline="\mathbf{f}_t=[0.1,\,0.9]^\top"></span>、<span class="note-math-inline" data-math-inline="\mathbf{c}_{t-1}=[5,\,-2]^\top"></span>、<span class="note-math-inline" data-math-inline="\mathbf{i}_t=[0.8,\,0.3]^\top"></span>、<span class="note-math-inline" data-math-inline="\tilde{\mathbf{c}}_t=[1,\,4]^\top"></span>，则</p>
 <div class="note-math-block" data-math-display="\mathbf{c}_t = [0.1\times 5 + 0.8\times 1,\; 0.9\times(-2) + 0.3\times 4] = [1.3,\,-0.6]^\top"></div>
 <p class="note-paragraph">第一步几乎忘掉旧值 5，第二步则主要保留 <span class="note-math-inline" data-math-inline="-2"></span> 并少量写入 4。</p>
-<h5 id="gru简化门控" class="note-heading">GRU（简化门控）</h5>
+<h5 id="gru简化门控" class="note-heading note-heading--h5">GRU（简化门控）</h5>
 <p class="note-paragraph">将 LSTM 的遗忘门与输入门合并为<strong>更新门</strong> <span class="note-math-inline" data-math-inline="\mathbf{z}_t"></span>，另设<strong>重置门</strong> <span class="note-math-inline" data-math-inline="\mathbf{r}_t"></span> 控制 <span class="note-math-inline" data-math-inline="\mathbf{h}_{t-1}"></span> 是否参与候选计算：</p>
 <div class="note-math-block" data-math-display="\mathbf{z}_t = \sigma(\mathbf{W}_z[\mathbf{h}_{t-1},\mathbf{x}_t]),\quad
 \mathbf{r}_t = \sigma(\mathbf{W}_r[\mathbf{h}_{t-1},\mathbf{x}_t])"></div>
 <div class="note-math-block" data-math-display="\tilde{\mathbf{h}}_t = \tanh(\mathbf{W}[\mathbf{r}_t \odot \mathbf{h}_{t-1}, \mathbf{x}_t]),\quad
 \mathbf{h}_t = (1-\mathbf{z}_t)\odot \mathbf{h}_{t-1} + \mathbf{z}_t \odot \tilde{\mathbf{h}}_t"></div>
 <p class="note-paragraph">参数量少于 LSTM，训练更快，许多序列任务效果接近。</p>
-<h5 id="pytorch-调用序列--向量" class="note-heading">PyTorch 调用（序列 → 向量）</h5>
+<h5 id="pytorch-调用序列--向量" class="note-heading note-heading--h5">PyTorch 调用（序列 → 向量）</h5>
 <pre class="note-code-block"><code class="language-python">import torch.nn as nn
 
 # 输入: (batch, seq_len, d_in)；输出 h_n 可用于 Q 头或策略头
@@ -399,13 +383,13 @@ q_values = nn.Linear(64, 2)(h_n[-1]) # 用最后时刻隐状态做 Q(s,·)
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>变体</th><th>长期记忆机制</th><th>参数量</th><th>典型用途</th></tr></thead><tbody><tr><td>Vanilla RNN</td><td>仅 <span class="note-math-inline" data-math-inline="\mathbf{h}_t"></span></td><td>少</td><td>短序列基线</td></tr><tr><td><strong>LSTM</strong></td><td><span class="note-math-inline" data-math-inline="\mathbf{c}_t"></span> + 三门</td><td>多</td><td>长序列、POMDP</td></tr><tr><td><strong>GRU</strong></td><td>更新/重置门</td><td>中</td><td>速度与效果折中</td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>RL 应用</strong>：<strong>DRQN</strong> 用 LSTM 处理帧堆叠序列；<strong>元 RL</strong> 用 RNN 编码历史轨迹以快速适应新任务；部分可观测环境中 <span class="note-math-inline" data-math-inline="\mathbf{h}_t"></span> 充当<strong>信念状态</strong>的近似。</p>
-<h4 id="transformer" class="note-heading">Transformer</h4>
+<h4 id="transformer" class="note-heading note-heading--h4">Transformer</h4>
 <p class="note-paragraph"><strong>结构</strong>：自注意力（Self-Attention）替代循环，并行处理序列。</p>
 <div class="note-math-block" data-math-display="\text{Attention}(Q,K,V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V"></div>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>特点</th><th>说明</th></tr></thead><tbody><tr><td>输入</td><td>序列 / 多模态 token</td></tr><tr><td>优点</td><td>长程依赖、可并行训练</td></tr><tr><td>RL 应用</td><td>Decision Transformer、离线 RL 大模型</td></tr></tbody></table></div>
-<h4 id="架构选型rl-速查" class="note-heading">架构选型（RL 速查）</h4>
+<h4 id="架构选型rl-速查" class="note-heading note-heading--h4">架构选型（RL 速查）</h4>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>状态类型</th><th>推荐架构</th><th>示例</th></tr></thead><tbody><tr><td>低维向量</td><td>MLP</td><td>CartPole、MountainCar</td></tr><tr><td>像素图像</td><td>CNN</td><td>Atari DQN</td></tr><tr><td>序列 / 部分可观测</td><td>LSTM / GRU</td><td>DRQN、记忆任务</td></tr><tr><td>长序列决策</td><td>Transformer</td><td>Decision Transformer</td></tr></tbody></table></div>
-</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#深度学习及训练">深度学习及训练</a></li><li class="note-toc-item note-toc-item--h4"><a href="#回顾">回顾</a></li><li class="note-toc-item note-toc-item--h4"><a href="#补档">补档</a></li><li class="note-toc-item note-toc-item--h4"><a href="#线性层">线性层</a></li><li class="note-toc-item note-toc-item--h4"><a href="#激活层">激活层</a></li><li class="note-toc-item note-toc-item--h4"><a href="#深度学习-vs-传统学习">深度学习 vs 传统学习</a></li><li class="note-toc-item note-toc-item--h4"><a href="#激活函数">激活函数</a></li><li class="note-toc-item note-toc-item--h4"><a href="#回归任务对于连续数据">回归任务（对于连续数据）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#分类任务对于离散数据">分类任务（对于离散数据）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#损失函数">损失函数</a></li><li class="note-toc-item note-toc-item--h4"><a href="#神经网络训练">神经网络训练</a></li><li class="note-toc-item note-toc-item--h4"><a href="#前向传播与反向传播">前向传播与反向传播</a></li><li class="note-toc-item note-toc-item--h4"><a href="#优化器">优化器</a></li><li class="note-toc-item note-toc-item--h4"><a href="#模型评价">模型评价</a></li><li class="note-toc-item note-toc-item--h4"><a href="#数据集划分">数据集划分</a></li><li class="note-toc-item note-toc-item--h4"><a href="#偏差-方差权衡bias-variance-tradeoff">偏差-方差权衡（Bias-Variance Tradeoff）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#欠拟合underfitting">欠拟合（Underfitting）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#过拟合overfitting">过拟合（Overfitting）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#学习曲线learning-curve">学习曲线（Learning Curve）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#评价指标">评价指标</a></li><li class="note-toc-item note-toc-item--h4"><a href="#正则化与防过拟合">正则化与防过拟合</a></li><li class="note-toc-item note-toc-item--h4"><a href="#交叉验证cross-validation">交叉验证（Cross-Validation）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#rl-中的模型评价">RL 中的模型评价</a></li><li class="note-toc-item note-toc-item--h4"><a href="#小结与衔接">小结与衔接</a></li><li class="note-toc-item note-toc-item--h2"><a href="#深度学习神经网络">深度学习神经网络</a></li><li class="note-toc-item note-toc-item--h4"><a href="#mlp多层感知机">MLP（多层感知机）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#cnn卷积神经网络">CNN（卷积神经网络）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#长短期记忆网络rnn--lstm--gru">长短期记忆网络（RNN / LSTM / GRU）</a></li><li class="note-toc-item note-toc-item--h4"><a href="#transformer">Transformer</a></li><li class="note-toc-item note-toc-item--h4"><a href="#架构选型rl-速查">架构选型（RL 速查）</a></li></ol></aside></div>
+</section>
       </div>
     </article>
 

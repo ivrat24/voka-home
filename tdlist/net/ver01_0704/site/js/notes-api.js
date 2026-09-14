@@ -52,7 +52,10 @@ export function canUseDevServerFetch() {
 export async function fetchDevManifestJson() {
   if (canUseDevServerFetch()) {
     try {
-      const res = await fetch(`${getDevServerOrigin()}/note_content/manifest.json`, { cache: "no-store" });
+      const res = await fetch(`${getDevServerOrigin()}/note_content/manifest.json`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(5000),
+      });
       if (res.ok) return res.json();
     } catch {
       /* fall through */

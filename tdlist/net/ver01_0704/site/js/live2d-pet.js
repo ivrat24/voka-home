@@ -114,13 +114,10 @@ async function loadLive2DModel(basePath, Live2DModel) {
     throw new Error("Published site requires a user-provided Live2D model");
   }
 
+  // HTTP 本地服务只用静态资源；失败时不要回退 27MB 内联包（会拖死整页）
   if (!isFileProtocol()) {
-    try {
-      const modelUrl = resolveAsset(basePath, MODEL_URL);
-      return await Live2DModel.from(modelUrl, { autoInteract: false });
-    } catch (error) {
-      console.warn("[Live2D] 静态模型加载失败，改用内联资源:", error);
-    }
+    const modelUrl = resolveAsset(basePath, MODEL_URL);
+    return await Live2DModel.from(modelUrl, { autoInteract: false });
   }
   return loadLive2DModelFromInline(Live2DModel);
 }

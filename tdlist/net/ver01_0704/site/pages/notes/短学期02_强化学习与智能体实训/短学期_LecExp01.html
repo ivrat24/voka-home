@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Gymnasium 与 MuJoCo Warp 两个平台的 CartPole 核心操作代码速查">
   <title>短学期 LecExp01 · 课程笔记 · 鼠窝</title>
-    <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
   <link rel="stylesheet" href="../../../css/style.css">
@@ -55,11 +55,11 @@
         <p class="note-description">Gymnasium 与 MuJoCo Warp 两个平台的 CartPole 核心操作代码速查</p>
       </header>
       <div class="note-body note-body--optimized content-body">
-        <div class="note-layout-with-toc"><div class="note-layout-main"><div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
+        <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="gymnasium环境交互" class="note-heading">Gymnasium：环境交互</h2>
+<h2 id="gymnasium环境交互" class="note-heading note-heading--h2">Gymnasium：环境交互</h2>
 <p class="note-paragraph">CartPole 观测 4 维 <code>[x, x_dot, theta, theta_dot]</code>，动作 <code>Discrete(2)</code>：<code>0=左推</code>，<code>1=右推</code>。</p>
-<h3 id="创建与单步" class="note-heading">创建与单步</h3>
+<h3 id="创建与单步" class="note-heading note-heading--h3">创建与单步</h3>
 <pre class="note-code-block"><code class="language-python">import gymnasium as gym
 
 ENV_ID = &quot;CartPole-v1&quot;
@@ -73,7 +73,7 @@ done = terminated or truncated
 env.close()
 </code></pre>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>返回值</th><th>含义</th></tr></thead><tbody><tr><td><code>obs</code></td><td>下一步状态 <span class="note-math-inline" data-math-inline="s_{t+1}"></span></td></tr><tr><td><code>reward</code></td><td>即时奖励（CartPole 每步 +1）</td></tr><tr><td><code>terminated</code></td><td>自然终止（杆倒/出界）</td></tr><tr><td><code>truncated</code></td><td>截断（达最大步数）</td></tr></tbody></table></div>
-<h3 id="回合循环" class="note-heading">回合循环</h3>
+<h3 id="回合循环" class="note-heading note-heading--h3">回合循环</h3>
 <pre class="note-code-block"><code class="language-python">def run_episode(policy_fn, seed=0, max_steps=500):
     env = gym.make(ENV_ID)
     obs, info = env.reset(seed=seed)
@@ -87,7 +87,7 @@ env.close()
     env.close()
     return total_reward
 </code></pre>
-<h3 id="策略与评估" class="note-heading">策略与评估</h3>
+<h3 id="策略与评估" class="note-heading note-heading--h3">策略与评估</h3>
 <pre class="note-code-block"><code class="language-python">def random_policy(obs, env):
     return env.action_space.sample()
 
@@ -100,8 +100,8 @@ returns = [run_episode(student_policy, seed=i) for i in range(30)]
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="mujococpu建模与仿真" class="note-heading">MuJoCo（CPU）：建模与仿真</h2>
-<h3 id="加载模型" class="note-heading">加载模型</h3>
+<h2 id="mujococpu建模与仿真" class="note-heading note-heading--h2">MuJoCo（CPU）：建模与仿真</h2>
+<h3 id="加载模型" class="note-heading note-heading--h3">加载模型</h3>
 <pre class="note-code-block"><code class="language-python">import mujoco
 
 CARTPOLE_XML = &quot;&quot;&quot;
@@ -129,13 +129,13 @@ mjd = mujoco.MjData(mjm)                             # 动态状态
 # mjd.qpos → [小车位置, 杆角度]    mjd.qvel → [小车速度, 杆角速度]
 # mjd.ctrl → 电机推力
 </code></pre>
-<h3 id="重置控制推进一步" class="note-heading">重置、控制、推进一步</h3>
+<h3 id="重置控制推进一步" class="note-heading note-heading--h3">重置、控制、推进一步</h3>
 <pre class="note-code-block"><code class="language-python">mujoco.mj_resetData(mjm, mjd)   # ≈ env.reset()
 mjd.qpos[1] = 0.15              # 设初始杆角
 mjd.ctrl[0] = 0.0               # 控制输入
 mujoco.mj_step(mjm, mjd)        # ≈ env.step 的物理部分
 </code></pre>
-<h3 id="渲染帧" class="note-heading">渲染帧</h3>
+<h3 id="渲染帧" class="note-heading note-heading--h3">渲染帧</h3>
 <pre class="note-code-block"><code class="language-python">renderer = mujoco.Renderer(mjm, height=240, width=320)
 renderer.update_scene(mjd)
 frame = renderer.render()         # RGB numpy 数组
@@ -144,7 +144,7 @@ renderer.close()
 </section>
 <div class="note-rat-divider note-rat--thin" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="mujoco-warpgpu并行仿真" class="note-heading">MuJoCo Warp（GPU）：并行仿真</h2>
+<h2 id="mujoco-warpgpu并行仿真" class="note-heading note-heading--h2">MuJoCo Warp（GPU）：并行仿真</h2>
 <pre class="note-code-block"><code class="language-python">import numpy as np
 import warp as wp
 import mujoco_warp as mjwarp
@@ -153,7 +153,7 @@ wp.init()
 m = mjwarp.put_model(mjm)
 d = mjwarp.put_data(mjm, mjd, nworld=1024)   # 1024 个并行环境
 </code></pre>
-<h3 id="设初始状态与控制warp-array-写法" class="note-heading">设初始状态与控制（Warp array 写法）</h3>
+<h3 id="设初始状态与控制warp-array-写法" class="note-heading note-heading--h3">设初始状态与控制（Warp array 写法）</h3>
 <pre class="note-code-block"><code class="language-python">qpos_np = d.qpos.numpy()
 qpos_np[:, 1] = np.random.uniform(-0.2, 0.2, size=1024)   # 各环境随机杆角
 d.qpos = wp.array(qpos_np, dtype=wp.float32)
@@ -161,14 +161,14 @@ d.qpos = wp.array(qpos_np, dtype=wp.float32)
 ctrl_np = np.random.uniform(-5, 5, size=(1024, mjm.nu)).astype(np.float32)
 d.ctrl = wp.array(ctrl_np, dtype=wp.float32)
 </code></pre>
-<h3 id="推进与读回" class="note-heading">推进与读回</h3>
+<h3 id="推进与读回" class="note-heading note-heading--h3">推进与读回</h3>
 <pre class="note-code-block"><code class="language-python">for _ in range(1000):
     mjwarp.step(m, d)
 wp.synchronize()                         # 必须：等 GPU 算完
 
 final_qpos = d.qpos.numpy()              # shape: (nworld, nq)
 </code></pre>
-<h3 id="测吞吐量" class="note-heading">测吞吐量</h3>
+<h3 id="测吞吐量" class="note-heading note-heading--h3">测吞吐量</h3>
 <pre class="note-code-block"><code class="language-python">import time
 
 for _ in range(5):                       # warmup，JIT 编译
@@ -182,7 +182,7 @@ wp.synchronize()
 dt = time.time() - t0
 print(f&quot;{nworld * 1000 / dt:,.0f} steps/sec&quot;)
 </code></pre>
-<h3 id="记录多轨迹" class="note-heading">记录多轨迹</h3>
+<h3 id="记录多轨迹" class="note-heading note-heading--h3">记录多轨迹</h3>
 <pre class="note-code-block"><code class="language-python">traj = np.zeros((n_step, n_show), dtype=np.float32)
 for t in range(n_step):
     mjwarp.step(m, d)
@@ -192,7 +192,7 @@ wp.synchronize()
 </section>
 <div class="note-rat-divider note-rat--thick" role="separator" aria-hidden="true"></div>
 <section class="note-module">
-<h2 id="两套-api-对照" class="note-heading">两套 API 对照</h2>
+<h2 id="两套-api-对照" class="note-heading note-heading--h2">两套 API 对照</h2>
 <div class="note-table-wrap"><table class="note-table"><thead><tr><th>操作</th><th>Gymnasium</th><th>MuJoCo CPU</th><th>MuJoCo Warp GPU</th></tr></thead><tbody><tr><td>创建</td><td><code>gym.make(id)</code></td><td><code>MjModel.from_xml_string(xml)</code></td><td><code>put_model</code> + <code>put_data(nworld=N)</code></td></tr><tr><td>重置</td><td><code>env.reset(seed=...)</code></td><td><code>mj_resetData(mjm, mjd)</code></td><td>改 <code>d.qpos</code> / <code>d.ctrl</code></td></tr><tr><td>推进一步</td><td><code>env.step(action)</code></td><td><code>mj_step(mjm, mjd)</code></td><td><code>mjwarp.step(m, d)</code></td></tr><tr><td>读状态</td><td><code>obs</code> (4,)</td><td><code>mjd.qpos</code>, <code>mjd.qvel</code></td><td><code>d.qpos.numpy()</code> → <code>(nworld, nq)</code></td></tr><tr><td>施加控制</td><td><code>action</code> 0/1</td><td><code>mjd.ctrl[0] = force</code></td><td><code>d.ctrl = wp.array(...)</code></td></tr><tr><td>同步</td><td>—</td><td>—</td><td><code>wp.synchronize()</code></td></tr></tbody></table></div>
 <p class="note-paragraph"><strong>操作注意：</strong></p>
 <ul class="note-list">
@@ -200,7 +200,7 @@ wp.synchronize()
 <li>Warp array 不能直接 <code>d.qpos[i,j]=...</code>，需 <code>.numpy()</code> 改完再 <code>wp.array(...)</code> 赋回</li>
 <li>GPU 测速前后都要 <code>wp.synchronize()</code></li>
 </ul>
-</section></div><aside class="note-toc note-toc--side" aria-label="目录"><p class="note-toc-title">目录</p><ol class="note-toc-list"><li class="note-toc-item note-toc-item--h2"><a href="#gymnasium环境交互">Gymnasium：环境交互</a></li><li class="note-toc-item note-toc-item--h3"><a href="#创建与单步">创建与单步</a></li><li class="note-toc-item note-toc-item--h3"><a href="#回合循环">回合循环</a></li><li class="note-toc-item note-toc-item--h3"><a href="#策略与评估">策略与评估</a></li><li class="note-toc-item note-toc-item--h2"><a href="#mujococpu建模与仿真">MuJoCo（CPU）：建模与仿真</a></li><li class="note-toc-item note-toc-item--h3"><a href="#加载模型">加载模型</a></li><li class="note-toc-item note-toc-item--h3"><a href="#重置控制推进一步">重置、控制、推进一步</a></li><li class="note-toc-item note-toc-item--h3"><a href="#渲染帧">渲染帧</a></li><li class="note-toc-item note-toc-item--h2"><a href="#mujoco-warpgpu并行仿真">MuJoCo Warp（GPU）：并行仿真</a></li><li class="note-toc-item note-toc-item--h3"><a href="#设初始状态与控制warp-array-写法">设初始状态与控制（Warp array 写法）</a></li><li class="note-toc-item note-toc-item--h3"><a href="#推进与读回">推进与读回</a></li><li class="note-toc-item note-toc-item--h3"><a href="#测吞吐量">测吞吐量</a></li><li class="note-toc-item note-toc-item--h3"><a href="#记录多轨迹">记录多轨迹</a></li><li class="note-toc-item note-toc-item--h2"><a href="#两套-api-对照">两套 API 对照</a></li></ol></aside></div>
+</section>
       </div>
     </article>
 
