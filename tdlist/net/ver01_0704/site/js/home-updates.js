@@ -30,7 +30,11 @@ function formatTime(iso) {
 }
 
 function previewText(content, max = 100) {
-  const text = (content || "").replace(/\s+/g, " ").trim();
+  const text = String(content || "")
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
   if (text.length <= max) return text;
   return `${text.slice(0, max)}…`;
 }
@@ -51,6 +55,7 @@ function openAnnouncementDetail(item) {
     `;
   }
   body.textContent = item.content || "";
+  body.classList.add("home-update-dialog__body--pre");
   dialog.showModal();
 }
 
@@ -67,7 +72,7 @@ function renderSlide(item, index) {
           <time>${escapeHtml(time)}</time>
         </header>
         <h3 class="home-update-slide__title">${escapeHtml(item.title || "更新公告")}</h3>
-        <p class="home-update-slide__preview">${escapeHtml(preview)}</p>
+        <p class="home-update-slide__preview home-update-slide__preview--pre">${escapeHtml(preview)}</p>
         <span class="home-update-slide__more">查看详情 →</span>
       </div>
     </article>

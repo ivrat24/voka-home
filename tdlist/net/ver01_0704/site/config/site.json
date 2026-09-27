@@ -64,10 +64,7 @@
       "icon": "static/icons/flower-arrange.svg",
       "contentType": "voice",
       "contentDir": "content/virtual-arrange",
-      "description": [
-        "术曲编辑初稿：上传与管理 Cevio AI 相关术曲工程的编辑初稿。",
-        "虚拟编曲工具：调用自建的虚拟编曲 AI 工具，完成试音与编配实验。"
-      ],
+      "description": "术曲初稿与编曲小工具试验区。",
       "planned": true
     },
     {
@@ -76,7 +73,7 @@
       "icon": "static/icons/flower-world.svg",
       "contentType": "markdown",
       "contentDir": "content/mouse-diary",
-      "description": "消息公示、事务备忘、闲聊与碎碎念的随手记录本。"
+      "description": "随手备忘、计划与公告的记录本。"
     }
   ],
   "vokaExtensions": {
