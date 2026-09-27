@@ -669,173 +669,51 @@ code {
   color: color-mix(in srgb, var(--text) 88%, var(--accent));
 }
 
-/* Entrance only uses opacity — loop effects use filter/color/shadow to avoid conflicts */
-.main-layout--home .home-soft-in {
-  animation: home-fade-in 0.7s ease both;
+.main-layout--home .home-section-title {
+  letter-spacing: 0.08em;
 }
 
-.main-layout--home .hero-text-box--intro .hero-badge.home-soft-in {
-  animation:
-    home-fade-in 0.65s ease both,
-    soft-badge-pulse 2.4s ease-in-out 0.5s infinite;
-}
-
+/* Soft loop only on hero brand block (title + wish); badge stays static */
 .main-layout--home .hero-text-box--intro .hero-title.home-soft-in {
-  animation:
-    home-fade-in 0.75s ease 0.06s both,
-    soft-title-pulse 2.6s ease-in-out 0.55s infinite;
+  animation: soft-title-pulse 5.5s ease-in-out infinite;
 }
 
 .main-layout--home .hero-text-box--intro .hero-desc.home-soft-in {
-  animation:
-    home-fade-in 0.8s ease 0.14s both,
-    soft-wish-pulse 2.2s ease-in-out 0.65s infinite;
-}
-
-.main-layout--home .hero-actions.home-soft-in {
-  animation: home-fade-in 0.75s ease 0.22s both;
-}
-
-.main-layout--home .home-section-title {
-  letter-spacing: 0.08em;
-  animation:
-    home-fade-in 0.7s ease 0.16s both,
-    soft-wish-pulse 3s ease-in-out 0.7s infinite;
-}
-
-.main-layout--home .zone-card {
-  animation: home-fade-in 0.75s ease both;
-}
-
-.main-layout--home .zone-card:nth-child(1) { animation-delay: 0.18s; }
-.main-layout--home .zone-card:nth-child(2) { animation-delay: 0.26s; }
-.main-layout--home .zone-card:nth-child(3) { animation-delay: 0.34s; }
-.main-layout--home .zone-card:nth-child(4) { animation-delay: 0.42s; }
-
-.main-layout--home .home-updates-section {
-  animation: home-fade-in 0.8s ease 0.12s both;
-}
-
-.main-layout--home .zone-card h3.text-soft-glow {
-  letter-spacing: 0.06em;
-  animation: soft-zone-pulse 3.2s ease-in-out infinite;
-}
-
-.main-layout--home .zone-card:nth-child(2) h3.text-soft-glow { animation-delay: 0.35s; }
-.main-layout--home .zone-card:nth-child(3) h3.text-soft-glow { animation-delay: 0.7s; }
-.main-layout--home .zone-card:nth-child(4) h3.text-soft-glow { animation-delay: 1.05s; }
-
-.zone-card h3.text-soft-glow {
-  transition: filter 0.35s ease, color 0.35s ease, transform 0.35s ease;
-}
-
-.zone-card:hover h3.text-soft-glow {
-  transform: translateY(-2px);
-  filter:
-    drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 70%, transparent))
-    drop-shadow(0 0 22px color-mix(in srgb, var(--accent-warm) 45%, transparent));
-}
-
-.home-update-slide__title {
-  transition: filter 0.35s ease, color 0.35s ease;
-}
-
-.home-update-slide.is-active .home-update-slide__title {
-  animation: soft-wish-pulse 2.8s ease-in-out infinite;
-}
-
-@keyframes home-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  animation: soft-wish-pulse 6s ease-in-out 0.4s infinite;
 }
 
 @keyframes soft-title-pulse {
   0%,
   100% {
-    color: var(--text);
-    filter:
-      drop-shadow(0 0 2px transparent)
-      drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 20%, transparent));
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 14%, transparent));
   }
   50% {
-    color: color-mix(in srgb, var(--text) 72%, var(--accent));
     filter:
-      drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 85%, transparent))
-      drop-shadow(0 0 28px color-mix(in srgb, var(--accent) 55%, transparent))
-      drop-shadow(0 0 48px color-mix(in srgb, var(--accent-warm) 40%, transparent));
+      drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 32%, transparent))
+      drop-shadow(0 0 26px color-mix(in srgb, var(--accent-warm) 16%, transparent));
   }
 }
 
 @keyframes soft-wish-pulse {
   0%,
   100% {
-    opacity: 0.72;
-    color: color-mix(in srgb, var(--text-muted) 70%, var(--accent));
-    filter:
-      drop-shadow(0 0 2px transparent)
-      drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 25%, transparent));
+    opacity: 0.88;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 12%, transparent));
   }
   50% {
     opacity: 1;
-    color: color-mix(in srgb, var(--text) 35%, var(--accent));
     filter:
-      drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 90%, transparent))
-      drop-shadow(0 0 22px color-mix(in srgb, var(--accent-warm) 55%, transparent))
-      drop-shadow(0 0 36px color-mix(in srgb, var(--accent) 35%, transparent));
-  }
-}
-
-@keyframes soft-zone-pulse {
-  0%,
-  100% {
-    color: var(--text);
-    filter: drop-shadow(0 0 2px transparent);
-  }
-  50% {
-    color: color-mix(in srgb, var(--text) 55%, var(--accent));
-    filter:
-      drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 70%, transparent))
-      drop-shadow(0 0 20px color-mix(in srgb, var(--accent-warm) 40%, transparent));
-  }
-}
-
-@keyframes soft-badge-pulse {
-  0%,
-  100% {
-    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-    box-shadow: 0 0 0 transparent;
-    filter: brightness(1);
-  }
-  50% {
-    border-color: color-mix(in srgb, var(--accent) 90%, white 10%);
-    box-shadow:
-      0 0 12px color-mix(in srgb, var(--accent) 55%, transparent),
-      0 0 28px color-mix(in srgb, var(--accent-warm) 30%, transparent);
-    filter: brightness(1.18);
+      drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 28%, transparent))
+      drop-shadow(0 0 20px color-mix(in srgb, var(--accent-warm) 14%, transparent));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .main-layout--home .home-soft-in,
-  .main-layout--home .hero-text-box--intro .hero-badge.home-soft-in,
   .main-layout--home .hero-text-box--intro .hero-title.home-soft-in,
-  .main-layout--home .hero-text-box--intro .hero-desc.home-soft-in,
-  .main-layout--home .hero-actions.home-soft-in,
-  .main-layout--home .home-section-title,
-  .main-layout--home .zone-card,
-  .main-layout--home .zone-card h3.text-soft-glow,
-  .main-layout--home .home-updates-section,
-  .home-update-slide.is-active .home-update-slide__title {
+  .main-layout--home .hero-text-box--intro .hero-desc.home-soft-in {
     animation: none !important;
-  }
-
-  .main-layout--home .hero-text-box--intro .hero-title,
-  .main-layout--home .hero-text-box--intro .hero-desc--wish,
-  .main-layout--home .home-section-title,
-  .main-layout--home .zone-card h3.text-soft-glow {
-    filter:
-      drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent))
-      drop-shadow(0 0 22px color-mix(in srgb, var(--accent-warm) 28%, transparent));
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 22%, transparent));
+    opacity: 1;
   }
 }
 

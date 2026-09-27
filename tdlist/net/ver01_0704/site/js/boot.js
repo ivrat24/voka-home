@@ -16,7 +16,7 @@
   var moduleSrc = script.getAttribute("data-module") || "main.js";
   var bundleSrc = script.getAttribute("data-bundle") || "site-offline.bundle.js";
   // Bump when shipping reader-visible JS/CSS so Pages visitors skip stale module cache.
-  var assetVersion = script.getAttribute("data-asset-version") || "20260927j";
+  var assetVersion = script.getAttribute("data-asset-version") || "20260927k";
 
   function withVersion(url) {
     try {
