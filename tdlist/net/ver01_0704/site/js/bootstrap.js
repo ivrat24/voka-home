@@ -12,7 +12,7 @@ import {
 } from "./layout.js";
 import { initMusicPlayer, refreshHeroNowPlaying } from "./music-player.js";
 import { initTimerWidget } from "./timer-widget.js";
-import { loadCourseNoteIndex, loadCoursePreviewFromManifest } from "./course-notes.js";
+import { loadCourseNoteIndex } from "./course-notes.js";
 import { fetchJson, applySiteAccessMode, canEditNotes, isPublishedSite } from "./runtime.js";
 import { initSpaNavigation } from "./spa-nav.js";
 import { initZonePasswordGate, redirectPublishedMouseDiaryAway } from "./access-gate.js";
@@ -130,7 +130,6 @@ async function enterPage(pageId, context = {}) {
   if (pageId === "home") {
     // 并行加载，避免某一接口卡住导致整页停在「加载中」
     await Promise.allSettled([
-      loadCoursePreview(basePath),
       import("./home-updates.js").then((m) => m.initHomeUpdates()),
       import("./home-mood-board.js").then((m) => m.initHomeMoodBoard()),
     ]);
@@ -197,10 +196,6 @@ function ensureHomeExtras(doc) {
       document.body.appendChild(document.importNode(updateDialog, true));
     }
   }
-}
-
-async function loadCoursePreview(basePath = "") {
-  await loadCoursePreviewFromManifest(basePath);
 }
 
 async function loadAgentLabUpdates(basePath = "") {
