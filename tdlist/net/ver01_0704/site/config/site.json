@@ -15,7 +15,7 @@
     "image": "static/image/image01.jpg",
     "source": "../../../static/image/image01.jpg",
     "fit": "cover",
-    "position": "center"
+    "position": "center 42%"
   },
   "quartzCompat": {
     "enabled": true,
@@ -101,7 +101,7 @@
   },
   "theme": {
     "default": "dark",
-    "accent": "#b4c3ff",
+    "accent": "#f1948a",
     "font": "system-ui, -apple-system, 'Segoe UI', sans-serif"
   },
   "musicPlayer": {
