@@ -8,10 +8,19 @@ const PUBLISHED_MOOD_URL = "content/mouse-diary/mood-board.json";
 
 export const MEMO_CATEGORIES = ["备忘", "闲聊", "碎碎念"];
 export const PLAN_CATEGORY = "更新计划";
+export const TODO_CATEGORY = "待办";
+export const TODO_TYPES = ["课程", "实验室", "组织", "生活"];
+export const TODO_VISIBLE_LIMIT = 6;
 export const ANNOUNCE_CATEGORY = "更新公告";
 export const MOOD_CATEGORY = "心情贴";
 export const MOOD_MAX_LENGTH = 50;
-export const DIARY_CATEGORIES = [...MEMO_CATEGORIES, PLAN_CATEGORY, ANNOUNCE_CATEGORY, MOOD_CATEGORY];
+export const DIARY_CATEGORIES = [
+  ...MEMO_CATEGORIES,
+  PLAN_CATEGORY,
+  TODO_CATEGORY,
+  ANNOUNCE_CATEGORY,
+  MOOD_CATEGORY,
+];
 
 /** @type {"server" | "local" | "published" | null} */
 let storageMode = null;
@@ -96,6 +105,20 @@ export function sortPlans(items) {
     const planA = parseTime(a.plannedAt) || parseTime(a.updatedAt) || Number.MAX_SAFE_INTEGER;
     const planB = parseTime(b.plannedAt) || parseTime(b.updatedAt) || Number.MAX_SAFE_INTEGER;
     return planA - planB;
+  });
+}
+
+/** 待办按日期升序（年月日） */
+export function sortTodos(items) {
+  return [...items].sort((a, b) => {
+    const dateA = String(a.plannedAt || "").slice(0, 10);
+    const dateB = String(b.plannedAt || "").slice(0, 10);
+    if (dateA !== dateB) {
+      if (!dateA) return 1;
+      if (!dateB) return -1;
+      return dateA.localeCompare(dateB);
+    }
+    return parseTime(a.updatedAt || a.createdAt) - parseTime(b.updatedAt || b.createdAt);
   });
 }
 
@@ -209,6 +232,7 @@ export async function migrateLocalDiaryToServerIfNeeded() {
         title: memo.title,
         favorite: memo.favorite,
         plannedAt: memo.plannedAt,
+        todoType: memo.todoType,
         featured: memo.featured,
       }),
     });
@@ -301,6 +325,11 @@ export async function listMemos() {
 export async function listPlans() {
   const all = await fetchAllMemosRaw();
   return sortPlans(all.filter((m) => m.category === PLAN_CATEGORY));
+}
+
+export async function listTodos() {
+  const all = await fetchAllMemosRaw();
+  return sortTodos(all.filter((m) => m.category === TODO_CATEGORY));
 }
 
 export async function listAnnouncements() {
@@ -404,20 +433,34 @@ function titleFromContent(content, category) {
   return `${category} ${stamp}`;
 }
 
-export async function createMemo({ category, content, title, favorite = false, plannedAt, featured = false }) {
+export async function createMemo({
+  category,
+  content,
+  title,
+  favorite = false,
+  plannedAt,
+  todoType,
+  featured = false,
+}) {
   const body = (content || "").trim();
+  const cat = String(category || "").trim();
   if (!body) throw new Error("内容不能为空");
-  if (!DIARY_CATEGORIES.includes(category)) throw new Error("无效的栏目");
-  if (category === PLAN_CATEGORY && !plannedAt) throw new Error("请填写计划时间");
-  if (category === MOOD_CATEGORY && body.length > MOOD_MAX_LENGTH) {
+  if (!DIARY_CATEGORIES.includes(cat)) throw new Error("无效的栏目");
+  if (cat === PLAN_CATEGORY && !plannedAt) throw new Error("请填写计划时间");
+  if (cat === TODO_CATEGORY) {
+    if (!plannedAt) throw new Error("请填写待办日期");
+    if (!TODO_TYPES.includes(todoType)) throw new Error("请选择待办类型：课程 / 实验室 / 组织 / 生活");
+  }
+  if (cat === MOOD_CATEGORY && body.length > MOOD_MAX_LENGTH) {
     throw new Error(`心情贴不能超过 ${MOOD_MAX_LENGTH} 字`);
   }
 
   await detectDiaryStorage();
 
-  const payload = { category, content: body, title, favorite };
+  const payload = { category: cat, content: body, title, favorite };
   if (plannedAt) payload.plannedAt = plannedAt;
-  if (category === MOOD_CATEGORY && featured) payload.featured = true;
+  if (cat === TODO_CATEGORY && todoType) payload.todoType = todoType;
+  if (cat === MOOD_CATEGORY && featured) payload.featured = true;
 
   if (storageMode === "server") {
     const data = await apiFetch("/memos", {
@@ -433,15 +476,18 @@ export async function createMemo({ category, content, title, favorite = false, p
     path: `local/${newLocalId()}.md`,
     title:
       title ||
-      (category === ANNOUNCE_CATEGORY
+      (cat === ANNOUNCE_CATEGORY
         ? `更新公告 ${formatStamp(now)}`
-        : category === MOOD_CATEGORY
+        : cat === MOOD_CATEGORY
           ? `心情贴 ${formatStamp(now)}`
-          : titleFromContent(body, category)),
-    category,
+          : cat === TODO_CATEGORY
+            ? titleFromContent(body, "待办")
+            : titleFromContent(body, cat)),
+    category: cat,
     favorite: Boolean(favorite),
-    featured: category === MOOD_CATEGORY && Boolean(featured),
+    featured: cat === MOOD_CATEGORY && Boolean(featured),
     plannedAt: plannedAt || "",
+    todoType: cat === TODO_CATEGORY ? todoType || "" : "",
     createdAt: now,
     updatedAt: now,
     content: body,
@@ -453,7 +499,7 @@ export async function createMemo({ category, content, title, favorite = false, p
   return memo;
 }
 
-export async function updateMemo({ path, content, title, category, favorite, plannedAt, featured }) {
+export async function updateMemo({ path, content, title, category, favorite, plannedAt, todoType, featured }) {
   await detectDiaryStorage();
 
   if (storageMode === "server") {
@@ -463,6 +509,7 @@ export async function updateMemo({ path, content, title, category, favorite, pla
     if (category !== undefined) payload.category = category;
     if (favorite !== undefined) payload.favorite = favorite;
     if (plannedAt !== undefined) payload.plannedAt = plannedAt;
+    if (todoType !== undefined) payload.todoType = todoType;
     if (featured !== undefined) payload.featured = featured;
     const data = await apiFetch("/memos", { method: "PUT", body: JSON.stringify(payload) });
     return data.memo;
@@ -482,11 +529,17 @@ export async function updateMemo({ path, content, title, category, favorite, pla
   if (category !== undefined) memo.category = category;
   if (favorite !== undefined) memo.favorite = Boolean(favorite);
   if (plannedAt !== undefined) memo.plannedAt = plannedAt;
+  if (todoType !== undefined) memo.todoType = todoType;
   if (featured !== undefined) {
     memo.featured = Boolean(featured);
     if (memo.featured && memo.category === MOOD_CATEGORY) {
       clearLocalMoodFeatured(memo.path);
     }
+  }
+  const effectiveCategory = memo.category;
+  if (effectiveCategory === TODO_CATEGORY) {
+    if (!memo.plannedAt) throw new Error("请填写待办日期");
+    if (!TODO_TYPES.includes(memo.todoType)) throw new Error("请选择待办类型：课程 / 实验室 / 组织 / 生活");
   }
   memo.updatedAt = new Date().toISOString();
   memos[idx] = memo;
@@ -545,4 +598,25 @@ export function fromDatetimeLocalValue(value) {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
   return d.toISOString();
+}
+
+export function defaultTodoDateValue() {
+  return toDateInputValue(new Date());
+}
+
+export function toDateInputValue(date) {
+  if (!date) return "";
+  if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}/.test(date)) {
+    return date.slice(0, 10);
+  }
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+export function fromDateInputValue(value) {
+  const raw = String(value || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return "";
+  return raw;
 }

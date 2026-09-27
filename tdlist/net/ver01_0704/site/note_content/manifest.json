@@ -1,8 +1,26 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-14T12:47:58",
+  "generatedAt": "2026-09-27T15:59:58",
   "contentDir": "note_content",
   "courses": [
+    {
+      "slug": "习概",
+      "title": "习概",
+      "noteCount": 2,
+      "latestDate": "2026-09-18"
+    },
+    {
+      "slug": "心理学及应用",
+      "title": "心理学及应用",
+      "noteCount": 1,
+      "latestDate": "2026-09-18"
+    },
+    {
+      "slug": "操作系统",
+      "title": "操作系统",
+      "noteCount": 2,
+      "latestDate": "2026-09-17"
+    },
     {
       "slug": "短学期02_强化学习与智能体实训",
       "title": "短学期02 强化学习与智能体实训",
@@ -10,13 +28,55 @@
       "latestDate": "2026-07-17"
     },
     {
+      "slug": "计算机组成",
+      "title": "计算机组成",
+      "noteCount": 1,
+      "latestDate": ""
+    },
+    {
       "slug": "计算机网络",
       "title": "计算机网络",
       "noteCount": 2,
       "latestDate": "2026-09-14"
+    },
+    {
+      "slug": "计算理论",
+      "title": "计算理论",
+      "noteCount": 3,
+      "latestDate": "2026-09-20"
     }
   ],
   "materials": [
+    {
+      "course": "习概",
+      "filename": "xi_thought_doc2.pdf",
+      "path": "note_content/习概/materials/xi_thought_doc2.pdf",
+      "size": 471195
+    },
+    {
+      "course": "习概",
+      "filename": "xi_thought_考点详解.md",
+      "path": "note_content/习概/materials/xi_thought_考点详解.md",
+      "size": 34425
+    },
+    {
+      "course": "操作系统",
+      "filename": "ch1.pptx",
+      "path": "note_content/操作系统/materials/ch1.pptx",
+      "size": 5963457
+    },
+    {
+      "course": "操作系统",
+      "filename": "exam_bank.md",
+      "path": "note_content/操作系统/materials/exam_bank.md",
+      "size": 23668
+    },
+    {
+      "course": "操作系统",
+      "filename": "raw_src_nt_N.md",
+      "path": "note_content/操作系统/materials/raw_src_nt_N.md",
+      "size": 508780
+    },
     {
       "course": "短学期02_强化学习与智能体实训",
       "filename": "exp1_gymnasium_intro.ipynb",
@@ -70,35 +130,83 @@
       "filename": "exp7_student.py",
       "path": "note_content/短学期02_强化学习与智能体实训/materials/exp7_student.py",
       "size": 3191
+    },
+    {
+      "course": "计算理论",
+      "filename": "exam-2023-2024.pdf",
+      "path": "note_content/计算理论/materials/exam-2023-2024.pdf",
+      "size": 168527
     }
   ],
   "notes": [
     {
-      "slug": "计算机网络/前言",
-      "courseSlug": "计算机网络",
-      "title": "前言",
-      "date": "2026-09-14",
+      "slug": "习概/引言",
+      "courseSlug": "习概",
+      "title": "引言",
+      "date": "2026-09-18",
       "tags": [
-        "计算机网络",
-        "前言"
+        "习概",
+        "引言"
       ],
-      "description": "课程成绩配置与基本说明",
-      "source": "note_content/计算机网络/前言.md",
-      "href": "pages/notes/计算机网络/前言.html"
+      "description": "习近平新时代中国特色社会主义思想概论 · 本课专题安排与导论",
+      "source": "note_content/习概/引言.md",
+      "href": "pages/notes/习概/引言.html"
     },
     {
-      "slug": "计算机网络/day1_引言",
-      "courseSlug": "计算机网络",
-      "title": "Day1 引言",
-      "date": "2026-09-14",
+      "slug": "习概/考点详解",
+      "courseSlug": "习概",
+      "title": "习概考点详解",
+      "date": "2026-09-18",
       "tags": [
-        "计算机网络",
-        "引言",
-        "Day1"
+        "习概",
+        "考点",
+        "开卷"
       ],
-      "description": "接入网；动态网络传输示意",
-      "source": "note_content/计算机网络/day1_引言.md",
-      "href": "pages/notes/计算机网络/day1_引言.html"
+      "description": "依据教材与考点导图 xi_thought_doc2.pdf，按思政课课程标准整理的考点详细回答",
+      "source": "note_content/习概/考点详解.md",
+      "href": "pages/notes/习概/考点详解.html"
+    },
+    {
+      "slug": "心理学及应用/引言",
+      "courseSlug": "心理学及应用",
+      "title": "引言",
+      "date": "2026-09-18",
+      "tags": [
+        "心理学及应用",
+        "引言"
+      ],
+      "description": "心理学及应用 · 课程引言",
+      "source": "note_content/心理学及应用/引言.md",
+      "href": "pages/notes/心理学及应用/引言.html"
+    },
+    {
+      "slug": "操作系统/ch2",
+      "courseSlug": "操作系统",
+      "title": "Ch2 Operating-System Structure",
+      "date": "2026-09-17",
+      "tags": [
+        "操作系统",
+        "Chapter2",
+        "OS Structure"
+      ],
+      "description": "系统服务与用户接口；系统调用与 API；系统服务/链接加载；机制与策略；单体·分层·微内核·模块·混合；生成与引导；调试概要",
+      "source": "note_content/操作系统/ch2.md",
+      "href": "pages/notes/操作系统/ch2.html"
+    },
+    {
+      "slug": "操作系统/day_1引言",
+      "courseSlug": "操作系统",
+      "title": "Day1 引言",
+      "date": "2026-09-17",
+      "tags": [
+        "操作系统",
+        "Day1",
+        "引言",
+        "Chapter1"
+      ],
+      "description": "严格对照 ch1.pptx：Course Overview + Chapter 1 Introduction（OSC 表述与学术英文）",
+      "source": "note_content/操作系统/day_1引言.md",
+      "href": "pages/notes/操作系统/day_1引言.html"
     },
     {
       "slug": "短学期02_强化学习与智能体实训/短学期_LecExp07",
@@ -347,6 +455,89 @@
       "description": "监督学习 vs 强化学习、MDP/DQN、世界模型与具身智能仿真入门",
       "source": "note_content/短学期02_强化学习与智能体实训/短学期_Lec01.md",
       "href": "pages/notes/短学期02_强化学习与智能体实训/短学期_Lec01.html"
+    },
+    {
+      "slug": "计算机组成/day01_引言",
+      "courseSlug": "计算机组成",
+      "title": "day01 引言",
+      "date": "",
+      "tags": [],
+      "description": "",
+      "source": "note_content/计算机组成/day01_引言.md",
+      "href": "pages/notes/计算机组成/day01_引言.html"
+    },
+    {
+      "slug": "计算机网络/前言",
+      "courseSlug": "计算机网络",
+      "title": "前言",
+      "date": "2026-09-14",
+      "tags": [
+        "计算机网络",
+        "前言"
+      ],
+      "description": "课程成绩配置与基本说明",
+      "source": "note_content/计算机网络/前言.md",
+      "href": "pages/notes/计算机网络/前言.html"
+    },
+    {
+      "slug": "计算机网络/day1_引言",
+      "courseSlug": "计算机网络",
+      "title": "Day1 引言",
+      "date": "2026-09-14",
+      "tags": [
+        "计算机网络",
+        "引言",
+        "Day1"
+      ],
+      "description": "接入网；动态网络传输示意",
+      "source": "note_content/计算机网络/day1_引言.md",
+      "href": "pages/notes/计算机网络/day1_引言.html"
+    },
+    {
+      "slug": "计算理论/ch0-引言",
+      "courseSlug": "计算理论",
+      "title": "ch0-引言",
+      "date": "2026-09-15",
+      "tags": [
+        "计算理论",
+        "引言"
+      ],
+      "description": "成绩构成：课后作业20、随堂测试10、期末闭卷70",
+      "source": "note_content/计算理论/ch0-引言.md",
+      "href": "pages/notes/计算理论/ch0-引言.html"
+    },
+    {
+      "slug": "计算理论/ch1-Sets_Relations_and_Languages",
+      "courseSlug": "计算理论",
+      "title": "ch1-Sets, Relations and Languages",
+      "date": "2026-09-15",
+      "tags": [
+        "计算理论",
+        "Ch1",
+        "集合",
+        "关系",
+        "语言"
+      ],
+      "description": "集合与运算、关系与函数、有限/无限集、归纳与对角化、闭包算法、字母表与语言",
+      "source": "note_content/计算理论/ch1-Sets_Relations_and_Languages.md",
+      "href": "pages/notes/计算理论/ch1-Sets_Relations_and_Languages.html"
+    },
+    {
+      "slug": "计算理论/ch2-Finite_Automata_and_Regular_Expressions",
+      "courseSlug": "计算理论",
+      "title": "ch2-Finite Automata and Regular Expressions",
+      "date": "2026-09-20",
+      "tags": [
+        "计算理论",
+        "Ch2",
+        "DFA",
+        "NFA",
+        "正则表达式",
+        "泵引理"
+      ],
+      "description": "DFA/NFA、正则表达式、正则语言闭包、泵引理与正则性判定方法",
+      "source": "note_content/计算理论/ch2-Finite_Automata_and_Regular_Expressions.md",
+      "href": "pages/notes/计算理论/ch2-Finite_Automata_and_Regular_Expressions.html"
     }
   ]
 }

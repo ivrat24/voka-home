@@ -47,12 +47,13 @@
       <span class="module-icon" aria-hidden="true"><img class="flower-icon flower-icon--lg" src="../static/icons/flower-world.svg" alt=""></span>
       <div>
         <h1>鼠の事件簿</h1>
-        <p>随手备忘、更新计划、更新公告与心情贴——不必正式，但要留痕。</p>
+        <p>随手备忘、待办、更新计划、更新公告与心情贴——不必正式，但要留痕。</p>
       </div>
     </header>
 
     <div class="diary-module-tabs" role="tablist" aria-label="事件簿模块">
-      <button type="button" class="diary-module-tab is-active" data-diary-tab="memo" role="tab" aria-selected="true">随手备忘</button>
+      <button type="button" class="diary-module-tab is-active" data-diary-tab="tdlist" role="tab" aria-selected="true">tdlist</button>
+      <button type="button" class="diary-module-tab" data-diary-tab="memo" role="tab" aria-selected="false">随手备忘</button>
       <button type="button" class="diary-module-tab" data-diary-tab="plan" role="tab" aria-selected="false">更新计划</button>
       <button type="button" class="diary-module-tab" data-diary-tab="announce" role="tab" aria-selected="false">更新公告</button>
       <button type="button" class="diary-module-tab" data-diary-tab="mood" role="tab" aria-selected="false">心情贴</button>
@@ -61,8 +62,53 @@
     <section class="module-section diary-workspace" id="diary-workspace">
       <p class="muted diary-storage-hint" id="diary-storage-mode">检测存储方式中…</p>
 
+      <!-- tdlist 待办 -->
+      <div class="diary-panel" id="diary-panel-tdlist" data-diary-panel="tdlist">
+        <div class="diary-workspace__head">
+          <h2>tdlist</h2>
+          <p class="muted">按日期排序 · 默认显示前 6 条，其余折叠</p>
+        </div>
+
+        <div class="diary-composer diary-composer--tdlist">
+          <div class="diary-composer__toolbar">
+            <label class="diary-field">
+              <span class="diary-field__label">日期</span>
+              <input type="date" id="tdlist-date-input" class="diary-input" required>
+            </label>
+            <label class="diary-field">
+              <span class="diary-field__label">类型</span>
+              <select id="tdlist-type-input" class="diary-select">
+                <option value="课程" selected>课程</option>
+                <option value="实验室">实验室</option>
+                <option value="组织">组织</option>
+                <option value="生活">生活</option>
+              </select>
+            </label>
+          </div>
+          <label class="diary-field diary-field--grow" for="tdlist-content-input">
+            <span class="diary-field__label">待办事项</span>
+            <textarea id="tdlist-content-input" class="diary-textarea" rows="4" placeholder="写下要做的事…"></textarea>
+          </label>
+          <div class="diary-composer__actions">
+            <button type="button" class="btn btn-primary" id="tdlist-save-btn">添加待办</button>
+            <button type="button" class="btn btn-ghost" id="tdlist-clear-btn">清空</button>
+            <span class="diary-status muted" id="tdlist-status" role="status"></span>
+          </div>
+        </div>
+
+        <div class="diary-list-section">
+          <div class="diary-list__head">
+            <h3>待办列表</h3>
+            <p class="muted">按年月日升序</p>
+          </div>
+          <div class="diary-tdlist" id="tdlist-list">
+            <p class="diary-empty muted">加载中…</p>
+          </div>
+        </div>
+      </div>
+
       <!-- 随手备忘 -->
-      <div class="diary-panel" id="diary-panel-memo" data-diary-panel="memo">
+      <div class="diary-panel" id="diary-panel-memo" data-diary-panel="memo" hidden>
         <div class="diary-workspace__head">
           <h2>随手备忘</h2>
           <p class="muted">支持文字与语音混合输入，收藏优先排序</p>

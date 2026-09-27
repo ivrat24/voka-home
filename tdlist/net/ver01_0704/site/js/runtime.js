@@ -69,14 +69,17 @@ export async function loadEmbeddedJson(key) {
 }
 
 export async function fetchJson(url, embeddedKey) {
+  let networkFailed = false;
   try {
     const res = await fetch(url, { cache: "no-store" });
     if (res.ok) return res.json();
+    // HTTP 非 2xx（如 404）：http(s) 下勿回退到巨型 site-data.js，否则首屏会长时间停在「加载中」
   } catch {
-    /* fall through to embedded */
+    networkFailed = true;
   }
 
-  if (embeddedKey) {
+  // file:// 或网络失败时才使用离线包；在线 404 直接失败，由调用方展示占位
+  if (embeddedKey && (shouldUseEmbeddedData() || networkFailed)) {
     const embedded = await loadEmbeddedJson(embeddedKey);
     if (embedded !== null && embedded !== undefined) return embedded;
   }

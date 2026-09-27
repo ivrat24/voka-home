@@ -4,20 +4,27 @@ import {
   MOOD_CATEGORY,
   MOOD_MAX_LENGTH,
   PLAN_CATEGORY,
+  TODO_CATEGORY,
+  TODO_TYPES,
+  TODO_VISIBLE_LIMIT,
   createMemo,
   createMoodSticker,
   defaultPlannedInputValue,
+  defaultTodoDateValue,
   deleteMemo,
   detectDiaryStorage,
   exportEditorAnnouncementsToReader,
+  fromDateInputValue,
   fromDatetimeLocalValue,
   getDiaryStorageMode,
   listAnnouncements,
   listMemos,
   listMoods,
   listPlans,
+  listTodos,
   setMoodFeatured,
   storageModeLabel,
+  toDateInputValue,
   toDatetimeLocalValue,
   updateMemo,
 } from "./mouse-diary-api.js";
@@ -38,6 +45,8 @@ let editingMemo = null;
 /** @type {object | null} */
 let editingPlan = null;
 /** @type {object | null} */
+let editingTodo = null;
+/** @type {object | null} */
 let editingAnnounce = null;
 /** @type {object | null} */
 let editingMood = null;
@@ -47,12 +56,15 @@ let memos = [];
 /** @type {object[]} */
 let plans = [];
 /** @type {object[]} */
+let todos = [];
+/** @type {object[]} */
 let announcements = [];
 /** @type {object[]} */
 let moods = [];
 
 let filterCategory = "全部";
-let activePanel = "memo";
+let activePanel = "tdlist";
+let tdlistExpanded = false;
 
 function formatTime(iso) {
   if (!iso) return "";
@@ -597,6 +609,131 @@ function handlePlanEdit(plan) {
   setStatus("plan-status", "正在编辑计划…");
 }
 
+// ── tdlist 待办 ──
+
+function formatTodoDate(value) {
+  const date = toDateInputValue(value);
+  if (!date) return "";
+  return date;
+}
+
+function resetTodoComposer() {
+  document.getElementById("tdlist-content-input").value = "";
+  document.getElementById("tdlist-date-input").value = defaultTodoDateValue();
+  document.getElementById("tdlist-type-input").value = TODO_TYPES[0];
+  editingTodo = null;
+  document.getElementById("tdlist-save-btn").textContent = "添加待办";
+  setStatus("tdlist-status", "");
+}
+
+async function handleTodoSave() {
+  if (!canEditNotes()) return;
+  const content = document.getElementById("tdlist-content-input")?.value?.trim();
+  const plannedAt = fromDateInputValue(document.getElementById("tdlist-date-input")?.value);
+  const todoType = document.getElementById("tdlist-type-input")?.value || "";
+  if (!plannedAt) {
+    setStatus("tdlist-status", "请选择日期。");
+    return;
+  }
+  if (!TODO_TYPES.includes(todoType)) {
+    setStatus("tdlist-status", "请选择类型：课程 / 实验室 / 组织 / 生活。");
+    return;
+  }
+  if (!content) {
+    setStatus("tdlist-status", "请填写待办事项。");
+    return;
+  }
+  try {
+    if (editingTodo) {
+      await updateMemo({
+        path: editingTodo.path,
+        content,
+        category: TODO_CATEGORY,
+        plannedAt,
+        todoType,
+      });
+      setStatus("tdlist-status", "待办已更新。");
+    } else {
+      await createMemo({ category: TODO_CATEGORY, content, plannedAt, todoType });
+      setStatus("tdlist-status", "待办已添加。");
+    }
+    resetTodoComposer();
+    await refreshTodoList();
+  } catch (error) {
+    setStatus("tdlist-status", error.message || "保存失败");
+  }
+}
+
+function renderTodoCard(item) {
+  const dateLabel = formatTodoDate(item.plannedAt);
+  const typeLabel = item.todoType || "待办";
+  return `
+    <article class="diary-todo-card" data-path="${escapeHtml(item.path)}">
+      <div class="diary-todo-card__main">
+        <time class="diary-todo-card__date">${escapeHtml(dateLabel)}</time>
+        <span class="diary-todo-card__type zone-tag">${escapeHtml(typeLabel)}</span>
+        <p class="diary-todo-card__text">${escapeHtml(item.content || "")}</p>
+      </div>
+      <div class="diary-todo-card__actions">
+        ${canEditNotes() ? `<button type="button" class="btn btn-ghost btn-sm" data-action="edit">修改</button>` : ""}
+        ${canEditNotes() ? `<button type="button" class="btn btn-ghost btn-sm diary-btn-danger" data-action="delete">删除</button>` : ""}
+      </div>
+    </article>
+  `;
+}
+
+function renderTodoList() {
+  const list = document.getElementById("tdlist-list");
+  if (!list) return;
+
+  if (!todos.length) {
+    list.innerHTML = '<p class="diary-empty muted">暂无待办，在上方填写日期与事项后添加。</p>';
+    return;
+  }
+
+  const visible = todos.slice(0, TODO_VISIBLE_LIMIT);
+  const hidden = todos.slice(TODO_VISIBLE_LIMIT);
+  const visibleHtml = visible.map(renderTodoCard).join("");
+
+  let foldHtml = "";
+  if (hidden.length) {
+    foldHtml = `
+      <div class="diary-tdlist-fold${tdlistExpanded ? " is-open" : ""}">
+        <button type="button" class="btn btn-ghost diary-tdlist-fold__toggle" id="tdlist-fold-toggle" aria-expanded="${tdlistExpanded ? "true" : "false"}">
+          ${tdlistExpanded ? `收起其余 ${hidden.length} 条` : `展开其余 ${hidden.length} 条`}
+        </button>
+        <div class="diary-tdlist-fold__body" ${tdlistExpanded ? "" : "hidden"}>
+          ${hidden.map(renderTodoCard).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  list.innerHTML = `<div class="diary-tdlist__items">${visibleHtml}</div>${foldHtml}`;
+}
+
+async function refreshTodoList() {
+  try {
+    todos = await listTodos();
+    if (todos.length <= TODO_VISIBLE_LIMIT) tdlistExpanded = false;
+    renderTodoList();
+  } catch (error) {
+    const list = document.getElementById("tdlist-list");
+    if (list) list.innerHTML = `<p class="diary-empty muted">加载失败：${escapeHtml(error.message)}</p>`;
+  }
+}
+
+function handleTodoEdit(item) {
+  document.getElementById("tdlist-content-input").value = item.content || "";
+  document.getElementById("tdlist-date-input").value = toDateInputValue(item.plannedAt) || defaultTodoDateValue();
+  document.getElementById("tdlist-type-input").value = TODO_TYPES.includes(item.todoType) ? item.todoType : TODO_TYPES[0];
+  editingTodo = item;
+  document.getElementById("tdlist-save-btn").textContent = "保存修改";
+  switchPanel("tdlist");
+  document.getElementById("diary-panel-tdlist")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  setStatus("tdlist-status", "正在编辑待办…");
+}
+
 // ── 更新公告 ──
 
 function resetAnnounceComposer() {
@@ -823,6 +960,28 @@ function bindEvents() {
   document.getElementById("plan-save-btn")?.addEventListener("click", () => void handlePlanSave());
   document.getElementById("plan-clear-btn")?.addEventListener("click", resetPlanComposer);
 
+  document.getElementById("tdlist-save-btn")?.addEventListener("click", () => void handleTodoSave());
+  document.getElementById("tdlist-clear-btn")?.addEventListener("click", resetTodoComposer);
+  document.getElementById("tdlist-list")?.addEventListener("click", (event) => {
+    const foldBtn = event.target.closest("#tdlist-fold-toggle");
+    if (foldBtn) {
+      tdlistExpanded = !tdlistExpanded;
+      renderTodoList();
+      return;
+    }
+    const card = event.target.closest(".diary-todo-card");
+    if (!card) return;
+    const item = todos.find((m) => m.path === card.dataset.path);
+    if (!item) return;
+    const action = event.target.closest("[data-action]")?.dataset.action;
+    if (action === "edit") handleTodoEdit(item);
+    else if (action === "delete") {
+      void handleDelete(item, refreshTodoList, (deleted) => {
+        if (editingTodo?.path === deleted.path) resetTodoComposer();
+      }, "tdlist-status");
+    }
+  });
+
   document.getElementById("announce-save-btn")?.addEventListener("click", () => void handleAnnounceSave());
   document.getElementById("announce-clear-btn")?.addEventListener("click", resetAnnounceComposer);
   document.getElementById("export-announce-btn")?.addEventListener("click", () => void handleExportAnnouncements());
@@ -907,12 +1066,16 @@ export async function initMouseDiary() {
   const planDate = document.getElementById("plan-date-input");
   if (planDate && !planDate.value) planDate.value = defaultPlannedInputValue();
 
+  const todoDate = document.getElementById("tdlist-date-input");
+  if (todoDate && !todoDate.value) todoDate.value = defaultTodoDateValue();
+
   if (!canEditNotes()) {
     root.querySelectorAll("textarea, input:not([type=checkbox])").forEach((el) => {
-      if (el.id !== "plan-date-input") el.setAttribute("readonly", "readonly");
+      if (el.id !== "plan-date-input" && el.id !== "tdlist-date-input") el.setAttribute("readonly", "readonly");
     });
     root.querySelectorAll("button[id$='-save-btn']").forEach((btn) => btn.setAttribute("disabled", "disabled"));
     document.getElementById("diary-mic-toggle")?.setAttribute("disabled", "disabled");
+    document.getElementById("tdlist-type-input")?.setAttribute("disabled", "disabled");
   } else {
     const micHint = describeMicEnvironment();
     const micBtn = document.getElementById("diary-mic-toggle");
@@ -923,8 +1086,14 @@ export async function initMouseDiary() {
   }
 
   bindEvents();
-  switchPanel("memo");
+  switchPanel("tdlist");
   refreshLivePreview();
   updateMoodCharCount();
-  await Promise.all([refreshMemoList(), refreshPlanList(), refreshAnnounceList(), refreshMoodList()]);
+  await Promise.all([
+    refreshMemoList(),
+    refreshTodoList(),
+    refreshPlanList(),
+    refreshAnnounceList(),
+    refreshMoodList(),
+  ]);
 }

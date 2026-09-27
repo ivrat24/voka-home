@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="集合与运算、关系与函数、有限/无限集、归纳与对角化、闭包算法、字母表与语言">
+  <title>ch1-Sets, Relations and Languages · 课程笔记 · 鼠窝</title>
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="计算理论/ch1-Sets_Relations_and_Languages">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text"><span class="local-only">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span><span class="published-only">鼠窝</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=计算理论">计算理论</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">ch1-Sets, Relations and Languages</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">ch1-Sets, Relations and Languages</h1>
+        <p class="note-meta"><time datetime="2026-09-15">2026-09-15</time></p>
+        <div class="note-tags"><span class="note-tag">计算理论</span><span class="note-tag">Ch1</span><span class="note-tag">集合</span><span class="note-tag">关系</span><span class="note-tag">语言</span></div>
+        <p class="note-description">集合与运算、关系与函数、有限/无限集、归纳与对角化、闭包算法、字母表与语言</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <section class="note-module">
+<h1 id="ch1-sets-relations-and-languages" class="note-heading note-heading--h1">ch1-Sets, Relations and Languages</h1>
+<blockquote class="note-quote"><p class="note-paragraph">Chapter 1 核心知识整理（逻辑化重排；公式按站点 KaTeX 规范书写）</p></blockquote>
+<h2 id="1-sets集合" class="note-heading note-heading--h2">1. Sets（集合）</h2>
+<h3 id="11-基本概念" class="note-heading note-heading--h3">1.1 基本概念</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>说明</th></tr></thead><tbody><tr><td><strong>集合</strong></td><td>无重复元素；<strong>顺序不重要</strong></td></tr><tr><td><strong>元素 / 成员</strong></td><td>属于集合的对象，记 <span class="note-math-inline" data-math-inline="a \in A"></span></td></tr><tr><td><strong>单元集</strong>（singleton）</td><td>恰含 1 个元素的集合，如 <span class="note-math-inline" data-math-inline="\{a\}"></span></td></tr><tr><td><strong>空集</strong></td><td><span class="note-math-inline" data-math-inline="\emptyset"></span>，不含任何元素</td></tr><tr><td><strong>子集</strong></td><td><span class="note-math-inline" data-math-inline="A \subseteq B"></span>：<span class="note-math-inline" data-math-inline="A"></span> 的每个元素都属于 <span class="note-math-inline" data-math-inline="B"></span></td></tr><tr><td><strong>真子集</strong>（proper subset）</td><td><span class="note-math-inline" data-math-inline="A \subset B"></span>：<span class="note-math-inline" data-math-inline="A \subseteq B"></span> 且 <span class="note-math-inline" data-math-inline="A \neq B"></span></td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>集合相等</strong>：<span class="note-math-inline" data-math-inline="A = B"></span> 当且仅当 <span class="note-math-inline" data-math-inline="A \subseteq B"></span> 且 <span class="note-math-inline" data-math-inline="B \subseteq A"></span>。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">元素 a, b, c（无序、不重复）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">组成集合 A = {a, b, c}</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">子集 B ⊆ A（如 {a, c}）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">真子集：B ⊆ A 且 B ≠ A</div></div></figure>
+<h3 id="12-集合运算" class="note-heading note-heading--h3">1.2 集合运算</h3>
+<p class="note-paragraph">对集合族 <span class="note-math-inline" data-math-inline="S"></span>：</p>
+<div class="note-math-block" data-math-display="\bigcup S = \{ x : x \in P \text{ for some } P \in S \}"></div>
+<div class="note-math-block" data-math-display="\bigcap S = \{ x : x \in P \text{ for each } P \in S \}"></div>
+<ul class="note-list">
+<li><strong>差</strong>（difference）：<span class="note-math-inline" data-math-inline="A - B = \{ x : x \in A \text{ and } x \notin B \}"></span></li>
+<li><strong>不相交</strong>（disjoint）：<span class="note-math-inline" data-math-inline="A \cap B = \emptyset"></span></li>
+</ul>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">A ∪ B：属于 A 或属于 B（或都属）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">A ∩ B：同时属于 A 与 B</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">A − B：属 A 但不属 B</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">不相交：A ∩ B = ∅</div></div></figure>
+<h3 id="13-代数性质" class="note-heading note-heading--h3">1.3 代数性质</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>性质</th><th>公式</th></tr></thead><tbody><tr><td><strong>幂等</strong>（idempotency）</td><td><span class="note-math-inline" data-math-inline="A \cup A = A"></span>，<span class="note-math-inline" data-math-inline="A \cap A = A"></span></td></tr><tr><td><strong>交换</strong>（commutativity）</td><td><span class="note-math-inline" data-math-inline="A \cup B = B \cup A"></span>，<span class="note-math-inline" data-math-inline="A \cap B = B \cap A"></span></td></tr><tr><td><strong>结合</strong>（associativity）</td><td><span class="note-math-inline" data-math-inline="(A \cup B) \cup C = A \cup (B \cup C)"></span>（交同理）</td></tr><tr><td><strong>分配</strong>（distributivity）</td><td><span class="note-math-inline" data-math-inline="(A \cup B) \cap C = (A \cap C) \cup (B \cap C)"></span>；<span class="note-math-inline" data-math-inline="(A \cap B) \cup C = (A \cup C) \cap (B \cup C)"></span></td></tr><tr><td><strong>吸收</strong>（absorption）</td><td><span class="note-math-inline" data-math-inline="(A \cup B) \cap A = A"></span>，<span class="note-math-inline" data-math-inline="(A \cap B) \cup A = A"></span></td></tr><tr><td><strong>德摩根</strong>（De Morgan）</td><td><span class="note-math-inline" data-math-inline="A - (B \cup C) = (A - B) \cap (A - C)"></span>；<span class="note-math-inline" data-math-inline="A - (B \cap C) = (A - B) \cup (A - C)"></span></td></tr></tbody></table></div>
+<p class="note-paragraph">当 <span class="note-math-inline" data-math-inline="A = U"></span>（全集）时，德摩根律常写成更熟悉的 <span class="note-math-inline" data-math-inline="\overline{B \cup C} = \overline{B} \cap \overline{C}"></span> 等形式。</p>
+<h3 id="14-幂集与划分" class="note-heading note-heading--h3">1.4 幂集与划分</h3>
+<ul class="note-list">
+<li><strong>幂集</strong>（power set）：<span class="note-math-inline" data-math-inline="A"></span> 的全部子集构成的集合，记作 <span class="note-math-inline" data-math-inline="2^A"></span>。</li>
+<li><strong>划分</strong>（partition）：幂集的子集 <span class="note-math-inline" data-math-inline="\Pi \subseteq 2^A"></span>，并满足下列三条：</li>
+</ul>
+<p class="note-paragraph">  1. <span class="note-math-inline" data-math-inline="\emptyset \notin \Pi"></span></p>
+<p class="note-paragraph">  2. 任意两块互不相交</p>
+<p class="note-paragraph">  3. <span class="note-math-inline" data-math-inline="\bigcup \Pi = A"></span></p>
+<p class="note-paragraph">例：<span class="note-math-inline" data-math-inline="A = \{1,2,3\}"></span> 时，幂集含 <span class="note-math-inline" data-math-inline="2^3 = 8"></span> 个子集；一种划分如 <span class="note-math-inline" data-math-inline="\{\{1\},\{2,3\}\}"></span>。</p>
+<figure class="note-diagram note-diagram--tree"><div class="note-diagram-title">结构示意</div><div class="note-tree"><div class="note-flow-step note-flow-step--accent note-tree-root">A = {1, 2, 3}</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-tree-branch"><div class="note-flow-step note-flow-step--accent">空集</div><div class="note-flow-step">单元素子集</div><div class="note-flow-step">二元子集</div><div class="note-flow-step note-flow-step--accent">全集 A</div></div></div></figure>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">划分块 P1（非空）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">与 P2 互不相交</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">与 P3 互不相交</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">并集 = 原集合 A</div></div></figure>
+<hr>
+<h2 id="2-relations-and-functions关系与函数" class="note-heading note-heading--h2">2. Relations and Functions（关系与函数）</h2>
+<h3 id="21-有序对与笛卡尔积" class="note-heading note-heading--h3">2.1 有序对与笛卡尔积</h3>
+<p class="note-paragraph"><strong>有序对</strong>（ordered pair / pair）记作 <span class="note-math-inline" data-math-inline="(a, b)"></span>：</p>
+<ul class="note-list">
+<li><span class="note-math-inline" data-math-inline="a"></span>、<span class="note-math-inline" data-math-inline="b"></span> 为其<strong>分量</strong>（component）；顺序重要，且允许 <span class="note-math-inline" data-math-inline="a = b"></span>。</li>
+<li>与无序集合 <span class="note-math-inline" data-math-inline="\{a, b\}"></span> 不同：<span class="note-math-inline" data-math-inline="\{a, b\} = \{b, a\}"></span>，但一般 <span class="note-math-inline" data-math-inline="(a, b) \neq (b, a)"></span>（当 <span class="note-math-inline" data-math-inline="a \neq b"></span>）。</li>
+</ul>
+<p class="note-paragraph"><strong>有序对相等</strong>（pair equality）：</p>
+<div class="note-math-block" data-math-display="(a, b) = (c, d) \iff a = c \text{ 且 } b = d."></div>
+<p class="note-paragraph"><strong>有序对的逆</strong>（pair inverse）：对调两个分量，</p>
+<div class="note-math-block" data-math-display="(a, b)^{-1} := (b, a)."></div>
+<p class="note-paragraph">显然 <span class="note-math-inline" data-math-inline="\big((a, b)^{-1}\big)^{-1} = (a, b)"></span>；且 <span class="note-math-inline" data-math-inline="(a, b) = (b, a)"></span> 当且仅当 <span class="note-math-inline" data-math-inline="a = b"></span>。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">有序对 (a, b)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">pair 逆：对调分量</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">得到 (b, a)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">再逆一次 → 回到 (a, b)</div></div></figure>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">集合 {a, b}：无序，{a,b}={b,a}</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">有序对 (a, b)：有序，一般 (a,b)≠(b,a)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">相等判定：对应分量分别相等</div></div></figure>
+<ul class="note-list">
+<li><strong>笛卡尔积</strong>：<span class="note-math-inline" data-math-inline="A \times B = \{ (a, b) : a \in A,\ b \in B \}"></span>。</li>
+<li><strong>有序 n 元组</strong> <span class="note-math-inline" data-math-inline="(a_1, \ldots, a_n)"></span>；未固定 <span class="note-math-inline" data-math-inline="n"></span> 时也称<strong>序列</strong>（sequence）。相等同样要求各对应分量相等。</li>
+<li><strong>n 重笛卡尔积</strong>：<span class="note-math-inline" data-math-inline="A_1 \times \cdots \times A_n"></span>。</li>
+</ul>
+<h3 id="22-关系" class="note-heading note-heading--h3">2.2 关系</h3>
+<ul class="note-list">
+<li><strong>二元关系</strong>：<span class="note-math-inline" data-math-inline="R \subseteq A \times B"></span>（有序对的集合）。</li>
+<li><strong>n 元关系</strong>：<span class="note-math-inline" data-math-inline="R \subseteq A_1 \times \cdots \times A_n"></span>。</li>
+<li>1 / 2 / 3 元分别称 unary / binary / ternary relation。</li>
+</ul>
+<p class="note-paragraph">关系的逆由「逐对取逆」得到：</p>
+<div class="note-math-block" data-math-display="R^{-1} = \{ (a, b)^{-1} : (a, b) \in R \} = \{ (b, a) : (a, b) \in R \} \subseteq B \times A."></div>
+<p class="note-paragraph">图上即把每条有向边反向。关系之逆<strong>总是</strong>关系。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">R 中的每条边 (x → y)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">对每个 pair 取逆</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">变成边 (y → x)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">全体组成 R⁻¹</div></div></figure>
+<h3 id="23-函数与各类映射" class="note-heading note-heading--h3">2.3 函数与各类映射</h3>
+<p class="note-paragraph">从 <span class="note-math-inline" data-math-inline="A"></span> 到 <span class="note-math-inline" data-math-inline="B"></span> 的<strong>函数</strong>（function / mapping）<span class="note-math-inline" data-math-inline="f"></span> 是特殊的二元关系 <span class="note-math-inline" data-math-inline="f \subseteq A \times B"></span>：对每个 <span class="note-math-inline" data-math-inline="a \in A"></span>，<strong>有且仅有</strong>一个有序对以 <span class="note-math-inline" data-math-inline="a"></span> 为第一分量。记 <span class="note-math-inline" data-math-inline="f : A \to B"></span>。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>术语</th><th>记号 / 含义</th></tr></thead><tbody><tr><td>域（domain）</td><td><span class="note-math-inline" data-math-inline="A"></span></td></tr><tr><td>像</td><td><span class="note-math-inline" data-math-inline="f(a)"></span>；对 <span class="note-math-inline" data-math-inline="A&#x27; \subseteq A"></span>，<span class="note-math-inline" data-math-inline="f[A&#x27;] = \{ f(a) : a \in A&#x27; \}"></span></td></tr><tr><td>值域 / 范围（range）</td><td><span class="note-math-inline" data-math-inline="f[A]"></span></td></tr><tr><td>多元函数</td><td><span class="note-math-inline" data-math-inline="f : A_1 \times \cdots \times A_n \to B"></span>，<span class="note-math-inline" data-math-inline="a_1,\ldots,a_n"></span> 为<strong>参数</strong>（arguments），<span class="note-math-inline" data-math-inline="b = f(a_1,\ldots,a_n)"></span> 为<strong>值</strong></td></tr></tbody></table></div>
+<h4 id="按每个定义域元素对应几个像看关系形态" class="note-heading note-heading--h4">按「每个定义域元素对应几个像」看关系形态</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>类型</th><th>含义</th><th>是否函数</th></tr></thead><tbody><tr><td><strong>一对一</strong>（one-to-one）</td><td>不同 <span class="note-math-inline" data-math-inline="a"></span> 对应不同像；每个像至多来自一个 <span class="note-math-inline" data-math-inline="a"></span></td><td>若全域唯一赋值，即<strong>单射函数</strong></td></tr><tr><td><strong>多对一</strong>（many-to-one）</td><td>多个不同 <span class="note-math-inline" data-math-inline="a"></span> 可映到同一像</td><td>可以是函数，但<strong>非单射</strong></td></tr><tr><td><strong>一对多</strong>（one-to-many）</td><td>同一 <span class="note-math-inline" data-math-inline="a"></span> 对应多个 <span class="note-math-inline" data-math-inline="b"></span></td><td><strong>不是</strong>函数</td></tr><tr><td><strong>多对多</strong>（many-to-many）</td><td>两边都可一对多</td><td><strong>不是</strong>函数</td></tr></tbody></table></div>
+<blockquote class="note-quote"><p class="note-paragraph">函数要求：左侧每个元素恰好连出一条边（不多不少）。一对多 / 多对多破坏「恰好一个」。</p></blockquote>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">一对一：a1→b1，a2→b2，a3→b3（不撞车，是函数）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">多对一：a1,a2→b1，a3→b2（是函数，非单射）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">一对多：a1→b1 且 a1→b2（不是函数）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">多对多：两侧都可分叉（不是函数）</div></div></figure>
+<h4>按单射 / 满射分类（对函数 <span class="note-math-inline" data-math-inline="f : A \to B"></span>）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>类型</th><th>英文</th><th>条件</th><th>直觉</th></tr></thead><tbody><tr><td><strong>单射</strong></td><td>injective / one-to-one</td><td><span class="note-math-inline" data-math-inline="a \neq a&#x27; \Rightarrow f(a) \neq f(a&#x27;)"></span></td><td>不撞车；可左逆</td></tr><tr><td><strong>满射</strong></td><td>surjective / onto</td><td><span class="note-math-inline" data-math-inline="f[A] = B"></span>（<span class="note-math-inline" data-math-inline="B"></span> 每个元素都是某像）</td><td>盖满值域；可右逆</td></tr><tr><td><strong>双射</strong></td><td>bijective / one-to-one correspondence</td><td>既单射又满射</td><td>一一对应；存在反函数</td></tr><tr><td><strong>既非单又非满</strong></td><td>—</td><td>有撞车且 <span class="note-math-inline" data-math-inline="B"></span> 有漏网之鱼</td><td>多对一且未盖满</td></tr></tbody></table></div>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">单射：不撞车（像互异）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">满射：盖满 B（每个 b 都有原像）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">双射 = 单射 + 满射 → 存在反函数 f⁻¹</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">非单非满：既撞车又漏网</div></div></figure>
+<p class="note-paragraph">关系小结：</p>
+<div class="note-math-block" data-math-display="\text{双射} \;\Rightarrow\; \text{单射},\quad
+\text{双射} \;\Rightarrow\; \text{满射};\quad
+\text{单射} \nRightarrow \text{满射},\quad
+\text{满射} \nRightarrow \text{单射}."></div>
+<h4 id="函数之逆何时仍是函数" class="note-heading note-heading--h4">函数之逆何时仍是函数</h4>
+<p class="note-paragraph">对函数 <span class="note-math-inline" data-math-inline="f"></span>，先作为关系取逆：<span class="note-math-inline" data-math-inline="f^{-1} = \{ (f(a), a) : a \in A \}"></span>。</p>
+<ul class="note-list">
+<li><span class="note-math-inline" data-math-inline="f^{-1}"></span> <strong>总是</strong>关系，但<strong>不一定</strong>是函数。</li>
+<li><span class="note-math-inline" data-math-inline="f^{-1}"></span> 是函数 <span class="note-math-inline" data-math-inline="\iff"></span> <span class="note-math-inline" data-math-inline="f"></span> 为<strong>双射</strong>（此时称<strong>反函数</strong>）。</li>
+<li>此时有序对层面：<span class="note-math-inline" data-math-inline="(a, f(a))^{-1} = (f(a), a)"></span>，且</li>
+</ul>
+<div class="note-math-block" data-math-display="f^{-1}(f(a)) = a\ (\forall a \in A),\quad
+f(f^{-1}(b)) = b\ (\forall b \in B)."></div>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th><span class="note-math-inline" data-math-inline="f"></span> 类型</th><th><span class="note-math-inline" data-math-inline="f^{-1}"></span> 是否函数</th><th>原因（pair 视角）</th></tr></thead><tbody><tr><td>仅单射、非满射</td><td>否（定义域不够）</td><td>有的 <span class="note-math-inline" data-math-inline="b \in B"></span> 从未作为第二分量出现</td></tr><tr><td>仅满射、非单射</td><td>否（一对多）</td><td>同一 <span class="note-math-inline" data-math-inline="b"></span> 可对应多个 <span class="note-math-inline" data-math-inline="a"></span>，逆后变成一对多</td></tr><tr><td>双射</td><td>是</td><td>每个 <span class="note-math-inline" data-math-inline="b"></span> 恰对应一个 <span class="note-math-inline" data-math-inline="a"></span></td></tr><tr><td>非单非满</td><td>否</td><td>以上两种问题兼有</td></tr></tbody></table></div>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">f 中的 pair (a, f(a))</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">取 pair 逆 → (f(a), a)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">全体组成关系 f⁻¹</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">仅当 f 双射时，f⁻¹ 才是函数（反函数）</div></div></figure>
+<hr>
+<h2 id="3-special-types-of-binary-relations特殊二元关系" class="note-heading note-heading--h2">3. Special Types of Binary Relations（特殊二元关系）</h2>
+<p class="note-paragraph">把 <span class="note-math-inline" data-math-inline="R \subseteq A \times A"></span> 看成<strong>有向图</strong>：元素为结点，<span class="note-math-inline" data-math-inline="(a, b) \in R"></span> 为从 <span class="note-math-inline" data-math-inline="a"></span> 到 <span class="note-math-inline" data-math-inline="b"></span> 的边；<span class="note-math-inline" data-math-inline="(a,a)"></span> 为<strong>自环</strong>。</p>
+<h3 id="31-基本性质总表" class="note-heading note-heading--h3">3.1 基本性质总表</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>性质</th><th>英文</th><th>定义</th><th>图直觉</th></tr></thead><tbody><tr><td><strong>自反</strong></td><td>reflexive</td><td><span class="note-math-inline" data-math-inline="\forall a \in A,\ (a,a)\in R"></span></td><td>每个点都有自环</td></tr><tr><td><strong>反自反</strong></td><td>irreflexive</td><td><span class="note-math-inline" data-math-inline="\forall a \in A,\ (a,a)\notin R"></span></td><td>完全没有自环</td></tr><tr><td><strong>对称</strong></td><td>symmetric</td><td><span class="note-math-inline" data-math-inline="(a,b)\in R \Rightarrow (b,a)\in R"></span></td><td>有边必有反向边</td></tr><tr><td><strong>反对称</strong></td><td>antisymmetric</td><td><span class="note-math-inline" data-math-inline="(a,b)\in R"></span> 且 <span class="note-math-inline" data-math-inline="(b,a)\in R"></span> <span class="note-math-inline" data-math-inline="\Rightarrow"></span> <span class="note-math-inline" data-math-inline="a=b"></span></td><td>异点之间不能双向都有边</td></tr><tr><td><strong>非对称</strong></td><td>asymmetric</td><td><span class="note-math-inline" data-math-inline="(a,b)\in R \Rightarrow (b,a)\notin R"></span></td><td>更强：有边则绝无回流（也排除自环）</td></tr><tr><td><strong>传递</strong></td><td>transitive</td><td><span class="note-math-inline" data-math-inline="(a,b),(b,c)\in R \Rightarrow (a,c)\in R"></span></td><td>两步可达则须有直达边</td></tr></tbody></table></div>
+<blockquote class="note-quote"><p class="note-paragraph"><strong>反对称 vs 非对称</strong>：反对称允许自环，且「双向都有边」只在 <span class="note-math-inline" data-math-inline="a=b"></span> 时合法；非对称禁止任何双向（含自环）。严格序 <span class="note-math-inline" data-math-inline="&lt;"></span> 常是非对称+传递；非严格序 <span class="note-math-inline" data-math-inline="\le"></span> 常是自反+反对称+传递（偏序）。</p></blockquote>
+<p class="note-paragraph">无自环的<strong>对称</strong>关系可用<strong>无向图</strong>表示（把 <span class="note-math-inline" data-math-inline="a\!\leftrightarrow\! b"></span> 画成一条无向边）。</p>
+<h3 id="32-逐条展开" class="note-heading note-heading--h3">3.2 逐条展开</h3>
+<h4 id="自反reflexive" class="note-heading note-heading--h4">自反（reflexive）</h4>
+<ul class="note-list">
+<li>定义：<span class="note-math-inline" data-math-inline="A"></span> 中<strong>每个</strong>元素都与自身相关。</li>
+<li>判定：检查是否 <span class="note-math-inline" data-math-inline="\{(a,a):a\in A\} \subseteq R"></span>（对角线是否整条落入 <span class="note-math-inline" data-math-inline="R"></span>）。</li>
+<li>例子：<span class="note-math-inline" data-math-inline="\le"></span> 在 <span class="note-math-inline" data-math-inline="\mathbb{Z}"></span> 上自反；<span class="note-math-inline" data-math-inline="="></span> 自反；真子集关系 <span class="note-math-inline" data-math-inline="\subset"></span> <strong>不</strong>自反。</li>
+<li>反例：<span class="note-math-inline" data-math-inline="R=\{(1,2)\}"></span> 在 <span class="note-math-inline" data-math-inline="A=\{1,2\}"></span> 上不自反（缺 <span class="note-math-inline" data-math-inline="(1,1),(2,2)"></span>）。</li>
+</ul>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">自反：每个点都有自环 (a,a)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">对称：有 a→b 则必须有 b→a</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">反对称：异点不可双向（自环可以）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">传递：有 a→b 与 b→c 则必须有 a→c</div></div></figure>
+<h4 id="反自反irreflexive" class="note-heading note-heading--h4">反自反（irreflexive）</h4>
+<ul class="note-list">
+<li>定义：任何元素都<strong>不</strong>与自身相关（无自环）。</li>
+<li>例子：真子集 <span class="note-math-inline" data-math-inline="\subset"></span>、严格小于 <span class="note-math-inline" data-math-inline="&lt;"></span>。</li>
+<li>注意：反自反 <span class="note-math-inline" data-math-inline="\neq"></span>「不自反」。不自反只需缺某一个自环；反自反要求<strong>全部</strong>自环都不在。</li>
+</ul>
+<h4 id="对称symmetric" class="note-heading note-heading--h4">对称（symmetric）</h4>
+<ul class="note-list">
+<li>定义：有 <span class="note-math-inline" data-math-inline="(a,b)"></span> 就必须有 <span class="note-math-inline" data-math-inline="(b,a)"></span>（<span class="note-math-inline" data-math-inline="a=b"></span> 时自动满足）。</li>
+<li>与逆的关系：<span class="note-math-inline" data-math-inline="R"></span> 对称 <span class="note-math-inline" data-math-inline="\iff R = R^{-1}"></span>。</li>
+<li>例子：「同学关系」、无向图的边集、模 <span class="note-math-inline" data-math-inline="n"></span> 同余。</li>
+<li>反例：<span class="note-math-inline" data-math-inline="R=\{(a,b)\}"></span> 有 <span class="note-math-inline" data-math-inline="a\to b"></span> 却无 <span class="note-math-inline" data-math-inline="b\to a"></span>。</li>
+</ul>
+<h4 id="反对称antisymmetric" class="note-heading note-heading--h4">反对称（antisymmetric）</h4>
+<ul class="note-list">
+<li>定义：若 <span class="note-math-inline" data-math-inline="a"></span> 与 <span class="note-math-inline" data-math-inline="b"></span>「互相相关」，则只能是同一个元素。</li>
+<li>允许：大量单方向边；允许全部自环。</li>
+<li>禁止：异点之间的双向边 <span class="note-math-inline" data-math-inline="a\to b"></span> 与 <span class="note-math-inline" data-math-inline="b\to a"></span> 同时存在。</li>
+<li>例子：<span class="note-math-inline" data-math-inline="\le"></span>、整除关系 <span class="note-math-inline" data-math-inline="\mid"></span>（在正整数上）、集合的 <span class="note-math-inline" data-math-inline="\subseteq"></span>。</li>
+</ul>
+<h4 id="非对称asymmetric" class="note-heading note-heading--h4">非对称（asymmetric）</h4>
+<ul class="note-list">
+<li>定义：有 <span class="note-math-inline" data-math-inline="(a,b)"></span> 则必无 <span class="note-math-inline" data-math-inline="(b,a)"></span>（令 <span class="note-math-inline" data-math-inline="a=b"></span> 可知也无自环）。</li>
+<li>关系：非对称 <span class="note-math-inline" data-math-inline="\Rightarrow"></span> 反自反 + 反对称；反之不必然一步到位，但严格序常见组合是非对称+传递。</li>
+<li>例子：<span class="note-math-inline" data-math-inline="&lt;"></span>、真子集 <span class="note-math-inline" data-math-inline="\subset"></span>。</li>
+</ul>
+<h4 id="传递transitive" class="note-heading note-heading--h4">传递（transitive）</h4>
+<ul class="note-list">
+<li>定义：从 <span class="note-math-inline" data-math-inline="a"></span> 经一步到 <span class="note-math-inline" data-math-inline="b"></span>、再一步到 <span class="note-math-inline" data-math-inline="c"></span>，则必须有 <span class="note-math-inline" data-math-inline="a"></span> 直达 <span class="note-math-inline" data-math-inline="c"></span>。</li>
+<li>等价说法：若存在长度 <span class="note-math-inline" data-math-inline="\ge 3"></span> 的路径（按结点计），则路径两端也须直接相关；更干净的说法是——<span class="note-math-inline" data-math-inline="R\circ R \subseteq R"></span>（关系复合）。</li>
+<li>例子：<span class="note-math-inline" data-math-inline="\le"></span>、<span class="note-math-inline" data-math-inline="="></span>、整除、可达关系。</li>
+<li>反例：<span class="note-math-inline" data-math-inline="a\to b\to c"></span> 却无 <span class="note-math-inline" data-math-inline="a\to c"></span>。</li>
+</ul>
+<h3 id="33-性质之间的关系与常见组合" class="note-heading note-heading--h3">3.3 性质之间的关系与常见组合</h3>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">自反：对角线全在</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">对称：R = R 的逆</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">反对称：异点不能双向</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">传递：两步蕴含一步</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">组合成等价关系或偏序</div></div></figure>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>组合</th><th>名称</th><th>典型例子</th></tr></thead><tbody><tr><td>自反 + 对称 + 传递</td><td><strong>等价关系</strong></td><td><span class="note-math-inline" data-math-inline="="></span>、模 <span class="note-math-inline" data-math-inline="n"></span> 同余、等势 <span class="note-math-inline" data-math-inline="\sim"></span></td></tr><tr><td>自反 + 反对称 + 传递</td><td><strong>偏序</strong>（partial order）</td><td><span class="note-math-inline" data-math-inline="\le"></span>、<span class="note-math-inline" data-math-inline="\subseteq"></span>、整除</td></tr><tr><td>偏序 + 任意两元可比</td><td><strong>全序</strong>（total / linear order）</td><td><span class="note-math-inline" data-math-inline="\le"></span> 在 <span class="note-math-inline" data-math-inline="\mathbb{R}"></span> 上</td></tr><tr><td>非对称 + 传递</td><td><strong>严格偏序</strong>（常见）</td><td><span class="note-math-inline" data-math-inline="&lt;"></span>、<span class="note-math-inline" data-math-inline="\subset"></span></td></tr><tr><td>对称 + 传递（未必自反）</td><td>部分教材称 partial equivalence</td><td>慎用；考试以等价/偏序为主</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>易混点</strong></p>
+<ol class="note-list">
+<li><strong>对称与反对称可以同时成立</strong>：例如恒等关系 <span class="note-math-inline" data-math-inline="R=\{(a,a):a\in A\}"></span>（只有自环）。异点之间既无正向也无反向边，两条定义都满足。</li>
+<li><strong>对称与非对称几乎不相容</strong>：若存在 <span class="note-math-inline" data-math-inline="a\neq b"></span> 的边，二者冲突；若 <span class="note-math-inline" data-math-inline="R"></span> 为空或仅可能……实际上非对称禁止自环，而对称+有自环也不行——故非空非对称关系一定不对称。</li>
+<li><strong>自反与反自反</strong>：在 <span class="note-math-inline" data-math-inline="A\neq\emptyset"></span> 时互斥。</li>
+<li><strong>传递不蕴涵自反</strong>：空关系在非空 <span class="note-math-inline" data-math-inline="A"></span> 上传递且对称，但不自反。</li>
+</ol>
+<p class="note-paragraph"><strong>由逆表达</strong></p>
+<ul class="note-list">
+<li>对称 <span class="note-math-inline" data-math-inline="\iff R=R^{-1}"></span></li>
+<li>反对称 <span class="note-math-inline" data-math-inline="\iff R\cap R^{-1}\subseteq \{(a,a):a\in A\}"></span></li>
+<li>非对称 <span class="note-math-inline" data-math-inline="\iff R\cap R^{-1}=\emptyset"></span></li>
+</ul>
+<h3 id="34-闭包视角与-6-衔接" class="note-heading note-heading--h3">3.4 闭包视角（与 §6 衔接）</h3>
+<p class="note-paragraph">给任意 <span class="note-math-inline" data-math-inline="R"></span>，可生成「最小的」具有某性质的超关系：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>闭包</th><th>含义</th><th>做法直觉</th></tr></thead><tbody><tr><td><strong>自反闭包</strong></td><td>最小自反超集</td><td>补上全部自环：<span class="note-math-inline" data-math-inline="R\cup\{(a,a)\}"></span></td></tr><tr><td><strong>对称闭包</strong></td><td>最小对称超集</td><td>补上所有反向边：<span class="note-math-inline" data-math-inline="R\cup R^{-1}"></span></td></tr><tr><td><strong>传递闭包</strong></td><td>最小传递超集</td><td>补上一切「多步可达」的直达边</td></tr><tr><td><strong>自反传递闭包</strong> <span class="note-math-inline" data-math-inline="R^{*}"></span></td><td>最小自反且传递的超集</td><td>有向可达（含到自身）；见 §6</td></tr></tbody></table></div>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">原关系 R</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">加自环 → 自反闭包</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">并上 R 逆 → 对称闭包</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">补可达边 → 传递闭包</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">自反+传递 → R*</div></div></figure>
+<h3 id="35-等价关系与等价类" class="note-heading note-heading--h3">3.5 等价关系与等价类</h3>
+<p class="note-paragraph">同时满足<strong>自反、对称、传递</strong> <span class="note-math-inline" data-math-inline="\Rightarrow"></span> <strong>等价关系</strong>（equivalence relation）。</p>
+<p class="note-paragraph">无向图视角下，连通块即为<strong>等价类</strong>（equivalence classes）。</p>
+<p class="note-paragraph">记含 <span class="note-math-inline" data-math-inline="a"></span> 的等价类为</p>
+<div class="note-math-block" data-math-display="[a] = \{ b : (a, b) \in R \}."></div>
+<p class="note-paragraph">（因对称，<span class="note-math-inline" data-math-inline="(b, a) \in R"></span> 不必再写。）</p>
+<p class="note-paragraph">要点：</p>
+<ul class="note-list">
+<li><span class="note-math-inline" data-math-inline="a\,R\,b \iff [a]=[b]"></span></li>
+<li>不同等价类不相交；全部等价类之并等于 <span class="note-math-inline" data-math-inline="A"></span></li>
+<li><strong>商集</strong> <span class="note-math-inline" data-math-inline="A/R = \{[a]:a\in A\}"></span></li>
+</ul>
+<p class="note-paragraph"><strong>定理</strong>：非空集合 <span class="note-math-inline" data-math-inline="A"></span> 上的等价关系 <span class="note-math-inline" data-math-inline="R"></span>，其等价类构成 <span class="note-math-inline" data-math-inline="A"></span> 的一个划分。</p>
+<p class="note-paragraph">反之，<span class="note-math-inline" data-math-inline="A"></span> 的任一划分也唯一对应一个等价关系（「落在同一块内」）。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">等价关系 = 自反 + 对称 + 传递</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">导出等价类</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">各类互不相交且并起来 = A</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">形成划分；划分也可反推等价关系</div></div></figure>
+<h3 id="36-偏序与全序" class="note-heading note-heading--h3">3.6 偏序与全序</h3>
+<h4 id="定义" class="note-heading note-heading--h4">定义</h4>
+<p class="note-paragraph">同时满足<strong>自反、反对称、传递</strong>的二元关系 <span class="note-math-inline" data-math-inline="R\subseteq A\times A"></span> 称为 <strong>偏序</strong>（partial order）。</p>
+<p class="note-paragraph">常记 <span class="note-math-inline" data-math-inline="a\le b"></span> 表示 <span class="note-math-inline" data-math-inline="(a,b)\in R"></span>，并把有序对 <span class="note-math-inline" data-math-inline="(A,\le)"></span> 称为<strong>偏序集</strong>（poset）。</p>
+<p class="note-paragraph">由非严格偏序可诱导<strong>严格偏序</strong>（strict partial order）：</p>
+<div class="note-math-block" data-math-display="a &lt; b \;\iff\; a\le b \text{ 且 } a\neq b."></div>
+<p class="note-paragraph"><span class="note-math-inline" data-math-inline="&lt;"></span> 通常满足<strong>非对称 + 传递</strong>（因而也反自反）。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">偏序 ≤：自反 + 反对称 + 传递</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">严格序 &lt;：a≤b 且 a≠b（非对称 + 传递）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">全序：偏序 + 任意两元可比</div></div></figure>
+<h4 id="可比与不可比" class="note-heading note-heading--h4">可比与不可比</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>定义</th></tr></thead><tbody><tr><td><strong>可比</strong>（comparable）</td><td><span class="note-math-inline" data-math-inline="a\le b"></span> 或 <span class="note-math-inline" data-math-inline="b\le a"></span>（至少一个成立）</td></tr><tr><td><strong>不可比</strong>（incomparable）</td><td>两者都不成立</td></tr></tbody></table></div>
+<ul class="note-list">
+<li><strong>偏序</strong>：允许存在不可比的元素对（故名「偏」）。</li>
+<li><strong>全序 / 线序</strong>（total order / linear order）：偏序，且任意 <span class="note-math-inline" data-math-inline="a,b\in A"></span> 都可比。</li>
+</ul>
+<h4 id="极值元" class="note-heading note-heading--h4">极值元</h4>
+<p class="note-paragraph">以下定义均相对于偏序集 <span class="note-math-inline" data-math-inline="(A,\le)"></span>。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>英文</th><th>定义</th><th>直觉</th></tr></thead><tbody><tr><td><strong>极小元</strong></td><td>minimal</td><td><span class="note-math-inline" data-math-inline="\nexists\, b\in A"></span> 使 <span class="note-math-inline" data-math-inline="b&lt;a"></span>；即 <span class="note-math-inline" data-math-inline="b\le a\Rightarrow b=a"></span></td><td>没有「严格更小」；<strong>可有多个</strong></td></tr><tr><td><strong>极大元</strong></td><td>maximal</td><td><span class="note-math-inline" data-math-inline="\nexists\, b\in A"></span> 使 <span class="note-math-inline" data-math-inline="a&lt;b"></span>；即 <span class="note-math-inline" data-math-inline="a\le b\Rightarrow a=b"></span></td><td>没有「严格更大」；<strong>可有多个</strong></td></tr><tr><td><strong>最小元</strong></td><td>minimum / <strong>least</strong></td><td><span class="note-math-inline" data-math-inline="\forall x\in A,\ a\le x"></span></td><td><strong>全局</strong>最小；<strong>至多一个</strong></td></tr><tr><td><strong>最大元</strong></td><td>maximum / greatest</td><td><span class="note-math-inline" data-math-inline="\forall x\in A,\ x\le a"></span></td><td><strong>全局</strong>最大；<strong>至多一个</strong></td></tr></tbody></table></div>
+<h4 id="least最小vs-minimal极小核心区别" class="note-heading note-heading--h4">least（最小）vs minimal（极小）——核心区别</h4>
+<p class="note-paragraph">两者都在说「小」，但量化范围不同：</p>
+<p class="note-paragraph">| | <strong>least / 最小元</strong> <span class="note-math-inline" data-math-inline="a"></span> | <strong>minimal / 极小元</strong> <span class="note-math-inline" data-math-inline="a"></span> |</p>
+<p class="note-paragraph">|--|-------------------------|---------------------------|</p>
+<p class="note-paragraph">| 逻辑 | <span class="note-math-inline" data-math-inline="\forall x,\ a\le x"></span> | <span class="note-math-inline" data-math-inline="\nexists x,\ x&lt;a"></span>（没有人严格比它小） |</p>
+<p class="note-paragraph">| 要求 | 必须与<strong>每一个</strong>元素可比，且都 <span class="note-math-inline" data-math-inline="\le"></span> 它 | 只禁止存在更小者；可以和某些元素<strong>不可比</strong> |</p>
+<p class="note-paragraph">| 个数 | 有则<strong>唯一</strong> | 可以<strong>多个</strong>并列 |</p>
+<p class="note-paragraph">| 蕴含 | least <span class="note-math-inline" data-math-inline="\Rightarrow"></span> minimal | minimal **<span class="note-math-inline" data-math-inline="\nRightarrow"></span>** least |</p>
+<p class="note-paragraph">对偶地：<strong>greatest（最大）vs maximal（极大）</strong> 完全对称——把 <span class="note-math-inline" data-math-inline="\le"></span> 反过来即可。</p>
+<p class="note-paragraph"><strong>一句话：</strong></p>
+<p class="note-paragraph">minimal =「下面没人了」（局部底）；least =「我在所有人下面」（全局底）。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">least：对所有 x 都有 a ≤ x（全局）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">minimal：不存在 x &lt; a（局部）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">least ⇒ minimal</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">多个 minimal 并存时 ⇒ 没有 least</div></div></figure>
+<p class="note-paragraph"><strong>反例（有极小、无最小）：</strong></p>
+<p class="note-paragraph">取 <span class="note-math-inline" data-math-inline="A=\{2,3,4,6\}"></span>，偏序为整除 <span class="note-math-inline" data-math-inline="\mid"></span>。</p>
+<ul class="note-list">
+<li><span class="note-math-inline" data-math-inline="2\mid 4,\ 2\mid 6,\ 3\mid 6"></span>；<span class="note-math-inline" data-math-inline="2"></span> 与 <span class="note-math-inline" data-math-inline="3"></span> <strong>不可比</strong>。</li>
+<li><strong>极小元</strong>：<span class="note-math-inline" data-math-inline="2"></span> 与 <span class="note-math-inline" data-math-inline="3"></span>（没有 <span class="note-math-inline" data-math-inline="A"></span> 中元素严格整除它们）。</li>
+<li><strong>最小元</strong>：不存在（没有任何元素同时整除 <span class="note-math-inline" data-math-inline="2"></span> 和 <span class="note-math-inline" data-math-inline="3"></span>）。</li>
+<li><strong>极大元</strong>：<span class="note-math-inline" data-math-inline="4"></span> 与 <span class="note-math-inline" data-math-inline="6"></span>；同样<strong>无最大元</strong>。</li>
+</ul>
+<p class="note-paragraph"><strong>正例（二者重合）：</strong></p>
+<p class="note-paragraph">在全序 <span class="note-math-inline" data-math-inline="(\mathbb{N},\le)"></span> 中，<span class="note-math-inline" data-math-inline="0"></span>（或按习惯从 <span class="note-math-inline" data-math-inline="1"></span> 起则 <span class="note-math-inline" data-math-inline="1"></span>）既是 least 也是（唯一）minimal——全序里「极小 = 最小」「极大 = 最大」。</p>
+<p class="note-paragraph">教材表述对照：</p>
+<p class="note-paragraph">「仅当 <span class="note-math-inline" data-math-inline="a=b"></span> 时 <span class="note-math-inline" data-math-inline="(b,a)\in R"></span>」<span class="note-math-inline" data-math-inline="\iff"></span> 「没有严格更小的 <span class="note-math-inline" data-math-inline="b"></span>」<span class="note-math-inline" data-math-inline="\iff"></span> <strong>minimal（极小）</strong>，不是 least。</p>
+<p class="note-paragraph">其他要点：</p>
+<ol class="note-list">
+<li>有限非空偏序集<strong>一定有</strong> minimal / maximal（沿链下行/上行必停），但<strong>不必有</strong> least / greatest。</li>
+<li>若 least 存在，则它是<strong>唯一</strong>的 minimal；若 greatest 存在，则它是<strong>唯一</strong>的 maximal。</li>
+</ol>
+<h4 id="hasse-图直觉覆盖关系" class="note-heading note-heading--h4">Hasse 图直觉（覆盖关系）</h4>
+<p class="note-paragraph">若 <span class="note-math-inline" data-math-inline="a&lt;b"></span> 且不存在 <span class="note-math-inline" data-math-inline="c"></span> 使 <span class="note-math-inline" data-math-inline="a&lt;c&lt;b"></span>，称 <span class="note-math-inline" data-math-inline="b"></span> <strong>覆盖</strong>（cover）<span class="note-math-inline" data-math-inline="a"></span>。</p>
+<p class="note-paragraph"><strong>Hasse 图</strong>：只画覆盖边，省略自环与可由传递推出的边；习惯上「小的在下、大的在上」。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">例：bottom 被 x、y 覆盖</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">x、y 都被 top 覆盖</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">x 与 y 不可比（偏序典型特征）</div></div></figure>
+<h4 id="典型例子" class="note-heading note-heading--h4">典型例子</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>偏序集</th><th>是否全序</th><th>说明</th></tr></thead><tbody><tr><td><span class="note-math-inline" data-math-inline="(\mathbb{Z},\le)"></span>、<span class="note-math-inline" data-math-inline="(\mathbb{R},\le)"></span></td><td>是</td><td>数的通常大小</td></tr><tr><td><span class="note-math-inline" data-math-inline="(2^{S},\subseteq)"></span></td><td>否（<span class="note-math-inline" data-math-inline="\lvert S\rvert\ge 2"></span>）</td><td><span class="note-math-inline" data-math-inline="\emptyset"></span> 最小，<span class="note-math-inline" data-math-inline="S"></span> 最大；单元素集彼此常不可比</td></tr><tr><td><span class="note-math-inline" data-math-inline="(\mathbb{N}^{+},\mid)"></span>（整除）</td><td>否</td><td><span class="note-math-inline" data-math-inline="1"></span> 最小；素数两两不可比；无最大元</td></tr><tr><td>字典序下的有限串集合（同长或按约定）</td><td>视定义</td><td>常可做成全序</td></tr></tbody></table></div>
+<h4 id="与等价关系对照" class="note-heading note-heading--h4">与等价关系对照</h4>
+<p class="note-paragraph">| | 等价关系 | 偏序 |</p>
+<p class="note-paragraph">|--|----------|------|</p>
+<p class="note-paragraph">| 自反 | ✓ | ✓ |</p>
+<p class="note-paragraph">| 对称 / 反对称 | <strong>对称</strong> | <strong>反对称</strong> |</p>
+<p class="note-paragraph">| 传递 | ✓ | ✓ |</p>
+<p class="note-paragraph">| 图直觉 | 无向连通块（等价类） | 有向无环的「分层」结构（Hasse） |</p>
+<p class="note-paragraph">| 导出结构 | 划分 / 商集 | 极值元、链/反链、全序扩张等 |</p>
+<blockquote class="note-quote"><p class="note-paragraph"><strong>链</strong>（chain）：两两可比的子集（诱导全序）。<strong>反链</strong>（antichain）：两两不可比的子集。</p></blockquote>
+<h3 id="37-路径与环" class="note-heading note-heading--h3">3.7 路径与环</h3>
+<ul class="note-list">
+<li><strong>路径</strong>：序列 <span class="note-math-inline" data-math-inline="(a_1, \ldots, a_n)"></span>（<span class="note-math-inline" data-math-inline="n \ge 1"></span>），满足 <span class="note-math-inline" data-math-inline="(a_i, a_{i+1}) \in R"></span>。路径长度取 <span class="note-math-inline" data-math-inline="n"></span>（结点个数，教材约定）。</li>
+<li><strong>环</strong>（cycle）：路径还满足 <span class="note-math-inline" data-math-inline="(a_n, a_1) \in R"></span>。</li>
+</ul>
+<p class="note-paragraph">与传递/闭包的联系：传递闭包里 <span class="note-math-inline" data-math-inline="(a,b)\in R^{+}"></span>（或 <span class="note-math-inline" data-math-inline="R^{*}"></span>）当且仅当存在从 <span class="note-math-inline" data-math-inline="a"></span> 到 <span class="note-math-inline" data-math-inline="b"></span> 的路径（<span class="note-math-inline" data-math-inline="R^{*}"></span> 允许长度为 1 的平凡路径）。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">路径：a1 → a2 → a3 → a4</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">若再有 a4 → a1，则成为环</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">传递闭包：凡多步可达都补成直达边</div></div></figure>
+<hr>
+<h2 id="4-finite-and-infinite-sets有限与无限" class="note-heading note-heading--h2">4. Finite and Infinite Sets（有限与无限）</h2>
+<h3 id="41-等势" class="note-heading note-heading--h3">4.1 等势</h3>
+<p class="note-paragraph">存在双射 <span class="note-math-inline" data-math-inline="f : A \to B"></span> 时称 <span class="note-math-inline" data-math-inline="A, B"></span> <strong>等势</strong>（equinumerous），记 <span class="note-math-inline" data-math-inline="A \sim B"></span>。</p>
+<p class="note-paragraph"><span class="note-math-inline" data-math-inline="\sim"></span> 是等价关系：</p>
+<ol class="note-list">
+<li><strong>自反</strong>：恒等映射 <span class="note-math-inline" data-math-inline="\mathrm{Id}_A"></span> 为双射 <span class="note-math-inline" data-math-inline="\Rightarrow A \sim A"></span></li>
+<li><strong>对称</strong>：<span class="note-math-inline" data-math-inline="f"></span> 双射 <span class="note-math-inline" data-math-inline="\Rightarrow f^{-1}"></span> 双射</li>
+<li><strong>传递</strong>：双射可复合，<span class="note-math-inline" data-math-inline="g \circ f"></span> 仍双射</li>
+</ol>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">A ∼ B：存在双射 f : A → B</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">B ∼ C：存在双射 g : B → C</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">复合 g ∘ f : A → C 仍双射</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">故 A ∼ C（传递）</div></div></figure>
+<h3 id="42-有限可数不可数" class="note-heading note-heading--h3">4.2 有限、可数、不可数</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>定义</th></tr></thead><tbody><tr><td><strong>有限</strong>（finite）</td><td>存在 <span class="note-math-inline" data-math-inline="n \in \mathbb{N}"></span>，使 <span class="note-math-inline" data-math-inline="A \sim \{1, 2, \ldots, n\}"></span>；基数 <span class="note-math-inline" data-math-inline="\lvert A \rvert = n"></span></td></tr><tr><td><strong>无限</strong>（infinite）</td><td>非有限；注意：无限集不必两两等势</td></tr><tr><td><strong>可数无限</strong>（countably infinite）</td><td><span class="note-math-inline" data-math-inline="A \sim \mathbb{N}"></span></td></tr><tr><td><strong>可数</strong>（countable）</td><td>有限或可数无限</td></tr><tr><td><strong>不可数</strong>（uncountable）</td><td>非可数</td></tr></tbody></table></div>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">有限：可与 {1..n} 双射</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">可数无限：可与 N 双射（可枚举完）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">可数 = 有限 ∪ 可数无限</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">不可数：如 2^N（对角化）</div></div></figure>
+<p class="note-paragraph"><strong>定理（可数性四等价）</strong>：下列命题等价：</p>
+<ol class="note-list">
+<li><span class="note-math-inline" data-math-inline="A"></span> 可数；</li>
+<li><span class="note-math-inline" data-math-inline="A"></span> <strong>有限，或</strong>存在双射 <span class="note-math-inline" data-math-inline="f : A \to \mathbb{N}"></span>；</li>
+<li>存在单射 <span class="note-math-inline" data-math-inline="g : A \to \mathbb{N}"></span>；</li>
+<li>存在满射 <span class="note-math-inline" data-math-inline="h : \mathbb{N} \to A"></span>（通常默认 <span class="note-math-inline" data-math-inline="A \neq \emptyset"></span>）。</li>
+</ol>
+<h4 id="真题练习20232024--判断" class="note-heading note-heading--h4">真题练习（2023–2024 · 判断）</h4>
+<p class="note-paragraph"><strong>题目：</strong> The set of all numerical functions is uncountable, but the set of all <span class="note-math-inline" data-math-inline="\mu"></span>-recursive functions is countable.</p>
+<p class="note-paragraph"><strong>答案：</strong> 正确。</p>
+<p class="note-paragraph"><strong>解答：</strong></p>
+<ul class="note-list">
+<li>「全体数值函数」可理解为 <span class="note-math-inline" data-math-inline="\mathbb{N}\to\mathbb{N}"></span>（或等价地与 <span class="note-math-inline" data-math-inline="2^{\mathbb{N}}"></span> / <span class="note-math-inline" data-math-inline="\mathcal{P}(\mathbb{N})"></span> 等势的对象），由对角化知<strong>不可数</strong>。</li>
+<li><span class="note-math-inline" data-math-inline="\mu"></span>-递归函数与「可用图灵机计算的函数」同一档：每台 TM 可编码为有限串，故全体 TM <strong>可数</strong>，因而 <span class="note-math-inline" data-math-inline="\mu"></span>-递归函数集<strong>可数</strong>。</li>
+<li>结论：前者不可数、后者可数，命题成立。（「<span class="note-math-inline" data-math-inline="\mu"></span>-递归 / TM」细节见后续章节，本处只用到 §4–§5 的可数性。）</li>
+</ul>
+<hr>
+<h2 id="5-three-fundamental-proof-techniques三种基本证明技法" class="note-heading note-heading--h2">5. Three Fundamental Proof Techniques（三种基本证明技法）</h2>
+<h3 id="51-数学归纳法mathematical-induction" class="note-heading note-heading--h3">5.1 数学归纳法（mathematical induction）</h3>
+<p class="note-paragraph">令 <span class="note-math-inline" data-math-inline="A \subseteq \mathbb{N}"></span> 满足：</p>
+<ol class="note-list">
+<li><span class="note-math-inline" data-math-inline="0 \in A"></span></li>
+<li>若 <span class="note-math-inline" data-math-inline="\{0, 1, \ldots, n\} \subseteq A"></span>，则 <span class="note-math-inline" data-math-inline="n + 1 \in A"></span></li>
+</ol>
+<p class="note-paragraph">则 <span class="note-math-inline" data-math-inline="A = \mathbb{N}"></span>。（可用反证法证明）</p>
+<p class="note-paragraph"><strong>证「对任意自然数 n，P(n) 为真」的模板</strong>：令 <span class="note-math-inline" data-math-inline="A = \{ n : P(n) \text{ 成立} \}"></span>。</p>
+<ol class="note-list">
+<li><strong>基础步骤</strong>：证 <span class="note-math-inline" data-math-inline="P(0)"></span></li>
+<li><strong>归纳假设</strong>：对固定但任意的 <span class="note-math-inline" data-math-inline="n \ge 0"></span>，<span class="note-math-inline" data-math-inline="P(0),\ldots,P(n)"></span> 皆真</li>
+<li><strong>归纳步骤</strong>：由假设推出 <span class="note-math-inline" data-math-inline="P(n+1)"></span></li>
+</ol>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">基础步骤：证明 P(0)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">归纳假设：P(0)…P(n) 皆真</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">归纳步骤：推出 P(n+1)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">结论：对所有自然数 n，P(n) 成立</div></div></figure>
+<h3 id="52-鸽巢原理pigeonhole-principle" class="note-heading note-heading--h3">5.2 鸽巢原理（pigeonhole principle）</h3>
+<p class="note-paragraph">若 <span class="note-math-inline" data-math-inline="A, B"></span> 有限且 <span class="note-math-inline" data-math-inline="\lvert A \rvert &gt; \lvert B \rvert"></span>，则任意 <span class="note-math-inline" data-math-inline="A \to B"></span> 的映射<strong>不是单射</strong>。</p>
+<p class="note-paragraph">通俗：鸽子多于鸽巢 <span class="note-math-inline" data-math-inline="\Rightarrow"></span> 至少一巢有两只以上鸽子。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">3 只鸽子要进 2 个巢</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">无论怎么分配</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">至少有一个巢不少于 2 只</div></div></figure>
+<p class="note-paragraph">可用归纳法证明（对 <span class="note-math-inline" data-math-inline="\lvert B \rvert"></span> 归纳）：</p>
+<ul class="note-list">
+<li>基：<span class="note-math-inline" data-math-inline="\lvert B \rvert = 0"></span></li>
+<li>假设：<span class="note-math-inline" data-math-inline="\lvert B \rvert \le n"></span> 成立</li>
+<li>步骤：推 <span class="note-math-inline" data-math-inline="\lvert B \rvert = n + 1"></span></li>
+</ul>
+<p class="note-paragraph"><strong>定理</strong>：<span class="note-math-inline" data-math-inline="R"></span> 为有限集 <span class="note-math-inline" data-math-inline="A"></span> 上二元关系，<span class="note-math-inline" data-math-inline="a, b \in A"></span>。若存在 <span class="note-math-inline" data-math-inline="a"></span> 到 <span class="note-math-inline" data-math-inline="b"></span> 的路径，则必存在长度至多为 <span class="note-math-inline" data-math-inline="\lvert A \rvert"></span> 的路径。</p>
+<blockquote class="note-quote"><p class="note-paragraph">思路：过长路径必重复结点（鸽巢），可删去环得到更短路径。</p></blockquote>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">过长路径：结点数大于 card(A)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">由鸽巢：必有重复结点</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">删去中间环得到更短路径</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">反复缩短直到长度不超过 card(A)</div></div></figure>
+<h3 id="53-对角化diagonalization" class="note-heading note-heading--h3">5.3 对角化（diagonalization）</h3>
+<p class="note-paragraph">设 <span class="note-math-inline" data-math-inline="R \subseteq A \times A"></span>，对角集合</p>
+<div class="note-math-block" data-math-display="D = \{ a \in A : (a, a) \notin R \}."></div>
+<p class="note-paragraph">对每个 <span class="note-math-inline" data-math-inline="a \in A"></span>，令 <span class="note-math-inline" data-math-inline="R_a = \{ b \in A : (a, b) \in R \}"></span>。则 <span class="note-math-inline" data-math-inline="D"></span> 与每一个 <span class="note-math-inline" data-math-inline="R_a"></span> 都不同。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">关系 R 看成「行」Ra</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">构造对角集合 D：在对角上与 Ra 处处不同</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">故 D ≠ 任何一个 Ra</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">推出 2^N 不可数</div></div></figure>
+<p class="note-paragraph"><strong>定理</strong>：幂集 <span class="note-math-inline" data-math-inline="2^{\mathbb{N}}"></span> 不可数。（对角化标准应用）</p>
+<blockquote class="note-quote"><p class="note-paragraph">与真题呼应：若把「数值函数」编码成 <span class="note-math-inline" data-math-inline="\mathbb{N}"></span> 的子集 / 特征序列，则「全体数值函数不可数」正是本定理的同族结论；见 §4.2 真题练习。</p></blockquote>
+<hr>
+<h2 id="6-closures-and-algorithms闭包与算法" class="note-heading note-heading--h2">6. Closures and Algorithms（闭包与算法）</h2>
+<h3 id="61-自反传递闭包" class="note-heading note-heading--h3">6.1 自反传递闭包</h3>
+<p class="note-paragraph">对有向图 <span class="note-math-inline" data-math-inline="R \subseteq A \times A"></span>，<strong>自反传递闭包</strong></p>
+<div class="note-math-block" data-math-display="R^{*} = \{ (a, b) : a, b \in A,\ R \text{ 中存在从 } a \text{ 到 } b \text{ 的路径} \}."></div>
+<p class="note-paragraph">（含长度为 1 的平凡路径，故自反。）</p>
+<blockquote class="note-quote"><p class="note-paragraph">回顾 §3：自反闭包 = 补自环；对称闭包 = <span class="note-math-inline" data-math-inline="R\cup R^{-1}"></span>；传递闭包 = 补可达边；此处 <span class="note-math-inline" data-math-inline="R^{*}"></span> 是<strong>自反传递闭包</strong>。</p></blockquote>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">原图：a→b→c</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">R*：补上全部自环</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">并补上 a→c（传递可达）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">结果：凡有路径可达的对都在 R* 中</div></div></figure>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">朴素：枚举所有长度≤n 路径 → O(n^(n+1))</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">改进：反复补传递边 → O(n^5)</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">Warshall：按中间点 j 扫描 → O(n^3)</div></div></figure>
+<h3>6.2 朴素算法：枚举所有路径 —— <span class="note-math-inline" data-math-inline="O(n^{n+1})"></span></h3>
+<p class="note-paragraph">设 <span class="note-math-inline" data-math-inline="A = \{ a_1, \ldots, a_n \}"></span>。</p>
+<pre class="note-code-block"><code class="language-text">Initially R* = emptyset
+for i = 1, ..., n do
+    for each i-tuple (b[1], ..., b[i]) in A^i do
+        if (b[1], ..., b[i]) is a path in R then
+            add (b[1], b[i]) to R*
+</code></pre>
+<p class="note-paragraph">估计：检验长度 <span class="note-math-inline" data-math-inline="\le n"></span> 的所有序列，每次至多 <span class="note-math-inline" data-math-inline="O(n)"></span> 次边查询 / 插入，总步数</p>
+<div class="note-math-block" data-math-display="\le n \cdot (1 + n + n^2 + \cdots + n^n) \in O(n^{n+1})."></div>
+<p class="note-paragraph">指数级，极慢。</p>
+<h3>6.3 改进：反复补传递边 —— <span class="note-math-inline" data-math-inline="O(n^5)"></span></h3>
+<pre class="note-code-block"><code class="language-text"># reflexive
+Initially R* = R ∪ {(a[i], a[i]) : a[i] ∈ A}
+# transitive
+while ∃ a[i], a[j], a[k] ∈ A such that
+    (a[i], a[j]), (a[j], a[k]) ∈ R* but (a[i], a[k]) ∉ R* do
+        add (a[i], a[k]) to R*
+</code></pre>
+<ul class="note-list">
+<li><span class="note-math-inline" data-math-inline="R^{*}"></span> 至多 <span class="note-math-inline" data-math-inline="n^2"></span> 对 <span class="note-math-inline" data-math-inline="\Rightarrow"></span> 至多 <span class="note-math-inline" data-math-inline="n^2"></span> 次成功加入</li>
+<li>每次找三元组约 <span class="note-math-inline" data-math-inline="O(n^3)"></span> <span class="note-math-inline" data-math-inline="\Rightarrow"></span> 总复杂度 <span class="note-math-inline" data-math-inline="O(n^5)"></span></li>
+<li>从指数降到多项式，但仍重复扫描三元组</li>
+</ul>
+<h3>6.4 Warshall 型：按中间结点排序 —— <span class="note-math-inline" data-math-inline="O(n^3)"></span></h3>
+<pre class="note-code-block"><code class="language-text">Initially R* = R ∪ {(a[i], a[i]) : a[i] ∈ A}
+for each j = 1, 2, ..., n do
+    for each i = 1, ..., n and k = 1, ..., n do
+        if (a[i], a[j]), (a[j], a[k]) ∈ R* and (a[i], a[k]) ∉ R* then
+            add (a[i], a[k]) to R*
+</code></pre>
+<p class="note-paragraph"><strong>正确性要点</strong>（归纳）：外层循环完成第 <span class="note-math-inline" data-math-inline="j"></span> 次后，<span class="note-math-inline" data-math-inline="R^{*}"></span> 包含所有满足「<span class="note-math-inline" data-math-inline="R"></span> 中存在从 <span class="note-math-inline" data-math-inline="a_i"></span> 到 <span class="note-math-inline" data-math-inline="a_k"></span>、中间结点最大下标（rank）<span class="note-math-inline" data-math-inline="\le j"></span>」的有序对。详见教材约 P.37。</p>
+<h3>6.5 增长率与大 <span class="note-math-inline" data-math-inline="O"></span></h3>
+<p class="note-paragraph">对 <span class="note-math-inline" data-math-inline="f : \mathbb{N} \to \mathbb{N}"></span>，</p>
+<div class="note-math-block" data-math-display="O(f) = \{ g : \mathbb{N} \to \mathbb{N} \mid
+\exists\, c, d &gt; 0,\ \forall n,\ g(n) \le c \cdot f(n) + d \}."></div>
+<p class="note-paragraph">若 <span class="note-math-inline" data-math-inline="f \in O(g)"></span> 且 <span class="note-math-inline" data-math-inline="g \in O(f)"></span>，记 <span class="note-math-inline" data-math-inline="f \asymp g"></span>（等价关系）。<span class="note-math-inline" data-math-inline="f"></span> 关于 <span class="note-math-inline" data-math-inline="\asymp"></span> 的等价类即其<strong>增长率</strong>。</p>
+<h3 id="66-一般闭包性质" class="note-heading note-heading--h3">6.6 一般闭包性质</h3>
+<p class="note-paragraph">令 <span class="note-math-inline" data-math-inline="R \subseteq D^{n+1}"></span> 为 <span class="note-math-inline" data-math-inline="D"></span> 上的 <span class="note-math-inline" data-math-inline="n+1"></span> 元关系。子集 <span class="note-math-inline" data-math-inline="B \subseteq D"></span> 在 <span class="note-math-inline" data-math-inline="R"></span> 下<strong>封闭</strong>（closed）：若 <span class="note-math-inline" data-math-inline="b_1, \ldots, b_n \in B"></span> 且 <span class="note-math-inline" data-math-inline="(b_1, \ldots, b_n, b_{n+1}) \in R"></span>，则 <span class="note-math-inline" data-math-inline="b_{n+1} \in B"></span>。</p>
+<p class="note-paragraph">形如「在 <span class="note-math-inline" data-math-inline="R_1, \ldots, R_m"></span> 下封闭」的性质称为<strong>闭包性质</strong>。</p>
+<p class="note-paragraph"><strong>定理</strong>：闭包性质 <span class="note-math-inline" data-math-inline="P"></span> 与子集 <span class="note-math-inline" data-math-inline="A \subseteq D"></span> 给定时，存在<strong>唯一最小</strong>集合 <span class="note-math-inline" data-math-inline="B \supseteq A"></span> 且满足 <span class="note-math-inline" data-math-inline="P"></span>。</p>
+<p class="note-paragraph">有限域上可多项式时间计算（泛化 <span class="note-math-inline" data-math-inline="O(n^5)"></span> 思路）：</p>
+<pre class="note-code-block"><code class="language-text">Initially A* = A
+while ∃ i ∈ {1..k} and elements a[j[1]], ..., a[j[r[i]-1]] ∈ A*
+      and a[j[r[i]]] ∈ D − A*
+      such that (a[j[1]], ..., a[j[r[i]]]) ∈ R[i] do
+        add a[j[r[i]]] to A*
+</code></pre>
+<p class="note-paragraph">复杂度 <span class="note-math-inline" data-math-inline="O(n^{r+1})"></span>，其中 <span class="note-math-inline" data-math-inline="n = \lvert D \rvert"></span>，<span class="note-math-inline" data-math-inline="r = \max\{ r_1, \ldots, r_k \}"></span>。</p>
+<hr>
+<h2 id="7-alphabets-and-languages字母表与语言" class="note-heading note-heading--h2">7. Alphabets and Languages（字母表与语言）</h2>
+<h3 id="71-字母表与字符串" class="note-heading note-heading--h3">7.1 字母表与字符串</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>定义</th></tr></thead><tbody><tr><td><strong>字母表</strong> <span class="note-math-inline" data-math-inline="\Sigma"></span></td><td>有限符号集；重要特例：二元字母表 <span class="note-math-inline" data-math-inline="\{0, 1\}"></span></td></tr><tr><td><strong>字符串</strong></td><td><span class="note-math-inline" data-math-inline="\Sigma"></span> 上有限符号序列；书写时直接相连，如 <code>0110011</code></td></tr><tr><td><strong>空串</strong></td><td><span class="note-math-inline" data-math-inline="e"></span>（无符号）</td></tr><tr><td><span class="note-math-inline" data-math-inline="\Sigma^{*}"></span></td><td><span class="note-math-inline" data-math-inline="\Sigma"></span> 上全部字符串（含 <span class="note-math-inline" data-math-inline="e"></span>）</td></tr><tr><td><span class="note-math-inline" data-math-inline="\Sigma^{+}"></span></td><td><span class="note-math-inline" data-math-inline="\Sigma^{*} - \{e\}"></span></td></tr><tr><td><span class="note-math-inline" data-math-inline="\Sigma^{n}"></span></td><td>长度恰为 <span class="note-math-inline" data-math-inline="n"></span> 的字符串集合</td></tr><tr><td>长度 <span class="note-math-inline" data-math-inline="\lvert w \rvert"></span></td><td>序列长度</td></tr></tbody></table></div>
+<p class="note-paragraph">可将 <span class="note-math-inline" data-math-inline="w"></span> 视为函数 <span class="note-math-inline" data-math-inline="w : \{1, \ldots, \lvert w \rvert\} \to \Sigma"></span>；同一符号在不同位置为不同<strong>出现</strong>（occurrence）。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">字母表 Sigma（有限符号集）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">字符串 = Sigma 上有限序列</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">空串 e；Sigma* 含全部串；Sigma+ 去掉空串</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">语言 L 是 Sigma* 的子集</div></div></figure>
+<h4 id="真题练习20232024--判断-2" class="note-heading note-heading--h4">真题练习（2023–2024 · 判断）</h4>
+<p class="note-paragraph"><strong>题目：</strong> Let <span class="note-math-inline" data-math-inline="\Sigma = \emptyset"></span>, some language over <span class="note-math-inline" data-math-inline="\Sigma"></span> is not empty.</p>
+<p class="note-paragraph"><strong>答案：</strong> 正确。</p>
+<p class="note-paragraph"><strong>解答：</strong></p>
+<ul class="note-list">
+<li>语言是 <span class="note-math-inline" data-math-inline="\Sigma^{*}"></span> 的任意子集。</li>
+<li>即使 <span class="note-math-inline" data-math-inline="\Sigma=\emptyset"></span>，仍有空串 <span class="note-math-inline" data-math-inline="e\in\Sigma^{*}"></span>（长度为 0 的唯一字符串）。</li>
+<li>取 <span class="note-math-inline" data-math-inline="L=\{e\}"></span>，则 <span class="note-math-inline" data-math-inline="L\neq\emptyset"></span>。故「某个在 <span class="note-math-inline" data-math-inline="\Sigma"></span> 上的语言非空」成立。</li>
+</ul>
+<h3 id="72-拼接子串幂反转" class="note-heading note-heading--h3">7.2 拼接、子串、幂、反转</h3>
+<p class="note-paragraph"><strong>拼接</strong> <span class="note-math-inline" data-math-inline="x \circ y"></span>（常写 <span class="note-math-inline" data-math-inline="xy"></span>）：</p>
+<div class="note-math-block" data-math-display="\lvert w \rvert = \lvert x \rvert + \lvert y \rvert,\quad
+w(j) = x(j)\ (1 \le j \le \lvert x \rvert),\quad
+w(\lvert x \rvert + j) = y(j)\ (1 \le j \le \lvert y \rvert)."></div>
+<ul class="note-list">
+<li><span class="note-math-inline" data-math-inline="w \circ e = e \circ w = w"></span>；拼接满足结合律 <span class="note-math-inline" data-math-inline="(wx)y = w(xy)"></span>。</li>
+<li><span class="note-math-inline" data-math-inline="v"></span> 是 <span class="note-math-inline" data-math-inline="w"></span> 的<strong>子串</strong>：<span class="note-math-inline" data-math-inline="\exists x, y,\ w = xvy"></span>。</li>
+</ul>
+<p class="note-paragraph">  - <span class="note-math-inline" data-math-inline="w = xv"></span> <span class="note-math-inline" data-math-inline="\Rightarrow"></span> <span class="note-math-inline" data-math-inline="v"></span> 为<strong>后缀</strong>（suffix）</p>
+<p class="note-paragraph">  - <span class="note-math-inline" data-math-inline="w = vy"></span> <span class="note-math-inline" data-math-inline="\Rightarrow"></span> <span class="note-math-inline" data-math-inline="v"></span> 为<strong>前缀</strong>（prefix）</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">前缀 v：w = v · y</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">子串 v：w = x · v · y</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">后缀 v：w = x · v</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">拼接：x ∘ y = xy（把 y 接在 x 后）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">反转：w^R（符号左右颠倒）</div></div></figure>
+<p class="note-paragraph"><strong>幂</strong>（归纳定义）：</p>
+<div class="note-math-block" data-math-display="w^{0} = e,\qquad w^{i+1} = w^{i} \circ w\ (i \ge 0)."></div>
+<p class="note-paragraph"><strong>反转</strong> <span class="note-math-inline" data-math-inline="w^{R}"></span>（归纳）：</p>
+<ol class="note-list">
+<li><span class="note-math-inline" data-math-inline="\lvert w \rvert = 0"></span> <span class="note-math-inline" data-math-inline="\Rightarrow"></span> <span class="note-math-inline" data-math-inline="w^{R} = e"></span></li>
+<li><span class="note-math-inline" data-math-inline="\lvert w \rvert = n + 1 &gt; 0"></span>，写 <span class="note-math-inline" data-math-inline="w = ua"></span>（<span class="note-math-inline" data-math-inline="a \in \Sigma"></span>），则 <span class="note-math-inline" data-math-inline="w^{R} = a\, u^{R}"></span></li>
+</ol>
+<h3 id="73-语言及其运算" class="note-heading note-heading--h3">7.3 语言及其运算</h3>
+<p class="note-paragraph"><strong>语言</strong>：<span class="note-math-inline" data-math-inline="\Sigma^{*}"></span> 的任意子集。<span class="note-math-inline" data-math-inline="\Sigma^{*}"></span>、<span class="note-math-inline" data-math-inline="\emptyset"></span>、<span class="note-math-inline" data-math-inline="\Sigma"></span> 本身都是语言。</p>
+<p class="note-paragraph">无限语言常写成</p>
+<div class="note-math-block" data-math-display="L = \{ w \in \Sigma^{*} : w \text{ 具有性质 } P \}."></div>
+<p class="note-paragraph">若 <span class="note-math-inline" data-math-inline="\Sigma"></span> 有限，则 <span class="note-math-inline" data-math-inline="\Sigma^{*}"></span> 可数无限：先按长度递增枚举，同长度内按<strong>词典序</strong>（lexicographic order）枚举。</p>
+<h4 id="真题练习20232024--判断-3" class="note-heading note-heading--h4">真题练习（2023–2024 · 判断）</h4>
+<p class="note-paragraph"><strong>题目：</strong> The set of all regular languages over the alphabet <span class="note-math-inline" data-math-inline="\{a,b\}"></span> is countable.</p>
+<p class="note-paragraph"><strong>答案：</strong> 正确。</p>
+<p class="note-paragraph"><strong>解答（本章可用的可数性论证）：</strong></p>
+<ul class="note-list">
+<li>后文才严格定义「正则语言」；此处只需：每个正则语言都可由某个<strong>正则表达式</strong>生成，而 <span class="note-math-inline" data-math-inline="\{a,b\}"></span> 上的正则表达式是有限字母表上的有限串（含运算符），故正则表达式全体<strong>可数</strong>。</li>
+<li>可数多个对象各自对应一个语言，映射到「正则语言集合」是满射（或至多可数），因此 <span class="note-math-inline" data-math-inline="\{a,b\}"></span> 上全体正则语言<strong>可数</strong>。</li>
+<li>等价说法：<span class="note-math-inline" data-math-inline="\{L\subseteq\{a,b\}^{*}:L\text{ 正则}\}=\{L(R):R\text{ 是 }\{a,b\}\text{ 上正则表达式}\}"></span>。</li>
+</ul>
+<blockquote class="note-quote"><p class="note-paragraph">更形式的写法：某一字母表上正则表达式集合可数 <span class="note-math-inline" data-math-inline="\Rightarrow"></span> 其所生成语言的集合可数。本论证只依赖 §4 可数性与 §7 的 <span class="note-math-inline" data-math-inline="\Sigma^{*}"></span> 可数，不需要自动机细节。</p></blockquote>
+<p class="note-paragraph">语言作为集合，可用并、交、差组合；<strong>补</strong> <span class="note-math-inline" data-math-inline="\overline{A} = \Sigma^{*} - A"></span>。</p>
+<p class="note-paragraph"><strong>语言拼接</strong>：</p>
+<div class="note-math-block" data-math-display="L_1 L_2 = \{ w : w = x \circ y,\ x \in L_1,\ y \in L_2 \}."></div>
+<p class="note-paragraph"><strong>克莱尼星号</strong>（Kleene star）：</p>
+<div class="note-math-block" data-math-display="L^{*} = \{ w : w = w_1 \circ \cdots \circ w_k,\ k \ge 0,\ w_i \in L \}."></div>
+<p class="note-paragraph">（<span class="note-math-inline" data-math-inline="k = 0"></span> 对应空串 <span class="note-math-inline" data-math-inline="e"></span>。）把字母表看作有限语言时，<span class="note-math-inline" data-math-inline="\Sigma^{*}"></span> 与克莱尼星号一致。</p>
+<p class="note-paragraph"><strong>正闭包</strong>：</p>
+<div class="note-math-block" data-math-display="L^{+} = L L^{*} = \{ w : w = w_1 \circ \cdots \circ w_k,\ k \ge 1,\ w_i \in L \}."></div>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">L1 L2：L1 的串拼上 L2 的串</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">L-star：0 段或多段来自 L 的串拼接（含空串）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">L-plus：至少 1 段（等于 L 再拼 L-star）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">补语言：全集 Sigma* 减去 L</div></div></figure>
+<blockquote class="note-quote"><p class="note-paragraph">注意：即使 <span class="note-math-inline" data-math-inline="\Sigma = \emptyset"></span>，仍有非空语言 <span class="note-math-inline" data-math-inline="L = \{ e \}"></span>。（见 §7.1 真题练习。）</p></blockquote>
+<hr>
+<h2 id="本章相关真题索引20232024" class="note-heading note-heading--h2">本章相关真题索引（2023–2024）</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>题号</th><th>题型</th><th>落点</th><th>答案</th></tr></thead><tbody><tr><td>判断 1</td><td>正则语言全体可数</td><td>§7.3（+ §4 可数性）</td><td>正确</td></tr><tr><td>判断 2</td><td>空字母表上可有非空语言</td><td>§7.1</td><td>正确</td></tr><tr><td>判断 7</td><td>数值函数不可数 / <span class="note-math-inline" data-math-inline="\mu"></span>-递归可数</td><td>§4.2（+ §5.3）</td><td>正确</td></tr></tbody></table></div>
+<p class="note-paragraph">其余判断/选择/大题主要涉及正则、CFL、RE、归约等后续章节知识点，不在此章展开。</p>
+</section>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E8%AE%A1%E7%AE%97%E7%90%86%E8%AE%BA%2Fch1-Sets_Relations_and_Languages#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=计算理论">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="local-only">© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</span><span class="published-only">© 2026 鼠窝 · v0.10.0</span></p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>

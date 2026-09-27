@@ -328,14 +328,30 @@ function collectAmbientPaths(nodes, edges, count) {
   return paths;
 }
 
-function curvedPath(a, b, bend = 0.18) {
+function edgeControl(a, b, bend = 0.18) {
   const mx = (a.x + b.x) / 2;
   const my = (a.y + b.y) / 2;
   const dx = b.x - a.x;
   const dy = b.y - a.y;
-  const cx = mx - dy * bend;
-  const cy = my + dx * bend;
-  return `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`;
+  return { x: mx - dy * bend, y: my + dx * bend };
+}
+
+function curvedPath(a, b, bend = 0.18) {
+  const c = edgeControl(a, b, bend);
+  return `M ${a.x} ${a.y} Q ${c.x} ${c.y} ${b.x} ${b.y}`;
+}
+
+/** Point on quadratic Bezier (matches drawn edge curves). */
+function quadAt(p0, p1, p2, t) {
+  const u = 1 - t;
+  return {
+    x: u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x,
+    y: u * u * p0.y + 2 * u * t * p1.y + t * t * p2.y,
+  };
+}
+
+function edgeKey(a, b) {
+  return `${a}|${b}`;
 }
 
 function nodeRadius(n, mode) {
@@ -391,6 +407,7 @@ function createSvg(view, options = {}) {
     svg.appendChild(bg);
   }
 
+  const edgeBends = new Map();
   const gEdges = document.createElementNS(NS, "g");
   gEdges.setAttribute("class", "nmap-edges");
   edges.forEach((e, idx) => {
@@ -407,7 +424,10 @@ function createSvg(view, options = {}) {
         (na?.kind === "transit" && nb?.kind === "ix") ||
         (na?.kind === "ix" && nb?.kind === "transit"));
     const path = document.createElementNS(NS, "path");
-    const bend = isGlobal ? (backbone ? 0.06 : 0.12 + (idx % 3) * 0.02) : 0.16;
+    // Keep bends mild so packets stay visually on the stroke
+    const bend = isGlobal ? (backbone ? 0.04 : 0.08 + (idx % 3) * 0.015) : 0.12;
+    edgeBends.set(edgeKey(e.from, e.to), bend);
+    edgeBends.set(edgeKey(e.to, e.from), -bend);
     path.setAttribute("d", curvedPath(a, b, bend));
     path.setAttribute(
       "class",
@@ -415,6 +435,7 @@ function createSvg(view, options = {}) {
     );
     path.dataset.a = e.from;
     path.dataset.b = e.to;
+    path.dataset.bend = String(bend);
     gEdges.appendChild(path);
   });
   svg.appendChild(gEdges);
@@ -465,7 +486,7 @@ function createSvg(view, options = {}) {
   packetLayer.setAttribute("class", "nmap-packets");
   svg.appendChild(packetLayer);
 
-  return { svg, positions, width, height, packetLayer };
+  return { svg, positions, width, height, packetLayer, edgeBends };
 }
 
 function ensureShell(root, data) {
@@ -513,7 +534,7 @@ function stopFlows(root) {
   if (layer) layer.innerHTML = "";
 }
 
-function startFlows(root, packets, positions) {
+function startFlows(root, packets, positions, edgeBends = new Map()) {
   stopFlows(root);
   const layer = root.querySelector(".nmap-packets");
   if (!layer || !packets.length) return;
@@ -523,12 +544,30 @@ function startFlows(root, packets, positions) {
   let lastTs = null;
   const flows = packets
     .map((p) => {
-      const pts = p.path.map((id) => positions[id]).filter(Boolean);
-      if (pts.length < 2) return null;
+      const ids = (p.path || []).filter((id) => positions[id]);
+      if (ids.length < 2) return null;
+      const segs = [];
+      for (let i = 0; i < ids.length - 1; i += 1) {
+        const from = ids[i];
+        const to = ids[i + 1];
+        const a = positions[from];
+        const b = positions[to];
+        const bend = edgeBends.has(edgeKey(from, to))
+          ? edgeBends.get(edgeKey(from, to))
+          : edgeBends.has(edgeKey(to, from))
+            ? -edgeBends.get(edgeKey(to, from))
+            : 0;
+        // Skip phantom shortcuts with no drawn edge (would fly across empty space)
+        if (!edgeBends.has(edgeKey(from, to)) && !edgeBends.has(edgeKey(to, from))) {
+          continue;
+        }
+        segs.push({ a, b, c: edgeControl(a, b, bend) });
+      }
+      if (!segs.length) return null;
       const el = document.createElementNS(NS, "circle");
       el.setAttribute("r", p.kind === "ambient" ? "2.6" : "4.2");
-      el.setAttribute("cx", String(pts[0].x));
-      el.setAttribute("cy", String(pts[0].y));
+      el.setAttribute("cx", String(segs[0].a.x));
+      el.setAttribute("cy", String(segs[0].a.y));
       el.setAttribute(
         "class",
         `nmap-packet${p.kind === "ambient" ? " nmap-packet--ambient" : " nmap-packet--ok"}`,
@@ -536,7 +575,7 @@ function startFlows(root, packets, positions) {
       layer.appendChild(el);
       return {
         el,
-        pts,
+        segs,
         kind: p.kind,
         baseSegMs: p.kind === "ambient" ? 1100 : 720,
         phase: p.phase || 0,
@@ -560,14 +599,14 @@ function startFlows(root, packets, positions) {
     clock += dt * speed * SPEED_BASELINE * 1000;
 
     flows.forEach((f) => {
-      const total = f.baseSegMs * (f.pts.length - 1);
-      const pos = ((clock / total + f.phase) % 1) * (f.pts.length - 1);
-      const i = Math.floor(pos);
+      const total = f.baseSegMs * f.segs.length;
+      const pos = ((clock / total + f.phase) % 1) * f.segs.length;
+      const i = Math.min(f.segs.length - 1, Math.floor(pos));
       const t = pos - i;
-      const a = f.pts[i];
-      const b = f.pts[Math.min(i + 1, f.pts.length - 1)];
-      f.el.setAttribute("cx", String(a.x + (b.x - a.x) * t));
-      f.el.setAttribute("cy", String(a.y + (b.y - a.y) * t));
+      const seg = f.segs[i];
+      const pt = quadAt(seg.a, seg.c, seg.b, t);
+      f.el.setAttribute("cx", String(pt.x));
+      f.el.setAttribute("cy", String(pt.y));
     });
 
     root._nmapAnimHandle = requestAnimationFrame(frame);
@@ -690,15 +729,30 @@ function applyView(root, data, mode) {
     packets.push({ path: primary, kind: "ok", phase: 0.45 });
   }
   if (mode === "global") {
-    // Highlight a few longer routes across the mesh
-    const story = (view.nodes || []).filter((n) => n.story && n.kind === "story");
-    const ix = (view.nodes || []).filter((n) => n.kind === "ix");
-    if (story.length >= 2) {
-      packets.push({ path: [story[0].id, ix[0]?.id, story[1].id].filter(Boolean), kind: "ok", phase: 0 });
-    } else if (ix.length >= 3) {
-      packets.push({ path: [ix[0].id, "as2", ix[1].id], kind: "ok", phase: 0 });
-      packets.push({ path: [ix[2].id, "as3", ix[3]?.id || ix[0].id], kind: "ok", phase: 0.33 });
-    }
+    // Only walk real edges so packets never cut across empty space
+    const story = (view.nodes || []).filter((n) => n.kind === "story");
+    const edgeList = view.edges || [];
+    const neighbor = (id) => {
+      for (const e of edgeList) {
+        if (e.from === id) return e.to;
+        if (e.to === id) return e.from;
+      }
+      return null;
+    };
+    story.slice(0, 3).forEach((s, i) => {
+      const ix = neighbor(s.id);
+      if (ix) packets.push({ path: [s.id, ix], kind: "ok", phase: i * 0.22 });
+    });
+    const backboneRoutes = [
+      ["ix100", "as2", "ix101"],
+      ["ix103", "as3", "ix104"],
+      ["ix105", "as4", "ix102"],
+    ];
+    backboneRoutes.forEach((route, i) => {
+      if (route.every((id) => painted.positions[id])) {
+        packets.push({ path: route, kind: "ok", phase: 0.1 + i * 0.28 });
+      }
+    });
     packets.push(...collectAmbientPaths(view.nodes || [], view.edges || [], 14));
   } else if ((view.edges || []).length > 1) {
     packets.push(...collectAmbientPaths(view.nodes || [], view.edges || [], 2));
@@ -724,7 +778,7 @@ function applyView(root, data, mode) {
     toggleBtn.setAttribute("aria-pressed", "true");
   }
 
-  startFlows(root, packets, painted.positions);
+  startFlows(root, packets, painted.positions, painted.edgeBends);
 }
 
 function setExpanded(root, data, expanded) {

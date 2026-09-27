@@ -1,5 +1,4 @@
 import { initCursorTrail } from "./cursor-trail.js";
-import { initGitHubSync } from "./github-sync.js";
 import {
   applyBackground,
   escapeHtml,
@@ -13,7 +12,6 @@ import {
 } from "./layout.js";
 import { initMusicPlayer, refreshHeroNowPlaying } from "./music-player.js";
 import { initTimerWidget } from "./timer-widget.js";
-import { initArrangeInstruments, resetArrangeInstrumentBoards } from "./piano-keyboard.js";
 import { loadCourseNoteIndex, loadCoursePreviewFromManifest } from "./course-notes.js";
 import { fetchJson, applySiteAccessMode, canEditNotes, isPublishedSite } from "./runtime.js";
 import { initSpaNavigation } from "./spa-nav.js";
@@ -62,7 +60,7 @@ async function ensureShell() {
     await enterPage(nextPageId, context);
   });
 
-  void ensureLive2DShell();
+  // Live2D（pixi/cubism 体积大）等首屏「加载中」内容完成后再拉，避免抢带宽
 }
 
 function ensureLive2DShell() {
@@ -92,8 +90,9 @@ function waitForDomPaint() {
 async function mountArrangeInstruments() {
   await waitForDomPaint();
   if (!document.getElementById("keyboard-piano")) return;
-  resetArrangeInstrumentBoards();
   try {
+    const { initArrangeInstruments, resetArrangeInstrumentBoards } = await import("./piano-keyboard.js");
+    resetArrangeInstrumentBoards();
     initArrangeInstruments();
   } catch (error) {
     console.warn("[Arrange] 乐器模块初始化失败:", error);
@@ -140,6 +139,7 @@ async function enterPage(pageId, context = {}) {
       import("./home-mood-board.js").then((m) => m.initHomeMoodBoard()),
     ]);
     if (canEditNotes()) {
+      const { initGitHubSync } = await import("./github-sync.js");
       initGitHubSync(siteConfig);
     }
   } else if (pageId === "course") {

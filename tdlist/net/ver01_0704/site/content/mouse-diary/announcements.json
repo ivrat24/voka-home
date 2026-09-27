@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-14T10:56:34",
+  "generatedAt": "2026-09-27T15:59:59",
   "announcements": [
     {
       "id": "announce-home-board-20260717",
-      "path": "更新公告/首页更新公告栏已对读者开放.md",
+      "path": "更新公告/20260915-161418-首页更新公告栏已对读者开放.md",
       "title": "首页更新公告栏已对读者开放",
       "category": "更新公告",
       "favorite": true,
@@ -15,7 +15,7 @@
     },
     {
       "id": "announce-guitar-echo-20260717",
-      "path": "更新公告/虚拟编曲吉他回音共鸣时长.md",
+      "path": "更新公告/20260915-161418-虚拟编曲-吉他回音共鸣时长.md",
       "title": "虚拟编曲：吉他回音共鸣时长",
       "category": "更新公告",
       "favorite": false,
@@ -27,7 +27,7 @@
     },
     {
       "id": "announce-lec07-20260716",
-      "path": "更新公告/课程笔记Lec07上线.md",
+      "path": "更新公告/20260915-161418-课程笔记-Lec07-LecExp07-已上线.md",
       "title": "课程笔记：Lec07 / LecExp07 已上线",
       "category": "更新公告",
       "favorite": false,
@@ -39,7 +39,7 @@
     },
     {
       "id": "announce-brand-visitor-20260715",
-      "path": "更新公告/读者端访客大厅文案更新.md",
+      "path": "更新公告/20260915-161418-读者端访客大厅文案更新.md",
       "title": "读者端访客大厅文案更新",
       "category": "更新公告",
       "favorite": false,
@@ -51,7 +51,7 @@
     },
     {
       "id": "announce-favicon-20260714",
-      "path": "更新公告/站点图标与分区花瓣图标.md",
+      "path": "更新公告/20260915-161418-站点图标与分区花瓣图标.md",
       "title": "站点图标与分区花瓣图标",
       "category": "更新公告",
       "favorite": false,

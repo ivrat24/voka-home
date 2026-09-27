@@ -1177,8 +1177,26 @@ def collect_notes() -> list[dict]:
             }
         )
 
-    notes.sort(key=lambda item: (item.get("date") or "", item.get("title") or ""), reverse=True)
-    return notes
+    def chapter_num(slug: str) -> int | None:
+        name = slug.split("/")[-1]
+        m = re.match(r"ch(\d+)", name, flags=re.I)
+        return int(m.group(1)) if m else None
+
+    # 按课程聚合：课内 chN- 升序，其余按日期新→旧
+    by_course: dict[str, list] = {}
+    for note in notes:
+        course = course_slug_from_note_slug(str(note.get("slug") or ""))
+        by_course.setdefault(course, []).append(note)
+
+    ordered: list = []
+    for course in sorted(by_course.keys()):
+        group = by_course[course]
+        group_ch = [n for n in group if chapter_num(str(n.get("slug") or "")) is not None]
+        group_plain = [n for n in group if chapter_num(str(n.get("slug") or "")) is None]
+        group_ch.sort(key=lambda n: (chapter_num(str(n.get("slug") or "")) or 0, str(n.get("slug") or "").lower()))
+        group_plain.sort(key=lambda n: (str(n.get("date") or ""), str(n.get("title") or "")), reverse=True)
+        ordered.extend(group_ch + group_plain)
+    return ordered
 
 
 def main() -> None:

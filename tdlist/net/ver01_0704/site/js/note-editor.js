@@ -103,9 +103,27 @@ async function afterTreeMutation(message) {
 
 export async function initNoteEditor(options = {}) {
   if (!canEditNotes()) return;
-  rootEl = document.getElementById(options.rootId || "note-editor-root");
-  if (!rootEl || bound) return;
+  const nextRoot = document.getElementById(options.rootId || "note-editor-root");
+  if (!nextRoot) return;
+
+  // SPA 换页会替换 <main>，旧按钮监听失效；仅当仍是同一 DOM 节点时跳过重建
+  if (bound && rootEl === nextRoot && nextRoot.dataset.vokaEditor === "1") {
+    const editSlug = getEditSlugFromLocation();
+    if (editSlug) {
+      setEditorOpen(true);
+      scrollEditorSectionIntoView();
+      await openNoteFromSlug(editSlug);
+    }
+    return;
+  }
+
+  rootEl = nextRoot;
   bound = true;
+  rootEl.dataset.vokaEditor = "1";
+  state.open = false;
+  state.currentPath = null;
+  state.content = "";
+  state.dirty = false;
 
   rootEl.innerHTML = `
     <div class="note-editor-offline-banner" id="note-editor-offline-banner" hidden>
@@ -270,8 +288,10 @@ function bindEditorEvents() {
 
 function setEditorOpen(open) {
   state.open = open;
-  rootEl.hidden = !open;
-  document.getElementById("note-editor-open-btn")?.setAttribute("aria-expanded", open ? "true" : "false");
+  if (rootEl) rootEl.hidden = !open;
+  const openBtn = document.getElementById("note-editor-open-btn");
+  openBtn?.setAttribute("aria-expanded", open ? "true" : "false");
+  if (openBtn) openBtn.textContent = open ? "收起笔记工作区" : "打开笔记工作区";
   document.querySelector(".note-editor-section")?.classList.toggle("is-workspace-open", open);
   if (open) {
     void refreshOfflineBanner();

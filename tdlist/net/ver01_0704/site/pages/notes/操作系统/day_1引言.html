@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="严格对照 ch1.pptx：Course Overview + Chapter 1 Introduction（OSC 表述与学术英文）">
+  <title>Day1 引言 · 课程笔记 · 鼠窝</title>
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="操作系统/day_1引言">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text"><span class="local-only">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span><span class="published-only">鼠窝</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=操作系统">操作系统</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">Day1 引言</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">Day1 引言</h1>
+        <p class="note-meta"><time datetime="2026-09-17">2026-09-17</time></p>
+        <div class="note-tags"><span class="note-tag">操作系统</span><span class="note-tag">Day1</span><span class="note-tag">引言</span><span class="note-tag">Chapter1</span></div>
+        <p class="note-description">严格对照 ch1.pptx：Course Overview + Chapter 1 Introduction（OSC 表述与学术英文）</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <section class="note-module">
+<h1 id="day1-引言introduction" class="note-heading note-heading--h1">Day1 引言（Introduction）</h1>
+<blockquote class="note-quote"><p class="note-paragraph">整理原则：<strong>表述对齐课件 `materials/ch1.pptx`</strong>；关键术语标注学术英文。</p></blockquote>
+<blockquote class="note-quote"><p class="note-paragraph">结构：§0 课程行政（Slides 1–15）→ §1 起为 <strong>Chapter 1 Introduction</strong>（Slides 16–56）。</p></blockquote>
+<blockquote class="note-quote"><p class="note-paragraph">课件未展开、仅作备查的内容见文末附录。</p></blockquote>
+<p class="note-paragraph"><strong>Chapter 1 大纲（Outlines for Chapter ONE）</strong></p>
+<p class="note-paragraph">What Operating Systems Do · Computer-System Organization · Computer-System Architecture · Operating-System Structure · Operating-System Operations · Process Management · Memory Management · Storage Management · Protection and Security · Distributed Systems · Special-Purpose Systems · Computing Environments</p>
+<p class="note-paragraph"><strong>Objectives（课件）</strong></p>
+<ul class="note-list">
+<li>To provide a grand tour of the major operating systems components</li>
+<li>To provide coverage of basic computer system organization</li>
+</ul>
+<hr>
+<h2 id="0-course-overview课程总览" class="note-heading note-heading--h2">0. Course Overview（课程总览）</h2>
+<h3 id="01-课在问什么operating-systems-course-overview" class="note-heading note-heading--h3">0.1 课在问什么（Operating Systems: Course Overview）</h3>
+<p class="note-paragraph">How computers run programs and manage resources, with hands-on practice in system design.</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>主题</th><th>课件要点</th></tr></thead><tbody><tr><td>Program execution</td><td>How do programs share processors? How do threads coordinate safely? How does virtual memory work? How are files stored? How do systems recover from crashes?</td></tr><tr><td>Software and hardware</td><td><strong>System calls</strong>, <strong>kernels</strong> and <strong>interrupts</strong>. <strong>Context switches</strong> and <strong>page tables</strong>. How apps obtain OS services. How the OS controls hardware.</td></tr><tr><td>System design and explanation</td><td>Build correct software, write clear code, and explain the reasons for your design.</td></tr><tr><td>Prerequisites</td><td>C programming, data structures, basic RISC-V assembly and Linux tools.</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>Main Contents</strong></p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>块</th><th>内容</th></tr></thead><tbody><tr><td>Overview</td><td>Intro, OS structure</td></tr><tr><td>Process Management</td><td>Processes, Threads, CPU scheduling, Process Synchronization, Deadlocks</td></tr><tr><td>Memory Management</td><td>Main memory, Virtual memory</td></tr><tr><td>Storage Management</td><td>File-system interface, File-system implementation, Mass-storage structure, I/O systems</td></tr></tbody></table></div>
+<h3 id="02-为何仍学-os--教材与-xv6" class="note-heading note-heading--h3">0.2 为何仍学 OS / 教材与 xv6</h3>
+<ul class="note-list">
+<li><strong>Why is OS still important in ChatGPT-era?</strong> 摩尔定律之后，<em>Software performance engineering</em>、算法与硬件顶层优化仍可大幅提升性能（课件引用 Science 文与矩阵乘例子）。</li>
+<li><strong>Why To Learn Operating Systems?</strong> Building blocks of modern computer software：System Software · Algorithm · Data Structure · Applications。</li>
+<li>课件亦列举 AI/Cloud 中对 <strong>virtual memory and paging</strong>、<strong>scheduling and migration</strong>、<strong>sandboxes</strong>、GPU memory ballooning、fine-grained scheduling、elastic VM memory 等 OS 思想的复用（vLLM、Llumnix、Dirigent、Prism、Libra、RamRyder 等）。</li>
+</ul>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>资源</th><th>课件表述</th></tr></thead><tbody><tr><td><em>Operating System Concepts</em>, 10th edition（Silberschatz, Galvin, Gagne）</td><td>主教材；os-book.com/OS10/</td></tr><tr><td>OSTEP</td><td>Supplementary reading</td></tr><tr><td>courses.zju.edu.cn</td><td>Course website and lecture slides</td></tr><tr><td><strong>xv6</strong></td><td>A small kernel you can read；Unix-like teaching OS for multicore RISC-V；<code>kernel/proc.c</code>, <code>kernel/vm.c</code></td></tr><tr><td>MIT 6.1810</td><td>Operating System Engineering（page tables, traps, locking, …）</td></tr></tbody></table></div>
+<h3 id="03-final-grade-与-lab-projects" class="note-heading note-heading--h3">0.3 Final Grade 与 Lab Projects</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>项目</th><th>占比</th></tr></thead><tbody><tr><td>Final exam</td><td>50%</td></tr><tr><td>Lab Exam（上机考试）</td><td>10% + Bonus</td></tr><tr><td>Assignments / homework</td><td>5%</td></tr><tr><td>In-class Quiz</td><td>5%</td></tr><tr><td>Lab Reports（实验报告）</td><td>10%</td></tr><tr><td>Lab Demos（实验验收）</td><td>20%</td></tr></tbody></table></div>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>Lab</th><th>内容</th><th>权重</th></tr></thead><tbody><tr><td>Lab0</td><td>RISC-V 64 Kernel Debug</td><td>5%（Project Report, <strong>NO Demo</strong>）</td></tr><tr><td>Lab1</td><td>Kernel Booting &amp; Timer</td><td>15%</td></tr><tr><td>Lab2</td><td>Scheduling, Context Switching</td><td>15%</td></tr><tr><td>Lab3</td><td>Virtual Memory</td><td>15%</td></tr><tr><td>Lab4</td><td>User Mode (shell)</td><td>20%</td></tr><tr><td>Lab5</td><td>Page fault and Fork</td><td>30%</td></tr><tr><td>Lab6</td><td>File System</td><td>10%</td></tr></tbody></table></div>
+<p class="note-paragraph">Lab1–6：Project Report + Demo with TA。代码须详细注释（课件：每 5 行有注释）；「讨论心得」占该实验报告 20%。独立完成，禁止抄袭/协助抄袭。</p>
+<p class="note-paragraph">Docs：<code>https://os.pages.zjusct.io/fa26/doc-shoulidan</code> · Repo：<code>https://git.zju.edu.cn/os/fa26/shoulidan/os-&lt;ID&gt;</code></p>
+<p class="note-paragraph"><strong>Suggestions for Learning OS（课件）</strong>：Read before and after class · Trace an execution path（system call / page fault）· Implement and test incrementally · Debug with evidence（GDB/QEMU）· Explain your design · Reason independently。</p>
+<hr>
+<h2 id="1-what-is-an-operating-system操作系统是什么" class="note-heading note-heading--h2">1. What is an Operating System?（操作系统是什么）</h2>
+<h3 id="11-定义与-goals" class="note-heading note-heading--h3">1.1 定义与 goals</h3>
+<p class="note-paragraph"><strong>Operating system</strong>：A program that acts as an <strong>intermediary</strong> between a <strong>user</strong> of a computer and the computer <strong>hardware</strong>.</p>
+<p class="note-paragraph"><strong>Operating system goals：</strong></p>
+<ol class="note-list">
+<li>Execute user programs and make solving user problems easier.</li>
+<li>Make the computer system <strong>convenient</strong> to use.</li>
+<li>Use the computer hardware in an <strong>efficient</strong> manner.</li>
+</ol>
+<h3 id="12-computer-system-structure四组成部分" class="note-heading note-heading--h3">1.2 Computer System Structure（四组成部分）</h3>
+<p class="note-paragraph">Computer system can be divided into <strong>four components</strong>：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>组成部分</th><th>英文</th><th>课件表述</th></tr></thead><tbody><tr><td><strong>硬件</strong></td><td><strong>hardware</strong></td><td>provides basic computing resources — <strong>CPU</strong>, <strong>memory</strong>, <strong>I/O devices</strong></td></tr><tr><td><strong>操作系统</strong></td><td><strong>operating system</strong></td><td>Controls and <strong>coordinates</strong> use of hardware among various applications and users</td></tr><tr><td><strong>系统与应用程序</strong></td><td><strong>system &amp; application programs</strong></td><td>define the ways in which the system resources are used to solve the computing problems of the users（word processors, compilers, web browsers, database systems, video games）</td></tr><tr><td><strong>用户</strong></td><td><strong>users</strong></td><td>People, machines, other computers</td></tr></tbody></table></div>
+<h3 id="13-operating-system-definition资源分配器与控制程序" class="note-heading note-heading--h3">1.3 Operating System Definition（资源分配器与控制程序）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>角色</th><th>英文</th><th>课件表述</th></tr></thead><tbody><tr><td><strong>资源分配器</strong></td><td><strong>resource allocator</strong></td><td>Manages all resources; Decides between conflicting requests for <strong>efficient</strong> and <strong>fair</strong> resource use</td></tr><tr><td><strong>控制程序</strong></td><td><strong>control program</strong></td><td>Controls execution of programs to prevent errors and improper use of the computer</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>No universally accepted definition.</strong></p>
+<ul class="note-list">
+<li>“Everything a vendor ships when you order an operating system” is a good approximation — but varies wildly.</li>
+<li>“The one program running at all times on the computer” is the <strong>kernel</strong>.</li>
+<li>Everything else is either a <strong>system program</strong> (ships with the operating system) or an <strong>application program</strong>.</li>
+</ul>
+<h3 id="14-computer-startup开机" class="note-heading note-heading--h3">1.4 Computer Startup（开机）</h3>
+<ul class="note-list">
+<li><strong>bootstrap program</strong> is loaded at power-up or reboot.</li>
+<li>Typically stored in <strong>ROM</strong> or <strong>EPROM</strong>, generally known as <strong>firmware</strong>.</li>
+<li>Initializes all aspects of system.</li>
+<li>Loads operating system <strong>kernel</strong> and starts execution.</li>
+</ul>
+<hr>
+<h2 id="2-computer-system-organization计算机系统组织" class="note-heading note-heading--h2">2. Computer-System Organization（计算机系统组织）</h2>
+<h3 id="21-computer-system-operation" class="note-heading note-heading--h3">2.1 Computer-system operation</h3>
+<ul class="note-list">
+<li>One or more <strong>CPUs</strong>, <strong>device controllers</strong> connect through <strong>common bus</strong> providing access to <strong>shared memory</strong>.</li>
+<li><strong>Concurrent execution</strong> of CPUs and devices competing for <strong>memory cycles</strong>.</li>
+</ul>
+<p class="note-paragraph"><strong>Computer-System Operation（I/O 与中断）</strong></p>
+<ul class="note-list">
+<li>I/O devices and the CPU can execute <strong>concurrently</strong>.</li>
+<li>Each <strong>device controller</strong> is in charge of a particular device type.</li>
+<li>Each device controller has a <strong>local buffer</strong>.</li>
+<li>CPU moves data from/to <strong>main memory</strong> to/from local buffers.</li>
+<li>I/O is from the device to local buffer of controller.</li>
+<li>Device controller informs CPU that it has finished its operation by causing an <strong>interrupt</strong> (via <strong>system bus</strong>).</li>
+</ul>
+<h3 id="22-common-functions-of-interrupts中断" class="note-heading note-heading--h3">2.2 Common Functions of Interrupts（中断）</h3>
+<ul class="note-list">
+<li><strong>Interrupt</strong> transfers control to the <strong>interrupt service routine (ISR)</strong> generally through the <strong>interrupt vector</strong>, which contains the addresses of all the service routines.</li>
+<li>Interrupt architecture must <strong>save the address of the interrupted instruction</strong>.</li>
+<li>Incoming interrupts are <strong>disabled</strong> while another interrupt is being processed to prevent a <strong>lost interrupt</strong>.</li>
+<li>An operating system is <strong>interrupt driven</strong>.</li>
+<li>Note: names may vary across architectures；课件注明 <strong>RISC-V terms</strong>.</li>
+</ul>
+<p class="note-paragraph"><strong>中断分类（课件原表述）</strong></p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>分类</th><th>英文（课件）</th><th>说明</th></tr></thead><tbody><tr><td>硬件驱动的中断</td><td><strong>Interrupt driven by hardware</strong></td><td>如 device controller 经 system bus 引发的 interrupt</td></tr><tr><td><strong>陷阱</strong></td><td><strong>trap</strong></td><td>a <strong>software-generated interrupt</strong> caused either by an <strong>error</strong> or a <strong>user request</strong>（后者常称 <strong>system call</strong>）</td></tr></tbody></table></div>
+<p class="note-paragraph">Operating-System Operations 中亦写：Software error or request creates <strong>exception</strong> or <strong>trap</strong>（例：division by zero；request for operating system service）。</p>
+<p class="note-paragraph"><strong>Interrupt Handling</strong></p>
+<ul class="note-list">
+<li>OS preserves CPU state by storing <strong>registers</strong> and the <strong>program counter (PC)</strong>.</li>
+<li>Determines which type of interrupt has occurred:</li>
+</ul>
+<p class="note-paragraph">  - a <strong>generic routine</strong> examines the interrupt info；或</p>
+<p class="note-paragraph">  - <strong>vectored interrupt system</strong>, indexed by a unique number.</p>
+<ul class="note-list">
+<li>Separate segments of code determine what action should be taken for each type of interrupt.</li>
+</ul>
+<h3 id="23-io-structure--two-io-methods" class="note-heading note-heading--h3">2.3 I/O Structure — Two I/O Methods</h3>
+<p class="note-paragraph">| | <strong>Synchronous</strong>（同步） | <strong>Asynchronous</strong>（异步） |</p>
+<p class="note-paragraph">|--|-------------------------|--------------------------|</p>
+<p class="note-paragraph">| 课件要点 | After I/O starts, control returns to user program <strong>only upon I/O completion</strong>. | After I/O starts, control returns to user program <strong>without waiting for I/O completion</strong>. |</p>
+<p class="note-paragraph">| 机制 | <strong>Wait</strong> instruction idles the CPU until the next interrupt；或 <strong>Wait loop</strong> (contention for memory access). At most <strong>one</strong> I/O request outstanding；no simultaneous I/O processing. | <strong>System call</strong> — request to the OS to allow user to wait for I/O completion. <strong>Device-status table</strong> contains entry for each I/O device indicating its <strong>type</strong>, <strong>address</strong>, and <strong>state</strong>. |</p>
+<h3 id="24-direct-memory-accessdma" class="note-heading note-heading--h3">2.4 Direct Memory Access（DMA）</h3>
+<ul class="note-list">
+<li>Used for <strong>high-speed I/O devices</strong> able to transmit information at close to memory speeds.</li>
+<li>Device controller transfers <strong>blocks</strong> of data from buffer storage directly to <strong>main memory without CPU intervention</strong>.</li>
+<li>Only <strong>one interrupt</strong> is generated <strong>per block</strong>, rather than one interrupt per byte.</li>
+</ul>
+<h3 id="25-storage-structure存储结构" class="note-heading note-heading--h3">2.5 Storage Structure（存储结构）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>术语</th><th>英文</th><th>课件表述</th></tr></thead><tbody><tr><td><strong>主存</strong></td><td><strong>main memory</strong></td><td>only large storage media that the CPU can access <strong>directly</strong></td></tr><tr><td><strong>辅存</strong></td><td><strong>secondary storage</strong></td><td>extension of main memory that provides large <strong>nonvolatile</strong> storage capacity</td></tr><tr><td><strong>磁盘</strong></td><td><strong>magnetic disks</strong></td><td>surface divided into <strong>tracks</strong>, subdivided into <strong>sectors</strong>；<strong>disk controller</strong> determines the logical interaction between the device and the computer</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>Storage Hierarchy</strong>：Storage systems organized in hierarchy — <strong>Speed</strong>, <strong>Cost</strong>, <strong>Volatility</strong>.</p>
+<p class="note-paragraph"><strong>Caching</strong>：copying information into faster storage system；main memory can be viewed as a last <strong>cache</strong> for secondary storage.</p>
+<p class="note-paragraph"><strong>Caching（展开，课件）</strong></p>
+<ul class="note-list">
+<li>Important principle, performed at many levels（hardware, operating system, software）.</li>
+<li>Information in use copied from slower to faster storage temporarily — <strong>Speed mismatch</strong>.</li>
+<li>Faster storage (<strong>cache</strong>) checked first；hit → use from cache；miss → copy to cache and use.</li>
+<li>Cache smaller than storage being cached.</li>
+<li>Cache management：important design problem — <strong>cache size</strong> and <strong>replacement policy</strong>.</li>
+</ul>
+<p class="note-paragraph">Movement between levels of storage hierarchy can be <strong>explicit</strong> or <strong>implicit</strong>.</p>
+<p class="note-paragraph"><strong>Migration of Integer A from Disk to Register（课件）</strong></p>
+<ul class="note-list">
+<li><strong>Multitasking</strong> environments must be careful to use the <strong>most recent value</strong>, no matter where it is stored in the storage hierarchy.</li>
+<li><strong>Multiprocessor</strong> environment must provide <strong>cache coherency</strong> in hardware such that all CPUs have the most recent value in their cache.</li>
+</ul>
+<p class="note-paragraph"><strong>Storage-Device Hierarchy（课件图，常见 ≥7 层，自上而下变慢变大）</strong></p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>层</th><th>英文</th></tr></thead><tbody><tr><td>1</td><td><strong>registers</strong></td></tr><tr><td>2</td><td><strong>cache</strong></td></tr><tr><td>3</td><td><strong>main memory</strong></td></tr><tr><td>4</td><td>solid-state / electronic disk（SSD 等，教材图常见）</td></tr><tr><td>5</td><td><strong>magnetic disk</strong></td></tr><tr><td>6</td><td>optical disk</td></tr><tr><td>7</td><td>magnetic tapes</td></tr></tbody></table></div>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">registers</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">cache</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">main memory</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">SSD / electronic disk</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">magnetic disk</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">optical disk</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">magnetic tapes</div></div></figure>
+<hr>
+<h2 id="3-computer-system-architecture体系结构" class="note-heading note-heading--h2">3. Computer-System Architecture（体系结构）</h2>
+<h3 id="31-multiprocessor-systems--smp" class="note-heading note-heading--h3">3.1 Multiprocessor Systems — SMP</h3>
+<p class="note-paragraph"><strong>SMP architecture（symmetric multiprocessing）</strong></p>
+<ul class="note-list">
+<li>Each CPU processor has its <strong>own set of registers</strong>.</li>
+<li>All processors <strong>share physical memory</strong> over the <strong>system bus</strong>.</li>
+</ul>
+<h3 id="32-multicore-systems" class="note-heading note-heading--h3">3.2 Multicore Systems</h3>
+<ul class="note-list">
+<li><strong>On-chip communication</strong> is faster than <strong>between-chip communication</strong>.</li>
+<li><strong>Less power</strong> (good for mobile devices).</li>
+</ul>
+<h3 id="33-the-numa-architecture" class="note-heading note-heading--h3">3.3 The NUMA Architecture</h3>
+<p class="note-paragraph"><strong>NUMA</strong> = Non-Uniform Memory Access.</p>
+<ul class="note-list">
+<li>The CPUs are connected by a <strong>shared system interconnect</strong>.</li>
+<li>Scales more effectively as more processors are added.</li>
+<li><strong>Remote memory</strong> across the interconnect is <strong>slow</strong>.</li>
+<li>Operating systems need careful <strong>CPU scheduling</strong> and <strong>memory management</strong>.</li>
+</ul>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">CPU + local memory  ←local fast</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">↕ shared system interconnect（remote slow）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">CPU + local memory</div></div></figure>
+<hr>
+<h2 id="4-operating-system-structure-amp-operations结构与运转" class="note-heading note-heading--h2">4. Operating-System Structure &amp; Operations（结构与运转）</h2>
+<h3 id="41-multiprogramming多道程序设计" class="note-heading note-heading--h3">4.1 Multiprogramming（多道程序设计）</h3>
+<p class="note-paragraph"><strong>Multiprogramming</strong> needed for efficiency（<strong>CPU utilization</strong>）.</p>
+<ul class="note-list">
+<li>Single user cannot keep CPU and I/O devices busy at all times.</li>
+<li>Multiprogramming organizes <strong>jobs</strong> (code and data) so CPU always has one to execute.</li>
+<li>A <strong>subset</strong> of total jobs in system is kept in memory.</li>
+<li>One job selected and run via <strong>job scheduling</strong>.</li>
+<li>When it has to wait (for I/O for example), OS <strong>switches</strong> to another job.</li>
+</ul>
+<h3 id="42-timesharing-multitasking分时--多任务" class="note-heading note-heading--h3">4.2 Timesharing (multitasking)（分时 / 多任务）</h3>
+<p class="note-paragraph"><strong>Timesharing (multitasking)</strong> is <strong>logical extension</strong> in which CPU switches jobs so <strong>frequently</strong> that users can interact with each job while it is running, creating <strong>interactive computing</strong> (<strong>interactivity</strong>).</p>
+<ul class="note-list">
+<li><strong>Response time</strong> should be <strong>&lt; 1 second</strong>.</li>
+<li>Each user has at least one program executing in memory → <strong>process</strong>.</li>
+<li>If several jobs ready to run at the same time → <strong>CPU scheduling</strong>.</li>
+<li>If processes don’t fit in memory, <strong>swapping</strong> moves them in and out to run.</li>
+<li><strong>Virtual memory</strong> allows execution of processes not completely in memory.</li>
+</ul>
+<p class="note-paragraph">（<strong>swapping</strong> / <strong>virtual memory</strong> 与 memory management activities 的展开见 §6.1。）</p>
+<p class="note-paragraph">| | <strong>Multiprogramming</strong> | <strong>Timesharing (multitasking)</strong> |</p>
+<p class="note-paragraph">|--|----------------------|--------------------------------|</p>
+<p class="note-paragraph">| 目的 | efficiency / <strong>CPU utilization</strong> | <strong>interactivity</strong>；response time &lt; 1 s |</p>
+<p class="note-paragraph">| 课件关系 | 基础 | <strong>logical extension</strong> of multiprogramming |</p>
+<p class="note-paragraph">| 切换 | 典型在 wait（如 I/O）时 switch | switches jobs <strong>so frequently</strong> |</p>
+<h3 id="43-operating-system-operations双模式与保护" class="note-heading note-heading--h3">4.3 Operating-System Operations（双模式与保护）</h3>
+<ul class="note-list">
+<li>Interrupt driven by <strong>hardware</strong>.</li>
+<li>Software error or request creates <strong>exception</strong> or <strong>trap</strong>（division by zero；request for operating system service）.</li>
+<li>Other process problems：<strong>infinite loop</strong>；processes <strong>modifying</strong> each other or the operating system.</li>
+<li>Thus we need <strong>protection</strong>.</li>
+</ul>
+<p class="note-paragraph"><strong>Dual-mode operation</strong> allows OS to protect itself and other system components：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>模式</th><th>英文</th><th>课件要点</th></tr></thead><tbody><tr><td><strong>用户模式</strong></td><td><strong>user mode</strong></td><td>running user code</td></tr><tr><td><strong>内核模式</strong></td><td><strong>kernel mode</strong></td><td>running kernel code</td></tr></tbody></table></div>
+<ul class="note-list">
+<li><strong>Mode bit</strong> provided by hardware — distinguish user code vs kernel code.</li>
+<li>Some instructions designated as <strong>privileged</strong>, only executable in <strong>kernel mode</strong>.</li>
+<li><strong>System call</strong> changes mode to kernel；return from call resets it to user.</li>
+</ul>
+<p class="note-paragraph"><strong>Privileged instructions（特权指令）</strong>：仅能在 kernel mode 执行的指令（课件：only executable in kernel mode）。典型如：改 mode / 中断使能、设 timer、改地址翻译相关状态等（具体助记符依体系结构；RISC-V 实验见 CSR / <code>sret</code> 等）。用户态不可直接执行；需经 <strong>system call</strong> 由内核代做。</p>
+<h3 id="44-timer定时器-transition-from-user-to-kernel-mode" class="note-heading note-heading--h3">4.4 Timer（定时器）— Transition from User to Kernel Mode</h3>
+<p class="note-paragraph"><strong>Timer</strong> to prevent <strong>infinite loop</strong> / process <strong>hogging</strong> resources：</p>
+<ol class="note-list">
+<li>Set interrupt after specific period.</li>
+<li>Operating system <strong>decrements counter</strong>.</li>
+<li>When counter zero → generate an <strong>interrupt</strong>.</li>
+<li>Set up before scheduling process to <strong>regain control</strong> or <strong>terminate</strong> program that exceeds allotted time.</li>
+</ol>
+<hr>
+<h2 id="5-process-management进程管理" class="note-heading note-heading--h2">5. Process Management（进程管理）</h2>
+<h3 id="51-进程定义课件" class="note-heading note-heading--h3">5.1 进程定义（课件）</h3>
+<ul class="note-list">
+<li>A <strong>process</strong> is a <strong>program in execution</strong>. It is a <strong>unit of work</strong> within the system.</li>
+<li>Program is a <strong>passive entity</strong>；process is an <strong>active entity</strong>.</li>
+<li>Process needs resources to accomplish its task：<strong>CPU</strong>, <strong>memory</strong>, <strong>I/O</strong>, <strong>files</strong>；<strong>Initialization data</strong>.</li>
+<li>Process <strong>termination</strong> requires <strong>reclaim of any reusable resources</strong>.</li>
+<li><strong>Single-threaded process</strong> has one <strong>program counter</strong> specifying location of next instruction to execute；executes instructions sequentially, one at a time, until completion.</li>
+<li><strong>Multi-threaded process</strong> has one <strong>program counter per thread</strong>.</li>
+<li>Typically system has many processes, some user, some operating system, running concurrently on <strong>one or more CPUs</strong>.</li>
+<li>Concurrency by <strong>multiplexing the CPUs</strong> among the processes / threads.</li>
+</ul>
+<h3 id="52-process-management-activities课件清单" class="note-heading note-heading--h3">5.2 Process Management Activities（课件清单）</h3>
+<p class="note-paragraph">The operating system is responsible for:</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>活动</th><th>英文</th></tr></thead><tbody><tr><td>创建与删除</td><td><strong>Creating</strong> and <strong>deleting</strong> both user and system processes</td></tr><tr><td>挂起与恢复</td><td><strong>Suspending</strong> and <strong>resuming</strong> processes</td></tr><tr><td>同步</td><td>Providing mechanisms for process <strong>synchronization</strong></td></tr><tr><td>通信</td><td>Providing mechanisms for process <strong>communication</strong></td></tr><tr><td>死锁</td><td>Providing mechanisms for <strong>deadlock</strong> handling</td></tr></tbody></table></div>
+<hr>
+<h2 id="6-memory--storage--io-management资源管理摘要" class="note-heading note-heading--h2">6. Memory / Storage / I/O Management（资源管理摘要）</h2>
+<h3 id="61-memory-management内存管理" class="note-heading note-heading--h3">6.1 Memory Management（内存管理）</h3>
+<h4 id="基本约束课件" class="note-heading note-heading--h4">基本约束（课件）</h4>
+<ul class="note-list">
+<li>All <strong>data</strong> must be in memory before and after processing.</li>
+<li>All <strong>instructions</strong> must be in memory in order to execute.</li>
+</ul>
+<p class="note-paragraph">因此：CPU 真正“算”的时候，相关指令与数据必须落在 <strong>main memory</strong>（课件：only large storage media that the CPU can access <strong>directly</strong>）。辅存上的内容要先进入主存（或经 caching 层次迁移）才能被执行/处理。</p>
+<p class="note-paragraph"><strong>Memory management</strong> determines <strong>what is in memory when</strong> — 目标包括 optimizing <strong>CPU utilization</strong> and computer <strong>response</strong> to users。</p>
+<h4 id="memory-management-activities课件三条" class="note-heading note-heading--h4">Memory management activities（课件三条）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>#</th><th>英文（课件）</th><th>含义</th></tr></thead><tbody><tr><td>1</td><td>Keeping track of which parts of memory are currently being used and by whom</td><td><strong>记账</strong>：哪些物理内存被占用、属于谁（哪个 process）</td></tr><tr><td>2</td><td>Deciding which processes (or parts thereof) and data to move into and out of memory</td><td><strong>搬移决策</strong>：整进程或进程的一部分、数据何时换入/换出主存</td></tr><tr><td>3</td><td>Allocating and deallocating memory space as needed</td><td><strong>分配与回收</strong>：按需给进程空间，用完释放</td></tr></tbody></table></div>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">指令与数据必须在 main memory 才能执行/处理</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">Memory management：what is in memory when</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">记账 · 换入换出 · 分配/回收</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">提高 CPU utilization · 改善 response</div></div></figure>
+<h4 id="与多道--分时的衔接operating-system-structure" class="note-heading note-heading--h4">与多道 / 分时的衔接（Operating System Structure）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>机制</th><th>英文</th><th>课件要点</th></tr></thead><tbody><tr><td>多道下的内存驻留</td><td>subset of total jobs kept in memory</td><td>并非所有作业同时进主存；留下一个子集供切换</td></tr><tr><td>装不下时</td><td><strong>swapping</strong></td><td>moves processes in and out to run（整进程换入换出）</td></tr><tr><td>不必全部在内存也能跑</td><td><strong>virtual memory</strong></td><td>allows execution of processes <strong>not completely in memory</strong></td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>Swapping</strong> 与 <strong>virtual memory</strong> 都服务 “物理主存有限、逻辑上却要跑更多/更大进程”，但粒度与观感不同（引言级）：</p>
+<p class="note-paragraph">| | <strong>Swapping</strong> | <strong>Virtual memory</strong> |</p>
+<p class="note-paragraph">|--|--------------|-------------------|</p>
+<p class="note-paragraph">| 课件原句 | moves them in and out to run | allows execution of processes not completely in memory |</p>
+<p class="note-paragraph">| 直观理解 | 进程（或大部分映像）在主存与辅存之间整进整出 | 进程可以只有一部分在主存，其余在盘上，需要时再进入 |</p>
+<p class="note-paragraph">| 目的 | 让更多进程有机会轮流占用主存 | 支持更大地址空间、更高 multiprogramming degree，并配合 isolation（每进程自己的逻辑视图——后章展开） |</p>
+<blockquote class="note-quote"><p class="note-paragraph">Chapter 1 只建立概念；<strong>page table</strong>、缺页、替换算法等属后续 Memory Management / Virtual memory 专章（课件 Main Contents 已单列）。实验 Lab3 Virtual Memory、Lab5 Page fault 会落地。</p></blockquote>
+<h4 id="和存储层次一致性的关系" class="note-heading note-heading--h4">和存储层次、一致性的关系</h4>
+<ul class="note-list">
+<li>主存是层次中 CPU <strong>直接访问</strong>的一层；其“上下”还有 cache 与 secondary storage（见 §2.5）。</li>
+<li><strong>Multitasking</strong> 下须保证用到的是 hierarchy 中的 <strong>most recent value</strong>；<strong>multiprocessor</strong> 下硬件提供 <strong>cache coherency</strong>。</li>
+<li>Memory management 决定的 “what is in memory when”，必须与 caching / secondary storage 上的副本策略协调（细节后章）。</li>
+</ul>
+<h4 id="管理目标小结" class="note-heading note-heading--h4">管理目标小结</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>目标</th><th>英文</th><th>体现</th></tr></thead><tbody><tr><td>利用率</td><td><strong>CPU utilization</strong></td><td>多进程可运行映像尽量就绪，少因“人不在内存”而闲置</td></tr><tr><td>响应</td><td><strong>response</strong> to users</td><td>timesharing 下用户进程所需页/段能及时进入主存</td></tr><tr><td>共享下的安置</td><td>sharing + isolation</td><td>多进程同驻主存时划清各用哪部分（activities 第 1、3 条）</td></tr><tr><td>容量幻觉</td><td>virtual memory</td><td>逻辑上可运行不完全在物理内存中的进程</td></tr></tbody></table></div>
+<h3 id="62-file-与-file-system-management文件与文件系统" class="note-heading note-heading--h3">6.2 File 与 File-System Management（文件与文件系统）</h3>
+<h4 id="file-是什么课件" class="note-heading note-heading--h4">File 是什么（课件）</h4>
+<p class="note-paragraph">OS provides a <strong>uniform, logical view</strong> of information storage.</p>
+<p class="note-paragraph">Abstracts physical properties to a logical storage unit — <strong>file</strong>.</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>英文</th><th>含义</th></tr></thead><tbody><tr><td><strong>文件</strong></td><td><strong>file</strong></td><td>信息存储的<strong>逻辑单元</strong>；对用户隐藏磁盘/磁带等物理细节</td></tr><tr><td>统一逻辑视图</td><td><strong>uniform, logical view</strong></td><td>不论底下是 HDD、SSD 还是磁带，上层都按“文件”来用</td></tr><tr><td>抽象</td><td><strong>abstraction</strong></td><td>abstracts <strong>physical properties</strong> of the storage medium</td></tr></tbody></table></div>
+<p class="note-paragraph">这与 §7.3 Abstraction 一致：file 是 persistence（持久保存）侧最核心的抽象之一。</p>
+<h4 id="物理介质仍在但由设备管" class="note-heading note-heading--h4">物理介质仍在，但由设备管</h4>
+<ul class="note-list">
+<li>Each <strong>medium</strong> is controlled by a <strong>device</strong>（e.g. disk drive, tape drive）.</li>
+<li>介质属性各异（课件）：<strong>access speed</strong>、<strong>capacity</strong>、<strong>data-transfer rate</strong>、<strong>access method</strong>（<strong>sequential</strong> or <strong>random</strong>）。</li>
+<li>用户通常不直接按 track/sector 编程，而是通过 file 接口；把 file <strong>mapping</strong> 到 <strong>secondary storage</strong> 是 OS 的事。</li>
+</ul>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">用户 / 程序：open · read · write（逻辑 file）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">File-system management</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">Mapping onto secondary storage</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">disk / tape 等 device（physical properties 各异）</div></div></figure>
+<h4 id="file-system-management文件系统管理" class="note-heading note-heading--h4">File-System management（文件系统管理）</h4>
+<p class="note-paragraph"><strong>Directories（目录）</strong>：Files usually organized into <strong>directories</strong> — 用树状/层级名字空间组织大量 files，便于查找与管理。</p>
+<p class="note-paragraph"><strong>Access control（访问控制）</strong>：on most systems, to determine <strong>who can access what</strong> — 支撑 <strong>isolation</strong> / <strong>security</strong>（未授权者不能读写他人文件）。</p>
+<p class="note-paragraph"><strong>OS activities include（课件清单）：</strong></p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>活动</th><th>英文</th></tr></thead><tbody><tr><td>创建与删除</td><td>Creating and deleting <strong>files</strong> and <strong>directories</strong></td></tr><tr><td>基本操作原语</td><td><strong>Primitives</strong> to manipulate files and <strong>dirs</strong></td></tr><tr><td>映射到辅存</td><td><strong>Mapping</strong> files onto <strong>secondary storage</strong></td></tr><tr><td>备份</td><td><strong>Backup</strong> files onto stable (<strong>non-volatile</strong>) storage media</td></tr></tbody></table></div>
+<blockquote class="note-quote"><p class="note-paragraph">“Primitives”：读、写、定位、改名等由 OS 提供的基本文件操作（具体 API 如 <code>open</code>/<code>read</code>/<code>write</code> 属系统调用接口，后章展开）。</p></blockquote>
+<h4 id="与进程内存io-的关系引言级" class="note-heading note-heading--h4">与进程、内存、I/O 的关系（引言级）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>关联</th><th>说明</th></tr></thead><tbody><tr><td>Process 需要 files</td><td>课件：process needs … <strong>files</strong>；打开的文件是进程资源的一部分，终止时要 reclaim</td></tr><tr><td>与 main memory</td><td>文件数据要进 CPU 处理，通常先读入 memory（或经 buffering/caching）</td></tr><tr><td>与 I/O subsystem</td><td>真正的块传输靠设备驱动；<strong>buffering</strong> / <strong>caching</strong> / <strong>spooling</strong> 常为文件 I/O 服务</td></tr><tr><td>与 mass-storage</td><td>file 的字节最终落在磁盘等；空闲空间、分配、<strong>disk scheduling</strong> 影响文件访问 <strong>speed</strong></td></tr></tbody></table></div>
+<h4 id="小结" class="note-heading note-heading--h4">小结</h4>
+<p class="note-paragraph"><strong>File</strong> = 对辅存上信息的<strong>逻辑抽象</strong>；<strong>file system</strong> = 用 directories组织文件、做访问控制，并把逻辑文件映射到物理介质、支持备份。Chapter 1 建概念；实现（inode、分配方式、目录结构细节）在后续 File-system interface / implementation 专章。</p>
+<h3 id="63-mass-storage-management" class="note-heading note-heading--h3">6.3 Mass-Storage Management</h3>
+<ul class="note-list">
+<li>Disks store data that does not fit in main memory or must be kept for a “long” period.</li>
+<li>Entire <strong>speed</strong> of computer operation hinges on disk subsystem and its algorithms.</li>
+</ul>
+<p class="note-paragraph"><strong>OS activities：</strong> Free-space management · Storage allocation · Disk scheduling.</p>
+<p class="note-paragraph"><strong>Tertiary storage</strong>：optical storage, magnetic tape；WORM (write-once, read-many-times) vs RW (read-write).</p>
+<h3 id="64-io-subsystem" class="note-heading note-heading--h3">6.4 I/O Subsystem</h3>
+<ul class="note-list">
+<li>One purpose of OS is to <strong>hide peculiarities</strong> of hardware devices from the user — ease of usage &amp; programming.</li>
+</ul>
+<p class="note-paragraph"><strong>I/O subsystem responsible for：</strong></p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>机制</th><th>英文</th><th>课件释义</th></tr></thead><tbody><tr><td><strong>缓冲</strong></td><td><strong>buffering</strong></td><td>storing data temporarily while it is being transferred</td></tr><tr><td><strong>缓存</strong></td><td><strong>caching</strong></td><td>storing parts of data in faster storage for performance</td></tr><tr><td><strong>假脱机</strong></td><td><strong>spooling</strong></td><td>the overlapping of output of one job with input of other jobs</td></tr></tbody></table></div>
+<p class="note-paragraph">另有：General <strong>device-driver interface</strong>；Drivers for specific hardware devices.</p>
+<hr>
+<h2 id="7-os-purposes基本需求" class="note-heading note-heading--h2">7. OS Purposes（基本需求）</h2>
+<p class="note-paragraph">Basic requirements for OS（课件 <strong>OS Purposes</strong>）：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>英文</th><th>中文对照</th><th>一句话</th></tr></thead><tbody><tr><td><strong>Sharing / multiplexing</strong></td><td>共享 / 多路复用</td><td>有限资源给多方用</td></tr><tr><td><strong>Isolation</strong></td><td>隔离</td><td>共用时互不乱踩、不拖死系统</td></tr><tr><td><strong>Interaction</strong></td><td>交互</td><td>用户/进程能对话、能协同</td></tr><tr><td><strong>Abstraction</strong></td><td>抽象</td><td>隐藏细节，提供统一易用接口</td></tr><tr><td><strong>Security</strong></td><td>安全</td><td>防恶意与未授权使用（与 isolation/protection 紧密相关）</td></tr><tr><td><strong>Performance</strong></td><td>性能</td><td>少浪费、高利用率、可接受的响应</td></tr><tr><td>Range of uses</td><td>使用范围</td><td>同一套思想覆盖桌面/服务器/嵌入式等</td></tr></tbody></table></div>
+<p class="note-paragraph">课件 <strong>operating system goals</strong> 亦可对照：make solving problems <strong>easier</strong> · make the system <strong>convenient</strong> to use · use hardware in an <strong>efficient</strong> manner —— 分别贴近 abstraction / convenience、sharing+performance。</p>
+<p class="note-paragraph">以下重点完善 <strong>Sharing / multiplexing</strong>、<strong>Isolation</strong>、<strong>Abstraction</strong>，并与前文机制一一挂钩。</p>
+<h3 id="71-sharing--multiplexing共享--多路复用" class="note-heading note-heading--h3">7.1 Sharing / multiplexing（共享 / 多路复用）</h3>
+<h4 id="定义" class="note-heading note-heading--h4">定义</h4>
+<ul class="note-list">
+<li><strong>Sharing（共享）</strong>：多个 <strong>users</strong> / <strong>processes</strong> / programs 共同使用同一套物理资源（<strong>CPU</strong>, <strong>memory</strong>, <strong>I/O</strong>, <strong>files</strong> 等），而不是一人独占整机。</li>
+<li><strong>Multiplexing（多路复用）</strong>：实现 sharing 的基本手法——把资源在<strong>时间</strong>或<strong>空间</strong>上“切开”轮流或并存地分给多方。课件原文：Concurrency by <strong>multiplexing the CPUs</strong> among the processes / threads。</li>
+</ul>
+<p class="note-paragraph">OS 作为 <strong>resource allocator</strong>：Manages all resources；Decides between conflicting requests for <strong>efficient</strong> and <strong>fair</strong> resource use。</p>
+<h4 id="为什么需要课件动机" class="note-heading note-heading--h4">为什么需要（课件动机）</h4>
+<p class="note-paragraph">Single user cannot keep <strong>CPU</strong> and <strong>I/O devices</strong> busy at all times → 需要 <strong>multiprogramming</strong> for efficiency（<strong>CPU utilization</strong>）：organizes <strong>jobs</strong> so CPU always has one to execute；wait（如 I/O）时 switch to another job。</p>
+<p class="note-paragraph">进一步，<strong>timesharing (multitasking)</strong> 把 CPU <strong>frequently</strong> 分给多人，使 <strong>interactive computing</strong> 成为可能（<strong>response time</strong> &lt; 1 s）。</p>
+<h4 id="两种常见复用方式" class="note-heading note-heading--h4">两种常见复用方式</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>类型</th><th>英文</th><th>含义</th><th>课件中的例子</th></tr></thead><tbody><tr><td><strong>时间多路复用</strong></td><td>time multiplexing</td><td>同一资源在不同时刻给不同进程</td><td>CPU：<strong>job scheduling</strong> / <strong>CPU scheduling</strong>；timer 强制换人</td></tr><tr><td><strong>空间共享</strong></td><td>space sharing</td><td>同一时刻多方各占资源的一部分</td><td>内存中同时保留 jobs 的一个 <strong>subset</strong>；后文虚拟内存再细化“觉得自己有一整块地址空间”</td></tr></tbody></table></div>
+<p class="note-paragraph">设备侧也可共享：多个进程经 OS 排队使用磁盘/网卡（配合 <strong>device-status table</strong>、磁盘 <strong>scheduling</strong> 等）。</p>
+<h4 id="共享什么冲突从哪来" class="note-heading note-heading--h4">共享什么、冲突从哪来</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>资源</th><th>共享时要调度/管理的内容</th></tr></thead><tbody><tr><td>CPU</td><td>谁上处理器、时间片多长（multiplexing the CPUs）</td></tr><tr><td>memory</td><td>哪段给谁；换入换出（memory management activities）</td></tr><tr><td>I/O / disk</td><td>请求排队、DMA、disk scheduling</td></tr><tr><td>files</td><td>多进程打开同一逻辑文件时的一致性与 <strong>access control</strong></td></tr></tbody></table></div>
+<p class="note-paragraph">冲突请求（conflicting requests）必须由 OS <strong>裁决</strong>，否则无法同时满足 “efficient” 与 “fair”。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">有限硬件（CPU · memory · I/O · files）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">Sharing：多方同时想用</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">Multiplexing：时间切开 / 空间切开</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">Resource allocator：efficient + fair</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">结果：更高 CPU utilization · 可交互的 timesharing</div></div></figure>
+<h3 id="72-isolation隔离" class="note-heading note-heading--h3">7.2 Isolation（隔离）</h3>
+<h4 id="定义与动机" class="note-heading note-heading--h4">定义与动机</h4>
+<p class="note-paragraph"><strong>Isolation</strong>：在允许 sharing 的前提下，限制进程/用户的可见范围与能力，使其<strong>不能任意读写他人状态、不能任意操控硬件、不能永久霸占 CPU</strong>。</p>
+<p class="note-paragraph">课件动机（Operating-System Operations）：</p>
+<ul class="note-list">
+<li>Software error / request → <strong>exception</strong> or <strong>trap</strong></li>
+<li><strong>infinite loop</strong>；processes <strong>modifying</strong> each other or the operating system</li>
+<li>Thus we need <strong>protection</strong></li>
+<li><strong>Dual-mode operation</strong> allows OS to protect itself and other system components</li>
+</ul>
+<p class="note-paragraph">换言之：<strong>没有 isolation，sharing 会变成互相破坏。</strong></p>
+<h4 id="隔离的层次与课件机制对应" class="note-heading note-heading--h4">隔离的层次（与课件机制对应）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>层次</th><th>英文</th><th>课件机制</th><th>隔开什么</th></tr></thead><tbody><tr><td>特权边界</td><td><strong>user mode</strong> / <strong>kernel mode</strong></td><td><strong>mode bit</strong>；<strong>privileged</strong> instructions only in kernel mode</td><td>用户不能直接执行特权操作、乱控硬件</td></tr><tr><td>进入内核的受控门</td><td><strong>system call</strong></td><td>changes mode to kernel；return resets to user</td><td>只能按 OS 规定的接口请求服务</td></tr><tr><td>CPU 时间隔离</td><td>防 hogging</td><td><strong>timer</strong> interrupt → OS <strong>regain control</strong> or terminate</td><td>一个死循环不能永远占 CPU</td></tr><tr><td>信息/文件隔离</td><td>who can access what</td><td><strong>access control</strong> on files / directories</td><td>未授权者不能读写他人文件</td></tr><tr><td>故障隔离（目标）</td><td>protect OS &amp; others</td><td>dual-mode + 内核代管资源</td><td>用户态错误尽量不拖死整个系统</td></tr></tbody></table></div>
+<blockquote class="note-quote"><p class="note-paragraph"><strong>Isolation</strong> 与课件清单中的 <strong>Security</strong> 相邻：isolation/protection 多强调“机制上分边界”；security 还包含策略与对抗恶意行为。引言级先抓住 dual-mode + privileged + system call + timer + access control。</p></blockquote>
+<h4 id="与-sharing-的张力" class="note-heading note-heading--h4">与 Sharing 的张力</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>只强调 Sharing</th><th>只强调 Isolation</th></tr></thead><tbody><tr><td>利用率高，但易互相修改、互相拖死</td><td>很安全，但若完全不共享则浪费资源、无法多用户</td></tr><tr><td>需要 isolation 补上保护</td><td>需要在边界内仍做 multiplexing</td></tr></tbody></table></div>
+<p class="note-paragraph">设计目标：在 <strong>isolation</strong> 划出的安全边界<strong>之内</strong>做尽可能高效的 <strong>sharing / multiplexing</strong>。</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">问题：modifying each other · infinite loop · improper use</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">Protection / Isolation</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">dual-mode · privileged · system call · timer · access control</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">OS 与进程、进程与进程之间有边界</div></div></figure>
+<h3 id="73-abstraction抽象" class="note-heading note-heading--h3">7.3 Abstraction（抽象）</h3>
+<h4 id="定义与动机-2" class="note-heading note-heading--h4">定义与动机</h4>
+<p class="note-paragraph"><strong>Abstraction</strong>：向 user / programmer 隐藏硬件与策略细节，提供<strong>更简单、统一、稳定</strong>的接口，使系统 <strong>convenient to use</strong>，并让 “solving user problems easier”（课件 OS goals）。</p>
+<p class="note-paragraph">课件直接表述的抽象动作：</p>
+<ul class="note-list">
+<li>OS acts as an <strong>intermediary</strong> between user and hardware</li>
+<li>I/O subsystem：<strong>hide peculiarities</strong> of hardware devices — ease of usage &amp; programming</li>
+<li>Storage：uniform, <strong>logical view</strong> → logical storage unit <strong>file</strong>（abstracts physical properties of media）</li>
+</ul>
+<h4 id="抽象金字塔由下到上" class="note-heading note-heading--h4">抽象金字塔（由下到上）</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>层</th><th>看到的对象</th><th>英文</th><th>隐藏了什么</th></tr></thead><tbody><tr><td>硬件</td><td>寄存器、总线、控制器、磁道扇区…</td><td>hardware / device controllers / tracks · sectors</td><td>—</td></tr><tr><td>内核机制</td><td>中断、调度、页表…</td><td>interrupt, scheduling, …</td><td>电气与时序细节</td></tr><tr><td>系统调用接口</td><td>open/read/write、进程创建…</td><td><strong>system call</strong></td><td>具体 trap 号、驱动内部</td></tr><tr><td>逻辑资源</td><td><strong>file</strong>、<strong>process</strong>、目录 <strong>directories</strong></td><td>file as logical storage unit</td><td>磁盘布局、设备型号差异</td></tr><tr><td>用户/应用</td><td>文档、窗口、游戏…</td><td>application programs</td><td>OS 内部策略</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>Device-driver interface</strong>：上层用统一接口，下层 <strong>drivers for specific hardware devices</strong> —— 典型 “抽象接口 + 具体实现”。</p>
+<p class="note-paragraph"><strong>Process</strong> 本身也是抽象：把 “program in execution + resources + PC” 收成一个 <strong>unit of work</strong>，程序员不必直接 multiplex CPU。</p>
+<h4 id="抽象与-sharing--isolation-如何配合" class="note-heading note-heading--h4">抽象与 Sharing / Isolation 如何配合</h4>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>目的</th><th>Abstraction 起的作用</th></tr></thead><tbody><tr><td>支持 Sharing</td><td>提供统一的“申请/使用资源”接口（system call），由 OS 在内部做 multiplexing</td></tr><tr><td>支持 Isolation</td><td>用户只能通过抽象接口碰资源，不能绕过边界直接操作硬件或其他进程内存</td></tr><tr><td>支持 Interaction</td><td>文件、终端、进程通信等抽象让用户与程序能协作（课件 <strong>Interaction</strong>）</td></tr></tbody></table></div>
+<h4 id="与-performance-的权衡" class="note-heading note-heading--h4">与 Performance 的权衡</h4>
+<ul class="note-list">
+<li>抽象常引入额外层（buffering、caching、spooling、系统调用陷入等）→ 可能影响 <strong>performance</strong>。</li>
+<li>课件同时把 <strong>Performance</strong> 列为 basic requirement：抽象要方便，但不能无节制地牺牲效率；<strong>caching</strong> 等机制正是在抽象层下“偷偷”优化。</li>
+<li>好的 OS 设计：对外 <strong>convenient</strong>（abstraction），对内 <strong>efficient</strong>（sharing + 实现优化）。</li>
+</ul>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">physical media / devices（各异 · peculiarities）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">Abstraction：file · directories · device-driver interface · process</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">用户只面对 logical view（convenient）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">OS 内部仍做 sharing + isolation + caching 等</div></div></figure>
+<h3 id="74-三者关系与对照总表" class="note-heading note-heading--h3">7.4 三者关系与对照总表</h3>
+<p class="note-paragraph">| | <strong>Sharing / multiplexing</strong> | <strong>Isolation</strong> | <strong>Abstraction</strong> |</p>
+<p class="note-paragraph">|--|----------------------------|---------------|-----------------|</p>
+<p class="note-paragraph">| 问的问题 | 如何让多方用有限资源？ | 如何防止互害与失控？ | 如何让人好用、好写程序？ |</p>
+<p class="note-paragraph">| 关键词 | resource allocator, CPU utilization, scheduling | protection, dual-mode, privileged, timer | intermediary, hide peculiarities, file |</p>
+<p class="note-paragraph">| 若缺失 | 资源闲置或无法多用户 | 崩溃、篡改、死循环占机 | 人人直接操作硬件，无法移植与协作 |</p>
+<p class="note-paragraph"><strong>串起来</strong>：先用 <strong>abstraction</strong> 定义“进程/文件/设备长什么样”；再用 <strong>isolation</strong> 保证各抽象实例有边界；最后在边界内用 <strong>sharing / multiplexing</strong> 把物理资源高效分出去。课件其余目的可挂接：<strong>Interaction</strong>（在抽象接口上协作）、<strong>Security</strong>（强化 isolation 的策略）、<strong>Performance</strong>（在抽象下把 multiplexing 做快）。</p>
+<h2 id="附录--课件仅列标题或未展开" class="note-heading note-heading--h2">附录 · 课件仅列标题或未展开</h2>
+<p class="note-paragraph">仅备查（Chapter ONE 大纲后半 / 图示页）：</p>
+<ul class="note-list">
+<li>Protection and Security · Distributed Systems · Special-Purpose Systems · Computing Environments（课件 Outlines 有题、正文未展开）</li>
+<li>Interrupt Timeline / Interrupt-Driven I/O Cycle / Device-Status Table / Memory Layout for Multiprogrammed System（多为示意图）</li>
+<li>Slide：RISC-V Registers 与 <strong>CSR</strong>（Control &amp; Status Registers）— 实验对照</li>
+<li>非本 PPT 主线、他处常见的补充切分（如 trap/fault/abort 返回行为；maskable/NMI）勿与课件 trap 定义混淆</li>
+</ul>
+</section>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%2Fday_1%E5%BC%95%E8%A8%80#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=操作系统">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="local-only">© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</span><span class="published-only">© 2026 鼠窝 · v0.10.0</span></p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>

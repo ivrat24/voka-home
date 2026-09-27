@@ -12,6 +12,7 @@ SITE = ROOT / "site"
 OUT = SITE / "js" / "site-data.js"
 CSS_DIR = SITE / "css"
 HOME_ANNOUNCEMENTS_LIMIT = 5
+MATERIALS_DIR_NAME = "materials"
 
 SOURCES = {
     "siteConfig": SITE / "config" / "site.json",
@@ -31,12 +32,16 @@ def read_json(path: Path):
 
 
 def collect_note_sources() -> dict[str, str]:
+    """Embed note markdown for offline PDF/export. Skip materials/ (often huge dumps)."""
     sources: dict[str, str] = {}
     note_dir = SITE / "note_content"
     if not note_dir.exists():
         return sources
     for path in sorted(note_dir.rglob("*.md")):
         rel = path.relative_to(note_dir).as_posix()
+        parts = rel.split("/")
+        if MATERIALS_DIR_NAME in parts:
+            continue
         sources[rel] = path.read_text(encoding="utf-8")
     return sources
 

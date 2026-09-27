@@ -143,11 +143,28 @@ function renderCourseIndex(container, manifest) {
   container.innerHTML = `${generated}<div class="course-folder-grid notes-vault-list">${cards}</div>`;
 }
 
+function noteChapterSortKey(slug = "") {
+  const name = String(slug).split("/").pop() || "";
+  const match = /^ch(\d+)/i.exec(name);
+  if (match) return [0, Number(match[1]), name.toLowerCase()];
+  return [1, Number.MAX_SAFE_INTEGER, name.toLowerCase()];
+}
+
+function sortNotesForCourse(notes) {
+  return [...notes].sort((a, b) => {
+    const ka = noteChapterSortKey(a?.slug || a?.title || "");
+    const kb = noteChapterSortKey(b?.slug || b?.title || "");
+    if (ka[0] !== kb[0]) return ka[0] - kb[0];
+    if (ka[1] !== kb[1]) return ka[1] - kb[1];
+    return ka[2].localeCompare(kb[2], "zh");
+  });
+}
+
 function renderNoteIndex(container, manifest, basePath = "", courseSlug = null) {
   const notes = Array.isArray(manifest?.notes) ? manifest.notes : [];
-  const filtered = courseSlug
-    ? notes.filter((note) => getCourseSlugFromNote(note) === courseSlug)
-    : notes;
+  const filtered = sortNotesForCourse(
+    courseSlug ? notes.filter((note) => getCourseSlugFromNote(note) === courseSlug) : notes,
+  );
 
   if (!filtered.length) {
     container.innerHTML = `

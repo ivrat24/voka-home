@@ -25,8 +25,10 @@ ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
 NOTE_DIR = SITE / "note_content"
 DIARY_DIR = SITE / "content" / "mouse-diary"
-DIARY_CATEGORIES = {"备忘", "闲聊", "碎碎念", "更新计划", "更新公告", "心情贴"}
+DIARY_CATEGORIES = {"备忘", "闲聊", "碎碎念", "更新计划", "更新公告", "心情贴", "待办"}
 PLAN_CATEGORY = "更新计划"
+TODO_CATEGORY = "待办"
+TODO_TYPES = {"课程", "实验室", "组织", "生活"}
 ANNOUNCE_CATEGORY = "更新公告"
 MOOD_CATEGORY = "心情贴"
 MOOD_MAX_LENGTH = 50
@@ -205,7 +207,7 @@ def parse_frontmatter(raw: str) -> tuple[dict, str]:
 
 def build_memo_markdown(meta: dict, body: str) -> str:
     lines = ["---"]
-    for key in ("id", "title", "category", "favorite", "featured", "planned", "created", "updated", "zone"):
+    for key in ("id", "title", "category", "favorite", "featured", "planned", "todoType", "created", "updated", "zone"):
         if key in meta and meta[key] is not None:
             value = meta[key]
             if isinstance(value, bool):
@@ -255,6 +257,7 @@ def collect_diary_memos() -> list[dict]:
                 "favorite": bool(meta.get("favorite")),
                 "featured": bool(meta.get("featured")),
                 "plannedAt": str(meta.get("planned") or ""),
+                "todoType": str(meta.get("todoType") or ""),
                 "createdAt": str(meta.get("created") or ""),
                 "updatedAt": str(meta.get("updated") or meta.get("created") or ""),
                 "content": body.strip(),
@@ -292,16 +295,22 @@ def collect_diary_memos() -> list[dict]:
         )
 
     plans = [m for m in memos if m.get("category") == PLAN_CATEGORY]
+    todos = [m for m in memos if m.get("category") == TODO_CATEGORY]
     announcements = [m for m in memos if m.get("category") == ANNOUNCE_CATEGORY]
     moods = [m for m in memos if m.get("category") == MOOD_CATEGORY]
-    others = [m for m in memos if m.get("category") not in (PLAN_CATEGORY, ANNOUNCE_CATEGORY, MOOD_CATEGORY)]
+    others = [
+        m
+        for m in memos
+        if m.get("category") not in (PLAN_CATEGORY, TODO_CATEGORY, ANNOUNCE_CATEGORY, MOOD_CATEGORY)
+    ]
 
     sort_plans(plans)
+    sort_plans(todos)
     sort_default(announcements)
     moods.sort(key=lambda item: -memo_timestamp(item))
     sort_default(others)
 
-    return plans + announcements + moods + others
+    return plans + todos + announcements + moods + others
 
 
 def clear_mood_featured(except_path: str | None = None) -> None:
@@ -400,7 +409,12 @@ def import_diary_memos_for_sync(memos: list[dict], *, replace_announcements: boo
         created = str(raw.get("createdAt") or raw.get("created") or now)
         updated = str(raw.get("updatedAt") or raw.get("updated") or created)
         planned = str(raw.get("plannedAt") or raw.get("planned") or "").strip()
+        todo_type = str(raw.get("todoType") or "").strip()
         featured = bool(raw.get("featured")) if category == MOOD_CATEGORY else False
+
+        if category == TODO_CATEGORY:
+            if not planned or todo_type not in TODO_TYPES:
+                continue
 
         if category == MOOD_CATEGORY and featured:
             clear_mood_featured()
@@ -423,6 +437,8 @@ def import_diary_memos_for_sync(memos: list[dict], *, replace_announcements: boo
             meta["featured"] = True
         if planned:
             meta["planned"] = planned
+        if category == TODO_CATEGORY and todo_type:
+            meta["todoType"] = todo_type
 
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(build_memo_markdown(meta, content), encoding="utf-8")
@@ -559,6 +575,12 @@ class VokaHandler(BaseHTTPRequestHandler):
             planned = (data.get("plannedAt") or data.get("planned") or "").strip()
             if category == PLAN_CATEGORY and not planned:
                 return self._json(400, {"error": "更新计划需要填写计划时间"})
+            todo_type = (data.get("todoType") or "").strip()
+            if category == TODO_CATEGORY:
+                if not planned:
+                    return self._json(400, {"error": "待办需要填写日期"})
+                if todo_type not in TODO_TYPES:
+                    return self._json(400, {"error": "请选择待办类型：课程 / 实验室 / 组织 / 生活"})
             if category == ANNOUNCE_CATEGORY:
                 title = (data.get("title") or "").strip() or f"更新公告 {datetime.now().strftime('%Y-%m-%d %H:%M')}"
             if category == MOOD_CATEGORY:
@@ -586,6 +608,8 @@ class VokaHandler(BaseHTTPRequestHandler):
                 meta["featured"] = True
             if planned:
                 meta["planned"] = planned
+            if category == TODO_CATEGORY and todo_type:
+                meta["todoType"] = todo_type
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(build_memo_markdown(meta, content), encoding="utf-8")
             maybe_rebuild_diary_export()
@@ -601,6 +625,7 @@ class VokaHandler(BaseHTTPRequestHandler):
                         "favorite": bool(data.get("favorite")),
                         "featured": featured,
                         "plannedAt": planned,
+                        "todoType": todo_type if category == TODO_CATEGORY else "",
                         "createdAt": now,
                         "updatedAt": now,
                         "content": content,
@@ -823,9 +848,22 @@ class VokaHandler(BaseHTTPRequestHandler):
                     meta["planned"] = planned
                 elif "planned" in meta:
                     del meta["planned"]
+            if data.get("todoType") is not None:
+                todo_type = str(data.get("todoType") or "").strip()
+                if todo_type:
+                    meta["todoType"] = todo_type
+                elif "todoType" in meta:
+                    del meta["todoType"]
             category = (data.get("category") or meta.get("category") or "备忘").strip()
             if category not in DIARY_CATEGORIES:
                 return self._json(400, {"error": "无效的栏目"})
+            if category == TODO_CATEGORY:
+                planned_check = str(meta.get("planned") or "").strip()
+                type_check = str(meta.get("todoType") or "").strip()
+                if not planned_check:
+                    return self._json(400, {"error": "待办需要填写日期"})
+                if type_check not in TODO_TYPES:
+                    return self._json(400, {"error": "请选择待办类型：课程 / 实验室 / 组织 / 生活"})
             if category == MOOD_CATEGORY and content is not None and len(str(content)) > MOOD_MAX_LENGTH:
                 return self._json(400, {"error": f"心情贴不能超过 {MOOD_MAX_LENGTH} 字"})
             meta["category"] = category
@@ -853,6 +891,7 @@ class VokaHandler(BaseHTTPRequestHandler):
                         "favorite": bool(meta.get("favorite")),
                         "featured": bool(meta.get("featured")),
                         "plannedAt": str(meta.get("planned") or ""),
+                        "todoType": str(meta.get("todoType") or ""),
                         "createdAt": str(meta.get("created") or ""),
                         "updatedAt": str(meta.get("updated") or ""),
                         "content": body.strip(),
@@ -986,6 +1025,8 @@ class VokaHandler(BaseHTTPRequestHandler):
         self._cors()
         self.send_header("Content-Type", mime or "application/octet-stream")
         self.send_header("Content-Length", str(len(content)))
+        if suffix in {".js", ".mjs", ".css", ".html"}:
+            self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(content)
 

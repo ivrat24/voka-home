@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="系统服务与用户接口；系统调用与 API；系统服务/链接加载；机制与策略；单体·分层·微内核·模块·混合；生成与引导；调试概要">
+  <title>Ch2 Operating-System Structure · 课程笔记 · 鼠窝</title>
+  <link rel="icon" href="../../../static/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../static/icons/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="../../../static/icons/favicon.png">
+  <link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body data-note-slug="操作系统/ch2">
+  <div class="page-bg" aria-hidden="true">
+    <img class="page-bg-image" src="../../../static/image/image01.jpg" alt="">
+    <div class="page-bg-overlay"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-brand" href="../../../index.html">
+        <span class="nav-brand-text"><span class="local-only">Alstr<span class="call-sign">（Call Sign ☘ VLinv）</span></span><span class="published-only">鼠窝</span></span>
+        <span class="nav-version">v0.10.0</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../../../index.html">首页</a></li>
+        <li><a href="../../course.html" class="is-active">课程</a></li>
+        <li><a href="../../agent-lab.html">智能体试验</a></li>
+        <li><a href="../../virtual-arrange.html">虚拟编曲</a></li>
+        <li><a href="../../mouse-diary.html">鼠の事件簿</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon btn-icon--trail is-active" id="cursor-trail-toggle" type="button" aria-label="关闭红叶李拖尾效果" aria-pressed="true" title="红叶李拖尾：开">✿</button>
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="切换主题" title="切换主题">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-layout module-page note-page">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="../../../index.html">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course.html">课程</a>
+      <span aria-hidden="true">/</span>
+      <a href="../../course-detail.html?course=操作系统">操作系统</a>
+      <span aria-hidden="true">/</span>
+      <span id="note-page-breadcrumb-title">Ch2 Operating-System Structure</span>
+    </nav>
+
+    <article class="note-article note-article--reading content-card">
+      <header class="note-article-head">
+        <h1 id="note-page-title">Ch2 Operating-System Structure</h1>
+        <p class="note-meta"><time datetime="2026-09-17">2026-09-17</time></p>
+        <div class="note-tags"><span class="note-tag">操作系统</span><span class="note-tag">Chapter2</span><span class="note-tag">OS Structure</span></div>
+        <p class="note-description">系统服务与用户接口；系统调用与 API；系统服务/链接加载；机制与策略；单体·分层·微内核·模块·混合；生成与引导；调试概要</p>
+      </header>
+      <div class="note-body note-body--optimized content-body">
+        <section class="note-module">
+<h1 id="chapter-2--operating-system-structures操作系统结构" class="note-heading note-heading--h1">Chapter 2 · Operating-System Structures（操作系统结构）</h1>
+<blockquote class="note-quote"><p class="note-paragraph">依据课程资料 <code>materials/raw_src_nt_N.md</code> 第二章整理。</p></blockquote>
+<blockquote class="note-quote"><p class="note-paragraph">相对 Ch.1 更细地介绍 OS 的服务、接口与内部组织。资料标注的宜深入主题：<strong>系统调用</strong>；<strong>编译、链接和加载</strong>；<strong>操作系统结构</strong>（单体 / 分层 / 微内核 / 模块 / 混合）；<strong>引导加载程序</strong>（bootstrap loader）。</p></blockquote>
+<blockquote class="note-quote"><p class="note-paragraph">术语体例：关键概念标注学术英文。</p></blockquote>
+<p class="note-paragraph"><strong>阅读路线</strong></p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">OS 提供哪些服务（user / system）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">用户如何交互（CLI · GUI · touch）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">程序如何请求服务（API → system-call interface → kernel）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">系统服务 / 链接与加载 / 为何应用依赖 OS</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">设计：机制 vs 策略</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">内核如何搭（monolithic · layered · microkernel · modules · hybrid）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">生成 · 引导 · 调试概要</div></div></figure>
+<hr>
+<h2 id="1-operating-system-services操作系统服务" class="note-heading note-heading--h2">1. Operating-System Services（操作系统服务）</h2>
+<p class="note-paragraph">不同 OS 具体服务不同，但存在共性。分 <strong>用户视角</strong> 与 <strong>系统视角</strong>。</p>
+<h3 id="11-面向用户user-services" class="note-heading note-heading--h3">1.1 面向用户（User services）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>服务</th><th>英文</th><th>要点</th></tr></thead><tbody><tr><td><strong>用户接口</strong></td><td><strong>user interface (UI)</strong></td><td><strong>GUI</strong>（graphic user interface）；<strong>touch-screen interface</strong>；<strong>CLI</strong>（command-line interface）</td></tr><tr><td><strong>程序执行</strong></td><td><strong>program execution</strong></td><td>加载到内存、运行、正常/异常退出</td></tr><tr><td><strong>I/O 操作</strong></td><td><strong>I/O operations</strong></td><td>针对文件或 I/O 设备</td></tr><tr><td><strong>文件系统操纵</strong></td><td><strong>file-system manipulation</strong></td><td>读写文件/目录；创建/删除/查找/罗列；权限管理</td></tr><tr><td><strong>通信</strong></td><td><strong>communication</strong></td><td>同机进程间，或经网络的跨机进程间；实现：<strong>shared memory</strong>、<strong>message passing</strong></td></tr><tr><td><strong>错误检测</strong></td><td><strong>error detection</strong></td><td>硬件（CPU、内存、I/O）或软件错误；纠正或终止，有时返回 <strong>error code</strong></td></tr></tbody></table></div>
+<h3 id="12-面向系统system-services" class="note-heading note-heading--h3">1.2 面向系统（System services）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>服务</th><th>英文</th><th>要点</th></tr></thead><tbody><tr><td><strong>资源分配</strong></td><td><strong>resource allocation</strong></td><td>部分资源有特殊 allocation code；另一些用更通用的 request / release code</td></tr><tr><td><strong>日志</strong></td><td><strong>logging</strong></td><td>使用统计、追踪资源使用，便于配置</td></tr><tr><td><strong>保护与安全</strong></td><td><strong>protection and security</strong></td><td><strong>protection</strong>：并发进程不得相互干扰，资源访问受控；<strong>security</strong>：要求用户验证身份</td></tr></tbody></table></div>
+<hr>
+<h2 id="2-user-and-operating-system-interface用户与-os-接口" class="note-heading note-heading--h2">2. User and Operating-System Interface（用户与 OS 接口）</h2>
+<h3 id="21-command-interpreters命令行解释器-shell" class="note-heading note-heading--h3">2.1 Command Interpreters（命令行解释器）/ Shell</h3>
+<p class="note-paragraph"><strong>Command interpreter</strong> 与 <strong>shell</strong> 大致等价（如 bash、zsh、fish）。</p>
+<p class="note-paragraph">主要功能：获取并执行用户指定的下一条命令。</p>
+<p class="note-paragraph">命令实现方式：</p>
+<ol class="note-list">
+<li>解释器本身包含执行命令的代码；或</li>
+<li>通过<strong>系统程序</strong>实现大多数命令（UNIX 典型做法）。</li>
+</ol>
+<h3 id="22-gui--touch-screen--choice-of-interface" class="note-heading note-heading--h3">2.2 GUI / Touch-Screen / Choice of Interface</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>接口</th><th>英文</th><th>说明</th></tr></thead><tbody><tr><td>图形界面</td><td><strong>GUI</strong></td><td>主流桌面 OS 均提供；Linux 亦有 KDE、GNOME 等</td></tr><tr><td>触摸屏</td><td><strong>touch-screen interface</strong></td><td>手机、平板常见</td></tr><tr><td>如何选</td><td>choice of interface</td><td>管理员/资深用户常偏 <strong>CLI</strong>（高效、部分任务仅 CLI、易脚本化）；一般用户常偏 <strong>GUI</strong></td></tr></tbody></table></div>
+<hr>
+<h2 id="3-system-calls系统调用" class="note-heading note-heading--h2">3. System Calls（系统调用）</h2>
+<p class="note-paragraph"><strong>System calls</strong> 提供访问 OS 服务的接口。多为 C/C++ 编写的函数；部分底层任务须用汇编。</p>
+<h3 id="31-api-与-system-call-interface" class="note-heading note-heading--h3">3.1 API 与 System-Call Interface</h3>
+<p class="note-paragraph">实际程序大量使用 OS，但开发者通常通过 <strong>API</strong>（application programming interface）编程（Windows API、POSIX API、Java API 等），经代码库（如 UNIX/Linux 的 <code>libc</code>）访问；库函数在幕后再发起真正的系统调用。</p>
+<p class="note-paragraph"><strong>为何偏好 API 而非直接 syscall</strong></p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>好处</th><th>英文</th><th>说明</th></tr></thead><tbody><tr><td><strong>可移植性</strong></td><td><strong>portability</strong></td><td>同一套 API 可在提供该 API 的系统上编译运行；直接 syscall 更复杂</td></tr><tr><td>运行时环境</td><td><strong>runtime environment (RTE)</strong></td><td>执行程序所需的软件集合（编译器、解释器、库、加载器等）</td></tr></tbody></table></div>
+<p class="note-paragraph"><strong>RTE</strong> 提供 <strong>system-call interface</strong>，链接到内核中的系统调用：每个系统调用常关联一个数字，接口按编号查表，在内核中调用对应例程并返回状态。OS 界面细节多由 API 隐藏、由 RTE 管理。</p>
+<p class="note-paragraph">关系（概念）：</p>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">应用程序</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">API（如 open()）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">system-call interface（编号表）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">内核中的实际 system call</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">返回状态</div></div></figure>
+<p class="note-paragraph"><strong>向 OS 传参的通用方法</strong></p>
+<ol class="note-list">
+<li>经 <strong>registers</strong> 传参</li>
+<li>参数放在内存中的块/表，把<strong>块地址</strong>放入寄存器</li>
+<li>参数 <strong>push</strong> 到 <strong>stack</strong>（再 pop）</li>
+</ol>
+<h3 id="32-types-of-system-calls系统调用类型" class="note-heading note-heading--h3">3.2 Types of System Calls（系统调用类型）</h3>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>类型</th><th>英文</th><th>典型操作</th></tr></thead><tbody><tr><td><strong>进程控制</strong></td><td><strong>process control</strong></td><td>创建/终止；加载/执行；获取/设置进程属性；等待/发事件信号；分配/释放内存</td></tr><tr><td><strong>文件管理</strong></td><td><strong>file management</strong></td><td>创建/删除；打开/关闭；读/写/<strong>reposition</strong>；获取/设置文件属性</td></tr><tr><td><strong>设备管理</strong></td><td><strong>device management</strong></td><td>请求/释放设备；读/写/重定位；获取/设置设备属性；逻辑连接/断开设备</td></tr><tr><td><strong>信息维护</strong></td><td><strong>information maintenance</strong></td><td>获取/设置时间日期；系统数据；进程/文件/设备属性</td></tr><tr><td><strong>通信</strong></td><td><strong>communication</strong></td><td>创建/删除连接；发送/接收消息；传递状态；连接/断开远程设备</td></tr><tr><td><strong>保护</strong></td><td><strong>protection</strong></td><td>获取/设置权限</td></tr></tbody></table></div>
+<hr>
+<h2 id="4-system-services系统服务--系统实用程序" class="note-heading note-heading--h2">4. System Services（系统服务 / 系统实用程序）</h2>
+<p class="note-paragraph"><strong>System services</strong>（又称 <strong>system utilities</strong>）为程序开发与执行提供便利环境。有的只是系统调用的用户接口，有的更复杂。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>类别</th><th>英文</th><th>内容</th></tr></thead><tbody><tr><td>文件管理</td><td>file management</td><td>创建/删除/拷贝/重命名/打印/罗列；访问与操纵文件/目录</td></tr><tr><td>状态信息</td><td>status information</td><td>日期时间、可用内存/磁盘、用户数；性能/日志/调试；部分系统有 <strong>registry</strong></td></tr><tr><td>文件修改</td><td>file modification</td><td>文本编辑器；搜索/转换文本的命令</td></tr><tr><td>编程语言支持</td><td>programming-language support</td><td><strong>compiler</strong>、<strong>assembler</strong>、<strong>debugger</strong>、<strong>interpreter</strong></td></tr><tr><td>程序加载与执行</td><td>program loading and execution</td><td>绝对/可重定位加载器、链接编辑器等；调试系统</td></tr><tr><td>通信</td><td>communication</td><td>进程、用户、计算机间的虚拟连接</td></tr><tr><td>后台服务</td><td>background services</td><td>持续运行的系统进程称服务、<strong>subsystem</strong> 或 <strong>daemon</strong>（守护进程）；常在用户上下文而非内核上下文跑重要活动</td></tr></tbody></table></div>
+<hr>
+<h2 id="5-linkers-and-loaders链接器与加载器" class="note-heading note-heading--h2">5. Linkers and Loaders（链接器与加载器）</h2>
+<p class="note-paragraph">程序通常以二进制文件存于磁盘（如 <code>a.out</code>、<code>prog.exe</code>）。要在 CPU 上运行，须加载到内存并置于某 <strong>process</strong> 上下文中。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>步骤</th><th>英文</th><th>说明</th></tr></thead><tbody><tr><td>编译</td><td>compile</td><td>源文件 → <strong>relocatable object files</strong>（可加载到任意物理位置的目标文件）</td></tr><tr><td>链接</td><td><strong>linker</strong></td><td>多个可重定位目标文件（及库）→ 单一 <strong>binary executable</strong></td></tr><tr><td>加载</td><td><strong>loader</strong></td><td>把可执行文件装入内存，以便在 CPU 上运行</td></tr><tr><td>重定位</td><td><strong>relocation</strong></td><td>为程序各部分分配最终地址，并调整代码/数据以匹配</td></tr></tbody></table></div>
+<p class="note-paragraph">在 shell 中键入程序名（如 <code>./main</code>）时的典型路径：</p>
+<ol class="note-list">
+<li>shell 经 <strong>`fork()`</strong> 创建新进程</li>
+<li>shell 经 <strong>`exec()`</strong> 调用加载器并传入可执行文件名</li>
+<li>加载器使用新进程的地址空间加载该程序</li>
+</ol>
+<p class="note-paragraph"><strong>Dynamically linked libraries (DLL)</strong>：多数系统允许加载时（或运行需要时）再链接库，避免把未用库静态链进可执行文件。链接器插入重定位信息以支持动态链接。</p>
+<p class="note-paragraph">UNIX/Linux 常见格式：<strong>ELF</strong>（executable and linkable format）。可执行 ELF 含 <strong>entry point</strong>（入口点：运行时第一条指令的地址）。</p>
+<hr>
+<h2 id="6-why-applications-are-operating-system-specific" class="note-heading note-heading--h2">6. Why Applications Are Operating-System Specific（应用为何依赖特定 OS）</h2>
+<p class="note-paragraph">跨 OS 运行的常见思路：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>方式</th><th>说明</th></tr></thead><tbody><tr><td>解释型语言</td><td>解释器在多 OS 上可用（如 Python、Ruby）</td></tr><tr><td>带虚拟机的语言</td><td>如 Java</td></tr><tr><td>标准语言 / API</td><td>编译器生成面向特定机器与 OS 的二进制（如 POSIX API）</td></tr></tbody></table></div>
+<p class="note-paragraph">实践仍困难，原因包括：</p>
+<ul class="note-list">
+<li><strong>应用层</strong>：调用了目标 OS 未提供的 API</li>
+<li><strong>系统层</strong>：<strong>binary format</strong>（头、指令、变量布局）不同；UNIX/Linux 多用 <strong>ELF</strong>，但不绑定特定 CPU 架构，故不能保证跨硬件可跑；<strong>instruction set</strong> 不同；<strong>system calls</strong> 的操作数、顺序、调用约定不同</li>
+</ul>
+<p class="note-paragraph"><strong>ABI</strong>（application binary interface）：定义二进制组件如何与特定架构上的特定 OS 交互（地址宽度、syscall 传参、运行时栈组织、系统库二进制格式、数据类型大小等）。按某 ABI 编译链接的可执行文件可在支持该 ABI 的系统上运行，但 ABI 通常绑定「给定架构 + 特定 OS」，<strong>跨平台兼容有限</strong>。</p>
+<hr>
+<h2 id="7-operating-system-design-and-implementation设计与实" class="note-heading note-heading--h2">7. Operating-System Design and Implementation（设计与实现）</h2>
+<h3 id="71-mechanisms-and-policies机制与策略" class="note-heading note-heading--h3">7.1 Mechanisms and Policies（机制与策略）</h3>
+<p class="note-paragraph">| | <strong>机制</strong>（mechanism） | <strong>策略</strong>（policy） |</p>
+<p class="note-paragraph">|--|------------------------|---------------------|</p>
+<p class="note-paragraph">| 是什么 | 实现某功能的低层方法/协议；“机械结构” | OS 内做决策的算法；“智慧” |</p>
+<p class="note-paragraph">| 回答 | <strong>how</strong>（如何做） | <strong>which</strong>（选哪个） |</p>
+<p class="note-paragraph">| 例子 | <strong>context switch</strong>（上下文切换） | <strong>scheduling policy</strong>（调度策略） |</p>
+<p class="note-paragraph">将 <strong>mechanism</strong> 与 <strong>policy</strong> 分离：改策略时不必重做机制 → 一种 <strong>modularity</strong>，符合软件设计通用原则。</p>
+<h3 id="72-implementation" class="note-heading note-heading--h3">7.2 Implementation</h3>
+<p class="note-paragraph">早期 OS 多用汇编；现代多数用高级语言（C/C++），少数仍用汇编。高级语言实现的优势：写得更快、结构更紧凑、易理解调试；编译器进步可提升生成代码质量；更易 <strong>port</strong> 到其他硬件。潜在代价是速度与存储，但现代编译器优化与现代处理器流水线使该问题通常不严重。</p>
+<hr>
+<h2 id="8-operating-system-structure操作系统结构核心" class="note-heading note-heading--h2">8. Operating-System Structure（操作系统结构）——核心</h2>
+<p class="note-paragraph">规模大、复杂的系统须精心设计：将任务分解为小型<strong>组件/模块</strong>，各有清晰接口与功能，而非单一不可分整体。</p>
+<h3 id="81-monolithic-structure单体结构" class="note-heading note-heading--h3">8.1 Monolithic Structure（单体结构）</h3>
+<p class="note-paragraph"><strong>Monolithic structure</strong>：将所有内核功能放入<strong>单一静态二进制</strong>，运行在<strong>单一地址空间</strong> —— 最简单、常用的组织方式。</p>
+<ul class="note-list">
+<li>经典 UNIX：大致分为 <strong>kernel</strong> 与 <strong>system programs</strong>；内核含接口与设备驱动等。系统调用接口以下、硬件以上均为内核；大量功能在同一地址空间。</li>
+<li><strong>Linux</strong>：基于 UNIX，应用常经 <code>glibc</code> 与系统调用接口通信；内核在内核态跑在单一地址空间 → <strong>monolithic</strong>；同时可 <strong>modular</strong>（见下），运行时可修改。</li>
+</ul>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td>简单；<strong>system-call 开销小</strong>；内核内通信快 → <strong>performance</strong> 好</td><td><strong>难以实现和扩展</strong>（紧耦合）</td></tr></tbody></table></div>
+<p class="note-paragraph">单体常称 <strong>tightly coupled</strong>：改一部分可能广泛影响其他部分。</p>
+<h3 id="82-layered-approach分层法" class="note-heading note-heading--h3">8.2 Layered Approach（分层法）</h3>
+<p class="note-paragraph">相对：<strong>loosely coupled</strong> —— 划分成独立、功能有限的小组件。</p>
+<p class="note-paragraph"><strong>Layered approach</strong>：OS 分成若干层；第 0 层为硬件，最高层（第 N 层）为用户界面。层 M 含数据结构与供更高层调用的函数，并可调用更低层。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>优点</th><th>困难 / 代价</th></tr></thead><tbody><tr><td>构建与调试简单：自下而上逐层调试；错误多可定位在当前层；向上隐藏数据结构/操作/硬件</td><td><strong>难以恰当定义每一层功能</strong>；用户请求穿越多层 → <strong>开销</strong>大</td></tr></tbody></table></div>
+<p class="note-paragraph">纯分层 OS 较少；分层思想在网络（TCP/IP）、Web 等更常见。</p>
+<h3 id="83-microkernels微内核" class="note-heading note-heading--h3">8.3 Microkernels（微内核）</h3>
+<p class="note-paragraph"><strong>Microkernel</strong>：移除内核中所有非必要组件，将其作为<strong>用户级程序</strong>放在分离的地址空间 → 内核更小。通常仅保留最基本的 <strong>process / memory management</strong> 与 <strong>communication</strong>。</p>
+<p class="note-paragraph">客户端与用户态服务之间经微内核用 <strong>message passing</strong> 通信（不直接互动）。例如访问文件须与文件服务器交换消息。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td>易扩展（新服务加在用户空间）；内核改动少；易移植；服务失败不一定拖死整机 → <strong>security / reliability</strong> 更好</td><td>用户态服务间通信需<strong>消息复制</strong>与可能的<strong>进程切换</strong> → <strong>performance</strong> 开销大</td></tr></tbody></table></div>
+<h3 id="84-modules可加载内核模块" class="note-heading note-heading--h3">8.4 Modules（可加载内核模块）</h3>
+<p class="note-paragraph"><strong>Loadable kernel modules (LKM)</strong>：内核含一组核心组件，启动时或运行时再链接额外服务。现代 UNIX 常见。</p>
+<ul class="note-list">
+<li>核心理念：基础服务在内核；其他功能<strong>动态</strong>实现，避免每次改功能都重编译整个内核。</li>
+<li>像分层：各部分有明确受保护接口；但更灵活——<strong>任何模块可调用其他模块</strong>。</li>
+<li>像微内核：主模块偏核心 + 加载/通信机制；但更高效——<strong>模块间不必经消息传递</strong>。</li>
+</ul>
+<p class="note-paragraph">Linux 主要用 LKM 支持设备驱动与文件系统；可在启动或运行时插入/移除。兼顾单体性能与动态模块化。</p>
+<h3 id="85-hybrid-systems混合系统" class="note-heading note-heading--h3">8.5 Hybrid Systems（混合系统）</h3>
+<p class="note-paragraph">很少有 OS 只用单一严格结构；多为 <strong>hybrid systems</strong>，兼顾 performance、security、可用性：</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>例子</th><th>结构组合</th></tr></thead><tbody><tr><td><strong>Linux</strong></td><td><strong>monolithic</strong>（单地址空间 → 高效）+ <strong>modular</strong>（LKM 动态加功能）</td></tr><tr><td><strong>Windows</strong></td><td>大体 <strong>monolithic</strong>（性能）；保留部分 <strong>microkernel</strong> 式行为（用户态独立子系统）；并支持动态可加载内核模块</td></tr></tbody></table></div>
+<figure class="note-diagram note-diagram--flow"><div class="note-diagram-title">流程示意</div><div class="note-flow" role="list"><div class="note-flow-step note-flow-step--accent" role="listitem">应用 / 系统程序</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">system-call interface</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step" role="listitem">内核结构（monolithic / layered / microkernel / LKM / hybrid）</div><div class="note-flow-arrow" aria-hidden="true"><span class="note-flow-arrow-line"></span><span class="note-flow-arrow-head">▼</span></div><div class="note-flow-step note-flow-step--accent" role="listitem">硬件</div></div></figure>
+<hr>
+<h2 id="9-building-and-booting-an-operating-system构建与启动" class="note-heading note-heading--h2">9. Building and Booting an Operating System（构建与启动）</h2>
+<h3 id="91-operating-system-generation系统生成" class="note-heading note-heading--h3">9.1 Operating-System Generation（系统生成）</h3>
+<p class="note-paragraph">从头构建 OS 的典型步骤：</p>
+<ol class="note-list">
+<li>编写（或获取）源代码</li>
+<li>为将要运行的目标系统做配置</li>
+<li>编译 OS</li>
+<li>安装 OS</li>
+<li>启动计算机及新 OS</li>
+</ol>
+<h3 id="92-system-boot系统引导" class="note-heading note-heading--h3">9.2 System Boot（系统引导）</h3>
+<p class="note-paragraph">多数系统启动步骤：</p>
+<ol class="note-list">
+<li><strong>bootstrap program</strong> / <strong>boot loader</strong>（引导程序 / 引导加载程序）定位内核</li>
+<li>内核加载到内存并启动</li>
+<li>内核初始化硬件</li>
+<li><strong>根文件系统</strong>被挂载</li>
+</ol>
+<blockquote class="note-quote"><p class="note-paragraph"><strong>Boot loader 不是操作系统的一部分。</strong></p></blockquote>
+<p class="note-paragraph"><strong>多阶段启动（BIOS 路径，概念）</strong></p>
+<ol class="note-list">
+<li>通电后运行固件中的小型引导程序（<strong>BIOS</strong>，basic input/output system）</li>
+<li>加载位于硬盘固定位置 <strong>boot block</strong>（启动块）上的第二阶段引导程序</li>
+<li>后者可能直接装入整个 OS，或因块小而仅知道后续引导代码的位置与长度</li>
+</ol>
+<p class="note-paragraph">许多现代系统用 <strong>UEFI</strong>（unified extensible firmware interface）取代 BIOS：更好支持 64 位与大硬盘；作为完整启动管理器，常比多阶段 BIOS <strong>启动更快</strong>。</p>
+<p class="note-paragraph">引导程序还可做诊断（查内存/CPU/设备）、初始化（CPU 寄存器、设备控制器、主存等），再启动 OS 并挂载根文件系统 —— 此后才认为系统正式运行。</p>
+<p class="note-paragraph"><strong>Linux 补充（资料）</strong>：内核映像常压缩，载入后解压；引导时常建临时 RAM 文件系统 <strong>initramfs</strong>（含挂载真根文件系统所需驱动/模块）；就绪后切换到真正的根文件系统；创建初始进程（如 <strong>systemd</strong>），再启动其他服务，最终出现登录提示。</p>
+<hr>
+<h2 id="10-operating-system-debugging调试概要" class="note-heading note-heading--h2">10. Operating-System Debugging（调试概要）</h2>
+<p class="note-paragraph"><strong>Debugging</strong>：查找并修复硬件/软件错误；广义也可含 <strong>performance tuning</strong>（消除瓶颈）。</p>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>概念</th><th>英文</th><th>说明</th></tr></thead><tbody><tr><td>进程故障</td><td>failure analysis</td><td>错误写入 <strong>log files</strong>；可 <strong>core dump</strong>（捕获进程内存）供调试器分析</td></tr><tr><td>内核故障</td><td><strong>crash</strong></td><td>更难调试；错误记日志，内存状态可写入 <strong>crash dump</strong></td></tr><tr><td>性能观察</td><td>monitoring</td><td><strong>per-process</strong> 或 <strong>system-wide</strong>；手段：<strong>counters</strong> 或 <strong>tracing</strong></td></tr></tbody></table></div>
+<p class="note-paragraph">Linux 例子（资料）：计数器类 — <code>ps</code>、<code>top</code>、<code>vmstat</code>、<code>netstat</code>、<code>iostat</code>（多读自 <strong>`/proc`</strong> 伪文件系统）；追踪类 — <code>strace</code>、<code>gdb</code>、<code>perf</code>、<code>tcpdump</code>。</p>
+<hr>
+<h2 id="附录--与-ch1-的衔接" class="note-heading note-heading--h2">附录 · 与 Ch.1 的衔接</h2>
+<div class="note-table-wrap"><table class="note-table"><thead><tr><th>Ch.1</th><th>Ch.2 深化</th></tr></thead><tbody><tr><td>kernel / system program / application</td><td>系统服务、系统调用类型、单体内核边界</td></tr><tr><td>system call · dual-mode · trap</td><td>API → system-call interface → 内核；传参方式</td></tr><tr><td>bootstrap / firmware</td><td>boot loader、BIOS/UEFI、挂载根文件系统</td></tr><tr><td>sharing · isolation · abstraction</td><td>机制/策略分离；微内核 isolation vs 单体 performance；file/UI 等抽象接口</td></tr></tbody></table></div>
+</section>
+      </div>
+    </article>
+
+    <div class="note-page-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="note-download-btn">下载 PDF</button>
+      <a class="btn btn-ghost btn-sm local-only" id="note-edit-link" href="../../course.html?edit=%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%2Fch2#note-editor">编辑</a>
+      <a class="btn btn-ghost btn-sm" href="../../course-detail.html?course=操作系统">← 返回课程</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="local-only">© 2026 Alstr（Call Sign ☘ VLinv）· v0.10.0</span><span class="published-only">© 2026 鼠窝 · v0.10.0</span></p>
+  </footer>
+
+  <script src="../../../js/boot.js" data-page="course-note"></script>
+</body>
+</html>

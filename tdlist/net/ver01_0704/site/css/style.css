@@ -4921,6 +4921,64 @@ html:not([data-site-mode="local"]) .local-only {
   gap: 0.85rem;
 }
 
+.diary-tdlist__items,
+.diary-tdlist-fold__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.diary-todo-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid var(--border-box);
+  background: rgba(180, 195, 255, 0.04);
+}
+
+.diary-todo-card__main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 0.7rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.diary-todo-card__date {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.diary-todo-card__text {
+  margin: 0;
+  flex: 1 1 100%;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.diary-todo-card__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.25rem;
+}
+
+.diary-tdlist-fold {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.diary-tdlist-fold__toggle {
+  align-self: flex-start;
+}
+
 .diary-memo-card {
   display: flex;
   flex-direction: column;
