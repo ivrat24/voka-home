@@ -673,47 +673,83 @@ code {
   letter-spacing: 0.08em;
 }
 
-/* Soft loop only on hero brand block (title + wish); badge stays static */
+/*
+ * Hero brand motion: slow gradient sheen (no opacity/glow pulse).
+ * Soft enough to read as atmosphere rather than a blinking cue.
+ */
 .main-layout--home .hero-text-box--intro .hero-title.home-soft-in {
-  animation: soft-title-pulse 5.5s ease-in-out infinite;
+  text-shadow: none;
+}
+
+.main-layout--home .hero-text-box--intro .hero-title.home-soft-in > span {
+  background-image: linear-gradient(
+    105deg,
+    var(--text) 0%,
+    var(--text) 40%,
+    color-mix(in srgb, var(--accent) 42%, var(--text)) 50%,
+    color-mix(in srgb, var(--accent-warm) 28%, var(--text)) 54%,
+    var(--text) 64%,
+    var(--text) 100%
+  );
+  background-size: 240% 100%;
+  background-position: 100% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: soft-sheen-flow 14s ease-in-out infinite;
+}
+
+.main-layout--home .hero-text-box--intro .hero-title.home-soft-in .call-sign--hero {
+  background-image: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+  animation: none;
 }
 
 .main-layout--home .hero-text-box--intro .hero-desc.home-soft-in {
-  animation: soft-wish-pulse 6s ease-in-out 0.4s infinite;
+  background-image: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--text) 82%, var(--accent)) 0%,
+    color-mix(in srgb, var(--text) 82%, var(--accent)) 42%,
+    color-mix(in srgb, var(--accent) 48%, var(--text)) 50%,
+    color-mix(in srgb, var(--text) 82%, var(--accent)) 58%,
+    color-mix(in srgb, var(--text) 82%, var(--accent)) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 100% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: soft-sheen-flow 18s ease-in-out 1.2s infinite;
 }
 
-@keyframes soft-title-pulse {
+@keyframes soft-sheen-flow {
   0%,
   100% {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 14%, transparent));
+    background-position: 100% 50%;
   }
   50% {
-    filter:
-      drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 32%, transparent))
-      drop-shadow(0 0 26px color-mix(in srgb, var(--accent-warm) 16%, transparent));
-  }
-}
-
-@keyframes soft-wish-pulse {
-  0%,
-  100% {
-    opacity: 0.88;
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 12%, transparent));
-  }
-  50% {
-    opacity: 1;
-    filter:
-      drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 28%, transparent))
-      drop-shadow(0 0 20px color-mix(in srgb, var(--accent-warm) 14%, transparent));
+    background-position: 0% 50%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .main-layout--home .hero-text-box--intro .hero-title.home-soft-in,
+  .main-layout--home .hero-text-box--intro .hero-title.home-soft-in > span,
   .main-layout--home .hero-text-box--intro .hero-desc.home-soft-in {
     animation: none !important;
-    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 22%, transparent));
-    opacity: 1;
+    background-image: none;
+    background-clip: border-box;
+    -webkit-background-clip: border-box;
+    color: var(--text);
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .main-layout--home .hero-text-box--intro .hero-desc.home-soft-in {
+    color: color-mix(in srgb, var(--text) 88%, var(--accent));
   }
 }
 
