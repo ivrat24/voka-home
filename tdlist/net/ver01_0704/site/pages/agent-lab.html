@@ -48,30 +48,44 @@
       <div>
         <h1>智能体试验</h1>
         <p>AI agent 的一些研究与小成品。</p>
+        <p class="published-only zone-lock-hint muted">输入密码：问鼠，或者自己破译</p>
       </div>
     </header>
 
-    <section class="module-section local-only">
-      <h2>最新更新情报</h2>
-      <div class="agent-updates-viewport" tabindex="0" role="region" aria-label="最新更新情报">
-        <ul class="agent-updates-list" id="agent-updates-list">
-          <li class="agent-update-item agent-update-item--placeholder">
-            <p class="muted">暂无更新情报，后续进展将在此滚动展示。</p>
-          </li>
-        </ul>
+    <section class="module-section published-only zone-lock-panel" aria-label="分区解锁">
+      <div class="zone-lock-card">
+        <h2 class="zone-lock-title">此区上锁了喵</h2>
+        <p class="zone-lock-desc">输入密码：问鼠，或者自己破译</p>
+        <form class="zone-lock-form">
+          <label class="zone-lock-field">
+            <span class="visually-hidden">密码</span>
+            <input type="password" class="zone-lock-input diary-input" autocomplete="current-password" placeholder="输入分区密码">
+          </label>
+          <button type="submit" class="btn btn-primary">解锁</button>
+        </form>
+        <p class="zone-lock-status muted" role="status" aria-live="polite"></p>
       </div>
     </section>
 
-    <section class="module-section agent-modules-showcase local-only">
-      <h2>模块展示</h2>
-      <div class="agent-modules-placeholder">
-        <p>敬请期待</p>
-      </div>
-    </section>
+    <div class="zone-gated-content">
+      <section class="module-section">
+        <h2>最新更新情报</h2>
+        <div class="agent-updates-viewport" tabindex="0" role="region" aria-label="最新更新情报">
+          <ul class="agent-updates-list" id="agent-updates-list">
+            <li class="agent-update-item agent-update-item--placeholder">
+              <p class="muted">暂无更新情报，后续进展将在此滚动展示。</p>
+            </li>
+          </ul>
+        </div>
+      </section>
 
-    <section class="module-section published-only agent-lab-reader-note">
-      <p class="agent-lab-coming-soon">试验品将于下个版本加入网页哦~</p>
-    </section>
+      <section class="module-section agent-modules-showcase">
+        <h2>模块展示</h2>
+        <div class="agent-modules-placeholder">
+          <p>敬请期待</p>
+        </div>
+      </section>
+    </div>
   </main>
 
   <footer class="site-footer">

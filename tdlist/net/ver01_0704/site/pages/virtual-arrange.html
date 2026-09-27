@@ -50,27 +50,45 @@
         <div class="module-intro-notes">
           <p>☘ 此页用于存储一些虚拟编曲试验品</p>
           <p>☘ 包括但不限于一些小工具和半成品的lyrics</p>
+          <p class="published-only zone-lock-hint muted">输入密码：问鼠，或者自己破译</p>
         </div>
       </div>
     </header>
 
-    <section class="module-section arrange-showcase" aria-label="编曲试验品展示">
-      <div class="arrange-showcase-shell">
-        <div class="arrange-showcase-head">
-          <span class="arrange-showcase-badge">展示</span>
-          <h2 class="arrange-showcase-title">编曲试验品展示</h2>
-        </div>
-        <div class="arrange-showcase-body">
-          <p class="arrange-showcase-placeholder">待填入</p>
-        </div>
+    <section class="module-section published-only zone-lock-panel" aria-label="分区解锁">
+      <div class="zone-lock-card">
+        <h2 class="zone-lock-title">此区上锁了喵</h2>
+        <p class="zone-lock-desc">输入密码：问鼠，或者自己破译</p>
+        <form class="zone-lock-form">
+          <label class="zone-lock-field">
+            <span class="visually-hidden">密码</span>
+            <input type="password" class="zone-lock-input diary-input" autocomplete="current-password" placeholder="输入分区密码">
+          </label>
+          <button type="submit" class="btn btn-primary">解锁</button>
+        </form>
+        <p class="zone-lock-status muted" role="status" aria-live="polite"></p>
       </div>
     </section>
 
-    <section class="module-section arrange-instruments">
-      <div class="piano-module-body is-loading" id="keyboard-piano" aria-label="钢琴键盘"></div>
-      <div class="piano-module-body is-loading" id="keyboard-guitar" aria-label="吉他键盘"></div>
-      <div class="piano-module-body is-loading" id="drum-kit" aria-label="鼓组"></div>
-    </section>
+    <div class="zone-gated-content">
+      <section class="module-section arrange-showcase" aria-label="编曲试验品展示">
+        <div class="arrange-showcase-shell">
+          <div class="arrange-showcase-head">
+            <span class="arrange-showcase-badge">展示</span>
+            <h2 class="arrange-showcase-title">编曲试验品展示</h2>
+          </div>
+          <div class="arrange-showcase-body">
+            <p class="arrange-showcase-placeholder">待填入</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="module-section arrange-instruments">
+        <div class="piano-module-body is-loading" id="keyboard-piano" aria-label="钢琴键盘"></div>
+        <div class="piano-module-body is-loading" id="keyboard-guitar" aria-label="吉他键盘"></div>
+        <div class="piano-module-body is-loading" id="drum-kit" aria-label="鼓组"></div>
+      </section>
+    </div>
   </main>
 
   <footer class="site-footer">

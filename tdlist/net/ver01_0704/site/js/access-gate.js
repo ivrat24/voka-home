@@ -3,6 +3,98 @@ import { getSiteBasePath } from "./layout.js";
 
 const DIALOG_ID = "editor-only-gate-dialog";
 
+/** 读者端分区密码（本地编辑端不拦截） */
+export const ZONE_PASSWORDS = {
+  "agent-lab": "ivrat01",
+  "virtual-arrange": "ivrat02",
+};
+
+function zoneUnlockStorageKey(pageId) {
+  return `voka-zone-unlock:${pageId}`;
+}
+
+export function isZoneUnlocked(pageId) {
+  if (!ZONE_PASSWORDS[pageId]) return true;
+  if (!isPublishedSite()) return true;
+  try {
+    return sessionStorage.getItem(zoneUnlockStorageKey(pageId)) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function setZoneUnlocked(pageId) {
+  try {
+    sessionStorage.setItem(zoneUnlockStorageKey(pageId), "1");
+  } catch {
+    /* ignore */
+  }
+  document.documentElement.classList.add("is-zone-unlocked");
+  document.documentElement.dataset.zoneUnlocked = pageId;
+}
+
+function applyZoneLockVisibility(unlocked) {
+  document.documentElement.classList.toggle("is-zone-unlocked", unlocked);
+  document.querySelectorAll(".zone-lock-panel").forEach((el) => {
+    el.hidden = unlocked;
+  });
+  document.querySelectorAll(".zone-gated-content").forEach((el) => {
+    el.hidden = !unlocked;
+  });
+}
+
+/**
+ * 读者端密码门。本地编辑端直接放行。
+ * @param {string} pageId
+ * @param {{ onUnlock?: () => void | Promise<void> }} [options]
+ * @returns {Promise<boolean>} 当前是否已可展示内容
+ */
+export async function initZonePasswordGate(pageId, options = {}) {
+  if (!ZONE_PASSWORDS[pageId]) return true;
+
+  if (!isPublishedSite()) {
+    document.documentElement.classList.add("is-zone-unlocked");
+    applyZoneLockVisibility(true);
+    return true;
+  }
+
+  if (isZoneUnlocked(pageId)) {
+    setZoneUnlocked(pageId);
+    applyZoneLockVisibility(true);
+    return true;
+  }
+
+  applyZoneLockVisibility(false);
+
+  const panel = document.querySelector(".zone-lock-panel");
+  const form = panel?.querySelector(".zone-lock-form");
+  const input = panel?.querySelector(".zone-lock-input");
+  const status = panel?.querySelector(".zone-lock-status");
+  if (!form || !input) return false;
+
+  const expected = ZONE_PASSWORDS[pageId];
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const value = String(input.value || "").trim();
+    if (value === expected) {
+      if (status) status.textContent = "已解锁。";
+      setZoneUnlocked(pageId);
+      applyZoneLockVisibility(true);
+      try {
+        await options.onUnlock?.();
+      } catch (error) {
+        console.warn("[Voka] zone unlock callback failed:", error);
+      }
+      return;
+    }
+    if (status) status.textContent = "密码不对喵，再试试或去问鼠。";
+    input.select();
+  });
+
+  return false;
+}
+
 export function isMouseDiaryHref(href, base = window.location.href) {
   try {
     const url = new URL(href, base);

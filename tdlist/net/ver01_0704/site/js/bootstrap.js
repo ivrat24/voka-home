@@ -15,7 +15,7 @@ import { initTimerWidget } from "./timer-widget.js";
 import { loadCourseNoteIndex, loadCoursePreviewFromManifest } from "./course-notes.js";
 import { fetchJson, applySiteAccessMode, canEditNotes, isPublishedSite } from "./runtime.js";
 import { initSpaNavigation } from "./spa-nav.js";
-import { redirectPublishedMouseDiaryAway } from "./access-gate.js";
+import { initZonePasswordGate, redirectPublishedMouseDiaryAway } from "./access-gate.js";
 
 let siteConfig = null;
 let shellReady = false;
@@ -127,10 +127,6 @@ async function enterPage(pageId, context = {}) {
 
   refreshHeroNowPlaying();
 
-  if (pageId === "virtual-arrange") {
-    await mountArrangeInstruments();
-  }
-
   if (pageId === "home") {
     // 并行加载，避免某一接口卡住导致整页停在「加载中」
     await Promise.allSettled([
@@ -162,8 +158,18 @@ async function enterPage(pageId, context = {}) {
     typesetMathIn(document.querySelector(".note-body"));
     const { initNoteNetworkMaps } = await import("./note-network-map.js");
     initNoteNetworkMaps(document);
+  } else if (pageId === "virtual-arrange") {
+    const unlocked = await initZonePasswordGate("virtual-arrange", {
+      onUnlock: () => mountArrangeInstruments(),
+    });
+    if (unlocked) {
+      await mountArrangeInstruments();
+    }
   } else if (pageId === "agent-lab") {
-    if (canEditNotes()) {
+    const unlocked = await initZonePasswordGate("agent-lab", {
+      onUnlock: () => loadAgentLabUpdates(basePath),
+    });
+    if (unlocked) {
       await loadAgentLabUpdates(basePath);
     }
   } else if (pageId === "mouse-diary") {
